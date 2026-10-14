@@ -1,0 +1,51 @@
+{
+  "name": "reporecode",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "test": "vitest run",
+    "preview": "vite preview --host 127.0.0.1",
+    "server": "node server/index.mjs",
+    "prebuild": "node scripts/build-preview.mjs",
+    "pretest": "node scripts/build-preview.mjs",
+    "predev": "node scripts/build-preview.mjs",
+    "postbuild": "node scripts/package-source.mjs"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@supabase/supabase-js": "^2.57.0",
+    "@xyflow/react": "^12.8.0",
+    "css-tree": "3.2.1",
+    "fflate": "^0.8.2",
+    "idb": "^8.0.3",
+    "lucide-react": "^0.468.0",
+    "monaco-editor": "^0.52.2",
+    "motion": "^14.1.0",
+    "parse5": "^8.0.1",
+    "quickjs-emscripten": "^0.31.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-reconciler": "0.34.0",
+    "typescript": "~5.9.3",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@electric-sql/pglite": "0.5.9",
+    "@playwright/test": "^1.55.0",
+    "@types/css-tree": "3.2.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.5",
+    "prettier": "^3.9.10",
+    "vite": "^7.1.0",
+    "vitest": "^5.0.3"
+  },
+  "license": "MIT"
+}

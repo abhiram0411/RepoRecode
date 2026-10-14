@@ -1,0 +1,49 @@
+# Changelog
+
+## Startup recovery and stylesheet reuse — 14 October 2026
+
+A readable loading/reload message replaces the empty startup screen when app scripts fail; no-JavaScript guidance is included. Interactive previews reuse sanitized styles per immutable session while validating paths, order and aggregate limits on each action. Cache disposal and changed snapshots are tested.
+
+## Inline object practice — 14 October 2026
+
+Added bounded inline object inputs with up to three scalar fields and 16 object samples. Optional/readonly fields, quoted keys, own __proto__ fields and missing/undefined/null distinctions are checked in the isolated grading runtime. Every supported field varies within the three-parameter / 64-probe budget. Nested shapes, methods, index signatures, named types and wide property unions remain unsupported. Analysis version 3 refreshes older indexes.
+
+## Source-resolved state relationships — 14 October 2026
+
+Added a source-linked list and diagram for direct React state reads, setter/dispatch calls, initializer references and JSX props. Compiler declaration identities distinguish aliases of React imports, shadowed locals and separate component bindings. This is bounded static evidence, not runtime ordering, indirect propagation or proof of a computed value. Analysis version 2 enables saved-project refresh; up to 200 relationships are indexed and 60 shown in the diagram.
+
+## GitHub lifecycle, imported CSS and device themes — 14 October 2026
+
+Added shared, single-use database OAuth state and encrypted refresh-token rotation with leases and conditional writes that preserve disconnect/reconnect decisions. Migration 006 is required. Added local PostgreSQL execution of all migrations, owner-isolation checks and callback/refresh race tests; live provider acceptance remains pending. Plain local CSS imports now render through a bounded allowlist in both React previews, with omitted-style notices and blocked resource loading. Added optional light/dark device-theme following that preserves a manual palette choice.
+
+## Expanded practice and safe saved-index refresh — 14 October 2026
+
+Added scalar literal unions, null/undefined, optional/default arguments, boolean/readonly scalar arrays and fixed tuples within the three-parameter / 64-probe limit. Input encoding preserves missing, undefined and null; generated stubs retain optional markers and defaults. Saved projects can refresh analysis atomically while retaining their newest learning work. Prediction comparison now preserves types and array order, accepts equivalent reordered object fields and top-level non-JSON values, and excludes compound outputs that cannot be entered faithfully.
+
+## Incremental source parsing — 13 October 2026
+
+Consecutive imports reuse exact unchanged source trees in one worker, keeping only the latest snapshot. Identical snapshots resume saved progress before analysis; changed snapshots remain separate. Semantic relationships are checked afresh, including changed exports, removed files and newly available import targets. Graph references now use one traversal per file and direct declaration lookup. Worker deadlines, failure recovery and deletion cleanup are retained. State concept labels resolve React aliases and exclude shadowed locals; component study text now describes the available initial-render checks.
+
+## State observation and grading corrections — 13 October 2026
+
+Added source-linked React state reads in interactive preview, with resolved import aliases, local summaries and bounded observation counts. Static state facts now exclude shadowed or unrelated same-named functions. Added reduced-motion-aware page, roadmap and result transitions, and verified preview color independence.
+
+Corrected three-parameter probe sampling so early parameters vary within the 64-input budget. Typed output comparison accepts reordered plain-object fields while distinguishing missing, undefined, null and nonfinite values; unsupported callable/cyclic outputs cannot silently pass. Reference exclusions are visible. Component completions no longer inflate function mastery; project cards include component candidates. Refreshed the free-only engineering report.
+
+## Free-only learning and restoration milestone — 13 October 2026
+
+Added 15 coordinated themes, richer original characters, reduced-motion-aware animation, reaction-only Coding Pet, learning-only progress transfer, and bounded AST expression walkthroughs. Removed paid model calls and all tutor/voice UI. Added component reconstruction using real isolated initial-render comparisons with explicit finite coverage. Added non-destructive cloud restore planning, atomic IndexedDB saves and concurrent-edit rejection. Added keyboard-trapped dialogs with opener focus restoration.
+
+Optional local feedback/admin and opt-in activity now have browser coverage; revocation tombstones prevent delayed requests recreating deleted activity. Public static hosting has no feedback backend. Supabase/OAuth/private GitHub still need owner configuration and live acceptance. Historical tutor/speech features below were superseded by this milestone.
+
+## Interactive preview milestone — 12 October 2026
+
+Added an optional isolated interactive React preview with persistent state, reducers, synchronous effects and controlled forms. Serialized events, execution limits, worker cancellation and preserved last-good output support recovery. Added a bounded source-linked function-entry timeline and observed event/output history. React/reconciler versions are pinned together. Full DOM, async, dependencies, styles and state/data/network tracing remain incomplete.
+
+## 0.1.0 development release
+
+Added bounded source imports and compiler index; exact references and static graphs; personalized lessons; rewrite, missing-code, bug-fix, refactor, prediction, concept, feature and interview practice; real initial React snapshots and source inspection; Monaco workspace, saved drafts, backups, XP and achievements.
+
+Added original customizable avatars/companion, themes, speech controls and optional dictation. Added optional Supabase account lifecycle and preference/project sync, GitHub App integration, structured AI lessons, shared quotas, admin metrics and operational alerts. External services remain unconfigured and unverified.
+
+Prepared MIT license, installation/API/security/database documentation, automated tests, CI and container templates. See verification records for deployment and tested scope.

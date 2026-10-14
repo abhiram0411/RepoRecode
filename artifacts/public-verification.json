@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-12",
+  "url": "https://reporecode-learning-lab.milkyibex8.chatgpt.site",
+  "runtime_source_commit": "347822a33a46d8d4e3d8c1967df1c7f3f6bcb3c6",
+  "deployment_id": "appgdep_6acd0156d9c08191b7c048cd5929d192",
+  "browser_journeys": {
+    "passed": 8,
+    "failed": 0,
+    "duration_seconds": 46.2,
+    "fresh_contexts": true
+  },
+  "source_download": {
+    "status": 200,
+    "matches_packaged_sha256": true
+  },
+  "boundary": "Static device-local browser app. Connected services remain unconfigured. Later documentation-only releases use the same tested application build."
+}
