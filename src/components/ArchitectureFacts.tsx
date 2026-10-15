@@ -57,10 +57,12 @@ export default function ArchitectureFacts({
         <>
           <h3>State relationships</h3>
           <p className="muted">
-            Direct source references to React state and its updater. Initializer
-            references do not prove a computed value, and prop references do not
-            prove a callback runs. Aliases, mutable bindings and indirect data
-            flow are not traced.
+            Source references to React state and its updater, including up to
+            two const initializer steps within the same function. Simple
+            expressions are traced across up to 200 candidate bindings and eight
+            paths per binding; calls, property access, mutable bindings and
+            closures are excluded. These references do not prove computed
+            values, callback execution or runtime data flow.
           </p>
           <ul
             className="state-relations-list"
@@ -82,6 +84,26 @@ export default function ArchitectureFacts({
                     }[r.kind]
                   }
                   <p>{r.site.label}</p>
+                  {!!r.via?.length && (
+                    <p>
+                      Via{" "}
+                      {r.via.map((v, index) => {
+                        const target = select(v.file, v.line);
+                        return (
+                          <span key={index}>
+                            {index > 0 ? " → " : ""}
+                            <button
+                              className="text-button"
+                              disabled={!target}
+                              onClick={() => target && onSelect(target)}
+                            >
+                              {v.name} · {v.file}:{v.line}
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </p>
+                  )}
                   <button
                     className="text-button"
                     disabled={!site}

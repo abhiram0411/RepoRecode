@@ -1,9 +1,10 @@
 import ts from "typescript";
 import { reactStateHook } from "./hookSites";
 import type { StateRelation } from "./types";
+import { stateDerivations, containingFunction } from "./stateDerivations";
 
 // Resolve declaration identities, not matching names. These are direct syntax
-// relationships only: no propagation through aliases, calls or dynamic keys.
+// relationships, plus bounded const-initializer provenance (never through calls).
 export function stateRelations(
   sources: Map<string, ts.SourceFile>,
   checker: ts.TypeChecker,
@@ -54,6 +55,7 @@ export function stateRelations(
     }
     bind(source);
   }
+  const derived = stateDerivations(sources, checker, values);
   const result: StateRelation[] = [],
     seen = new Set<string>();
   let omitted = 0;
@@ -63,6 +65,7 @@ export function stateRelations(
       node: ts.Node,
       kind: StateRelation["kind"],
       label: string,
+      via?: StateRelation["via"],
     ) {
       const site = {
         file,
@@ -78,6 +81,7 @@ export function stateRelations(
         site.line,
         kind,
         site.label,
+        via,
       ]);
       if (seen.has(key)) return;
       seen.add(key);
@@ -85,7 +89,13 @@ export function stateRelations(
         omitted++;
         return;
       }
-      result.push({ state, site, kind, evidence: "static" });
+      result.push({
+        state,
+        site,
+        kind,
+        evidence: "static",
+        ...(via?.length ? { via } : {}),
+      });
     }
     function reference(node: ts.Identifier) {
       if (ts.isShorthandPropertyAssignment(node.parent))
@@ -105,6 +115,49 @@ export function stateRelations(
           );
       }
       if (ts.isIdentifier(node)) {
+        const derivedSymbol = reference(node);
+        const origins = derivedSymbol && derived.get(derivedSymbol);
+        if (
+          origins &&
+          !derivedSymbol!.declarations?.some((d) => d === node.parent) &&
+          containingFunction(node) ===
+            containingFunction(derivedSymbol!.declarations![0])
+        ) {
+          let context: ts.Node = node;
+          while (context.parent && !ts.isSourceFile(context.parent)) {
+            const parent = context.parent;
+            if (ts.isTypeNode(parent) || ts.isFunctionLike(parent)) break;
+            let kind: StateRelation["kind"] | undefined,
+              label = "";
+            if (ts.isJsxAttribute(parent)) {
+              const tag = parent.parent.parent;
+              kind = "prop";
+              label = `${parent.name.getText(source)} on ${ts.isJsxOpeningElement(tag) || ts.isJsxSelfClosingElement(tag) ? tag.tagName.getText(source) : "JSX"}`;
+            } else if (ts.isVariableDeclaration(parent) && parent.initializer) {
+              kind = "derive";
+              label = `${parent.name.getText(source)} initializer`;
+            } else if (
+              ts.isReturnStatement(parent) ||
+              ts.isExpressionStatement(parent) ||
+              ts.isJsxElement(parent)
+            ) {
+              kind = "read";
+              label = node.parent.getText(source);
+            }
+            if (kind) {
+              for (const origin of origins)
+                add(
+                  origin.state,
+                  kind === "read" ? node : parent,
+                  kind,
+                  label,
+                  origin.via,
+                );
+              break;
+            }
+            context = parent;
+          }
+        }
         const symbol = reference(node),
           state = symbol && (values.get(symbol) ?? setters.get(symbol));
         if (state && !symbol!.declarations?.some((d) => d === node.parent)) {

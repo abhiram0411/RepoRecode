@@ -14,7 +14,16 @@ test("public feedback creates a reviewable GitHub draft without posting or attac
   );
   const writes: string[] = [];
   page.on("request", (req) => {
-    if (req.method() !== "GET") writes.push(req.url());
+    // Hosted Cloudflare bot checks can POST independently of the app. Assert
+    // that this form never submits feedback/activity or creates GitHub issues.
+    const url = new URL(req.url());
+    if (
+      req.method() !== "GET" &&
+      (url.pathname.startsWith("/api/") ||
+        url.hostname === "github.com" ||
+        url.hostname === "api.github.com")
+    )
+      writes.push(req.url());
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Preferences", exact: true }).click();

@@ -2,9 +2,11 @@
 
 Updated 15 October 2026. Continue the existing project; preserve uncommitted work. The full master specification remains unfinished. The user explicitly asked to keep working in this chat and not hand over to another AI; maintain this file only as a recovery record.
 
-## Active work after version 12
+## Active work after version 13
 
-Public feedback fallback implemented through reviewable GitHub issue drafts, with no server, automatic submission or paid service. src/core/feedbackDraft.ts limits encoded URLs without truncating feedback; longer text has copy/paste fallback. Community.tsx distinguishes feedback and activity availability, bounds the status request and hides anonymous contact/rating fields in the public flow. Three new browser checks cover public disclosure, outbound draft URL, no automatic writes, long Unicode, clipboard denial and independent service availability. Production build and all 26 local browser journeys passed (75.28 seconds). Mobile screenshot inspected. The new check also found and fixed narrow-screen Preferences overflow (430px at 390px viewport); no width assertion was relaxed. Publication pending.
+State relationships trace up to two const-initializer steps in the same function, with intermediate source links. Bounds: 200 candidate bindings, eight paths per binding, 200 indexed relationships and 60 diagram arrows. Calls, property access, mutation, mutable aliases and closures are excluded from propagation. This is lexical source evidence, not evaluated values or execution order. Analysis version 6 enables refresh of old indexes. Numbered arrows and a keyboard-accessible relationship picker keep full explanations and source links readable.
+
+243 tests in 31 files and the production build passed. All 27 local Edge journeys passed (79.19 seconds) after the diagram refinement. The state-chain screenshot was inspected. The relationship picker, intermediate source controls and mobile width passed. Source scan: 167 files, no heuristic findings. Publication pending.
 
 ## Owner decisions
 
@@ -12,17 +14,19 @@ Strict zero spend: no paid services, billing, overages, payment methods or top-u
 
 ## Latest release
 
-Version 12 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source commit: a366ce38ec3aa985c2110511ab34590e86108b40. Saved version: appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_6dc1c4a107908191a26ff6d30a1cdab5. Deployment: appgdep_6ad0ca96c700819182faea33bb2c1f62, status succeeded. Source ZIP: HTTP 200, 188 files, 2742868 bytes, SHA-256 2eeffc6c84d507edb21868b51101fc50b832e7b7f62d72e0d73ffed6de0f6d6f; identical to the local release package.
+Version 13 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source commit: 9c4a2d45fc98b2bd473a06aa43eb57922328d558. Saved version: appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_86ef35d9c8f881918ad2e8f7c67b3b18. Deployment: appgdep_6ad1017947908191bcd98f5b0a952fe6, status succeeded. Source ZIP: HTTP 200, 191 files, 2836100 bytes, SHA-256 d3ebeab67562b2b77157621afa27d637e4701e77cc901c96817b533b9890329b; matched the version 13 package. Local builds for later work may replace the package.
 
-GitHub commit a7854541ccf7faad1956d384f1e5c4aa248f1637 passed run 38736911049: https://github.com/abhiram0411/RepoRecode/actions/runs/38736911049. Install, 235 tests, build, dependency audit, source scan and all 23 Chromium journeys passed.
+GitHub commit 9b1298ed9cda294baee82046cec63129f26837e6 passed run 38770487895: https://github.com/abhiram0411/RepoRecode/actions/runs/38770487895. Install, 235 tests, build, dependency audit, source scan and all 26 Chromium journeys passed.
 
-Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v12.json and github-ci-v12.json when available. Published ZIP is immutable and cannot contain its own later deployment receipt. Current documentation/evidence updates are newer than its source snapshot.
+Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v13.json, public-feedback-retry-v13.json and github-ci-v13.json. Published ZIP is immutable and cannot contain its own later deployment receipt. Current documentation/evidence updates are newer than its source snapshot.
 
 ## Verified implementation
 
-Practice accepts two object levels with three scalar leaves across each parameter, preserving missing/undefined containers and fields. Required independent variations must fit 16 object samples; wider shapes are rejected. The overall cap remains three parameters and 64 probes. Nested named aliases/interfaces and readonly leaves are tested. ANALYSIS_VERSION=5 enables refresh of old indexes. Footer and Support links now point to the public GitHub repository and issues.
+Practice accepts two object levels with three scalar leaves across each parameter, preserving missing/undefined containers and fields. Required independent variations must fit 16 object samples; wider shapes are rejected. The overall cap remains three parameters and 64 probes. Nested named aliases/interfaces and readonly leaves are tested. The nested-practice release used analysis version 5; the current state-chain update uses version 6. Footer and Support links now point to the public GitHub repository and issues.
 
-235 tests in 30 files passed (14.98 seconds); TypeScript/Vite production build passed. All 23 local Edge journeys passed (72.72 seconds). Full public version 12 run: 22 passed, 1 local-only feedback skip, 0 failed (136.48 seconds). Source scan: 161 files, no heuristic findings. No dependencies changed; hosted dependency audit passed. Large compiler/editor/VM bundles remain a performance limitation.
+Version 13 local checks: 235 tests in 30 files passed (12.79 seconds); TypeScript/Vite build passed; all 26 Edge journeys passed (75.28 seconds). Source scan: 163 files, no heuristic findings. Full public run: 24 passed, 1 local-only skip, 1 failed because the test's broad write observer counted the host's independent Cloudflare bot-check POST. Scoped the assertion to app API/GitHub writes, preserving the no-automatic-feedback-submission check. All three feedback repeats passed (12.3 seconds). Keep original and retry receipts; this is not a newly all-green full public run. No dependencies changed; hosted audit passed. Large compiler/editor/VM bundles remain a limitation.
+
+Public feedback now offers user-reviewed GitHub issue drafts and full-text copy fallback, with public visibility/account requirements explained. Anonymous hosted delivery remains unavailable. Status fetch has an eight-second deadline; feedback and activity flags are independent. The mobile Preferences overflow found by the new test is fixed. Existing PDF/DOCX binaries currently describe version 12; regenerate and visually inspect after the next accepted release.
 
 The first build found a TypeScript narrowing error in the new nested-object branch; the direct type guard corrected it and the rebuild passed. The first approval review timed out; its allowed retry succeeded. Neither remains blocked. Nested-practice and mobile Support screenshots were inspected.
 

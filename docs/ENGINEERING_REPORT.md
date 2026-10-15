@@ -1,4 +1,4 @@
-# RepoRecode Engineering and Handover Report
+# RepoRecode Engineering Report
 
 Prepared for Abhiram on 15 October 2026
 
@@ -52,7 +52,7 @@ Roadmaps use learner preferences and actual dependency evidence. Walkthroughs ex
 
 Function probes vary every supported parameter before filling the remaining combination budget. Object fields compare independently of insertion order. Missing fields, undefined, null and nonfinite numbers remain distinguishable. Callable, cyclic and other unsupported outputs cannot earn a false success through lossy JSON conversion. Excluded reference inputs are reported; exception behavior is not graded. Passing a finite sample does not establish general equivalence.
 
-Function contracts support up to three explicitly typed scalar, literal-union, nullable, optional/default, scalar-array, small fixed-tuple or small object parameters. Objects allow two levels, three total scalar leaves, four base choices per leaf and 16 samples. Independent variations must fit the sample cap; deeper shapes and wider unions remain unsupported. Generated inputs preserve omitted/undefined/null distinctions; prediction comparison also preserves types. Saved indexes refresh without replacing concurrent learning work. Component checks do not grade event handlers, later state, stylesheet appearance or full TypeScript correctness. Simple named aliases and non-inherited interfaces resolve through relative imports and reexports. Original type names remain in exercises, with read-only definitions available in the editor. Resolution is bounded; recursive, generic, inherited, merged and namespace-qualified types remain unsupported. Analysis version 5 refreshes existing indexes. Broader contracts remain unfinished.
+Function contracts support up to three explicitly typed scalar, literal-union, nullable, optional/default, scalar-array, small fixed-tuple or small object parameters. Objects allow two levels, three total scalar leaves, four base choices per leaf and 16 samples. Independent variations must fit the sample cap; deeper shapes and wider unions remain unsupported. Generated inputs preserve omitted/undefined/null distinctions; prediction comparison also preserves types. Saved indexes refresh without replacing concurrent learning work. Component checks do not grade event handlers, later state, stylesheet appearance or full TypeScript correctness. Simple named aliases and non-inherited interfaces resolve through relative imports and reexports. Original type names remain in exercises, with read-only definitions available in the editor. Resolution is bounded; recursive, generic, inherited, merged and namespace-qualified types remain unsupported. Analysis version 6 refreshes existing indexes. Broader contracts remain unfinished.
 
 ## Interactive preview and interface
 
@@ -60,7 +60,7 @@ If the application script fails to load, a static message provides a reload link
 
 Synchronous click, input, change and submit handlers run inside QuickJS. React state, reducers and synchronous effects persist across at most 200 interactions, with 100 mapped function entries per action. Plain local CSS imports support bounded layout, variables and media queries through an allowlist; omissions are reported and resource loading is blocked. Sessions reuse sanitized CSS while rechecking loaded paths and bounds. DOM references, timers, asynchronous handlers, arbitrary packages, CSS modules/nesting/animations and full browser semantics remain unsupported.
 
-Observed state reads show bounded values from directly imported React useState/useReducer calls, with source links and a 100-read limit per action. They are render-order observations, not an instance inventory or before/after diff; getters and toJSON are not invoked. A separate static list and diagram link direct const state bindings to reads, updater calls, initializers and props, excluding shadowed names. Limits are 200 indexed relations and 60 diagrammed. Neither observations nor static references award mastery.
+Observed state reads show bounded values from directly imported React useState/useReducer calls, with source links and a 100-read limit per action. They are render-order observations, not an instance inventory or before/after diff; getters and toJSON are not invoked. A separate static list and diagram link state bindings to reads, updaters, initializers and props. Const chains preserve intermediate source links across two steps in one function; calls, properties, mutation and closures are excluded. Limits are 200 candidate bindings, eight paths per binding, 200 indexed relations and 60 diagrammed. These lexical references do not prove computed values or award mastery.
 
 ### Appearance and Coding Pet
 

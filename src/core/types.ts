@@ -45,6 +45,7 @@ export type StateRelation = {
   site: { file: string; line: number; label: string };
   kind: "update" | "read" | "derive" | "prop" | "handler";
   evidence: "static";
+  via?: { file: string; line: number; name: string }[];
 };
 export type Lesson = {
   id: string;
