@@ -24,3 +24,5 @@ jobs:
       - run: node scripts/scan-source.mjs
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
+        env:
+          LOCAL_COMMUNITY_E2E: 'true'

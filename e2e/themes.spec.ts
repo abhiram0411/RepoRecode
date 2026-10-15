@@ -3,6 +3,30 @@ import AxeBuilder from "@axe-core/playwright";
 import { palettes } from "../src/core/themes";
 import { zipSync, strToU8 } from "fflate";
 
+test("a theme choice survives reload before an IndexedDB write can start", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Preferences", exact: true }).click();
+  // Force the timing observed in CI: the database save cannot finish before
+  // navigation. The synchronous preference copy must preserve the new choice.
+  await page.evaluate(() => {
+    const original = IDBDatabase.prototype.transaction;
+    IDBDatabase.prototype.transaction = function (
+      ...args: Parameters<typeof original>
+    ) {
+      if (args[1] === "readwrite")
+        throw new Error("Simulated delayed database write");
+      return original.apply(this, args);
+    };
+  });
+  await page
+    .getByRole("button", { name: "Fieldwork Paper", exact: true })
+    .click();
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+});
+
 test("device theme follows OS changes, persists and yields to a manual palette", async ({
   page,
 }) => {

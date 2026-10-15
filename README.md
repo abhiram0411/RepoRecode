@@ -4,7 +4,7 @@
 
 **Free-only development release 0.1.0.** Core learning needs no account, database or model. Optional accounts, private GitHub access and hosted operations need owner configuration and live acceptance. Paid model routes are removed. See [the current specification](docs/MASTER_SPEC.md) and [remaining work](docs/RESUME.md); the full specification is not yet complete.
 
-[Open the public development site](https://reporecode-learning-lab.milkyibex8.chatgpt.site) · [Download the source](https://reporecode-learning-lab.milkyibex8.chatgpt.site/downloads/reporecode-source.zip)
+[Open the public development site](https://reporecode-learning-lab.milkyibex8.chatgpt.site) · [Source on GitHub](https://github.com/abhiram0411/RepoRecode) · [Download the source](https://reporecode-learning-lab.milkyibex8.chatgpt.site/downloads/reporecode-source.zip)
 
 ![RepoRecode workspace](artifacts/overview.png)
 
@@ -96,4 +96,4 @@ React and Vite keep the core portable without requiring a server. Monaco, React 
 - [Verification and deployment status](docs/VERIFICATION.md)
 - [Security](SECURITY.md), [contributing](CONTRIBUTING.md), [roadmap](ROADMAP.md)
 
-The owner approved the MIT license. See LICENSE and THIRD_PARTY_NOTICES.md. No paid subscriptions or live AI calls were made during development. A public GitHub repository is not yet created; the source archive and local workspace are the current source deliverables. Publication status and any verified website address are recorded in the verification document.
+The owner approved the MIT license. See LICENSE and THIRD_PARTY_NOTICES.md. No paid subscriptions or live AI calls were made during development. The public MIT source is available at https://github.com/abhiram0411/RepoRecode; its first GitHub-hosted CI run passed. Publication status and any verified website address are recorded in the verification document.

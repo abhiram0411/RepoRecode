@@ -1311,6 +1311,17 @@ footer button {
   color: var(--muted);
   margin-bottom: 8px;
 }
+.practice-types summary {
+  cursor: pointer;
+  color: var(--text);
+  font-size: 12px;
+}
+.practice-types pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  color: var(--text);
+}
 .practice-actions {
   padding: 15px;
   display: flex;
@@ -2375,8 +2386,12 @@ summary {
   font-size: 11px;
   pointer-events: none;
 }
-.graph-canvas { height: 100%; }
-.graph-state { height: 540px; }
+.graph-canvas {
+  height: 100%;
+}
+.graph-state {
+  height: 540px;
+}
 .graph-state .graph-canvas {
   position: absolute;
   top: 140px;
@@ -2389,6 +2404,14 @@ summary {
   overflow: auto;
   padding-left: 24px;
 }
-.state-relations-list li { margin: 14px 0; overflow-wrap: anywhere; }
-.state-relations-list p { margin: 5px 0; }
-.state-relations-list button { text-align: left; overflow-wrap: anywhere; }
+.state-relations-list li {
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+}
+.state-relations-list p {
+  margin: 5px 0;
+}
+.state-relations-list button {
+  text-align: left;
+  overflow-wrap: anywhere;
+}

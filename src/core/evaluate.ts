@@ -4,7 +4,18 @@ import type { Evaluation, SymbolInfo } from "./types";
 import { outputCodec } from "./outputCodec";
 import { probes, inputExpression, normalizeFunction } from "./practiceInputs";
 export { probes } from "./practiceInputs";
-function compile(code: string, name: string) {
+function compile(code: string, name: string, context = "") {
+  // Stored context is data, not executable prelude. Recheck its syntax before
+  // including it in the isolated compiler's declaration-only library.
+  if (context.length > 8192) throw Error("Practice type context is too large.");
+  const contextFile = ts.createSourceFile(
+    "context.ts",
+    context,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  if (contextFile.statements.some((st) => !ts.isTypeAliasDeclaration(st)))
+    throw Error("Practice context may contain only type aliases.");
   const normalized = normalizeFunction(code);
   const sf = ts.createSourceFile(
     "exercise.ts",
@@ -56,7 +67,7 @@ function compile(code: string, name: string) {
       source = source.slice(0, m.getStart(sf)) + source.slice(m.end);
   const map = new Map([
     ["exercise.ts", source],
-    ["lib.d.ts", lib],
+    ["lib.d.ts", `${lib}\n${context}`],
   ]);
   const host: ts.CompilerHost = {
     getSourceFile: (n) =>
@@ -151,7 +162,7 @@ export async function evaluate(
   }
   let original: string, candidate: string;
   try {
-    original = compile(s.code, s.name);
+    original = compile(s.code, s.name, s.practiceTypes);
   } catch (err) {
     out.supported = false;
     out.diagnostics = [
@@ -160,7 +171,7 @@ export async function evaluate(
     return out;
   }
   try {
-    candidate = compile(code, s.name);
+    candidate = compile(code, s.name, s.practiceTypes);
   } catch (err) {
     out.diagnostics = [String(err)];
     return out;

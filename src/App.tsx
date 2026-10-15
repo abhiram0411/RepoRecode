@@ -1293,13 +1293,23 @@ export default function App() {
                                 ? "New requirement: return exactly twice the original function’s numeric output for the same inputs. Keep its name and parameters. This mission supports finite numeric returns; checks use the original reference output multiplied by two."
                                 : symbol.kind === "component"
                                   ? "Preserve the component name and initial rendered DOM. Supported checks use up to six primitive-prop samples; they do not grade event behavior or later state."
-                                  : "Preserve the function’s behavior and name."}
+                                  : "Preserve the function’s behavior and name."}{" "}
                               Equivalent implementations can pass. The original
                               is hidden while you practice.
                             </p>
                             <p className="muted">
                               Inputs: {parameterText(symbol) || "none"}
                             </p>
+                            {symbol.practiceTypes && (
+                              <details className="practice-types">
+                                <summary>Input type definitions</summary>
+                                <p>
+                                  These source types are available while you
+                                  practice.
+                                </p>
+                                <pre>{symbol.practiceTypes}</pre>
+                              </details>
+                            )}
                           </div>
                           <Suspense
                             fallback={
@@ -1318,6 +1328,7 @@ export default function App() {
                               }}
                               theme={activeTheme}
                               jsx={symbol.kind === "component"}
+                              typeContext={symbol.practiceTypes}
                             />
                           </Suspense>
                           <div className="practice-actions">

@@ -10,6 +10,7 @@ export type SymbolInfo = {
   line: number;
   endLine: number;
   code: string;
+  practiceTypes?: string;
   parameters: { name: string; type: string; declaration?: string }[];
   calls: string[];
   concepts: string[];

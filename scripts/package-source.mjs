@@ -62,6 +62,7 @@ for (const file of [
   "styled-preview.png",
   "state-relationships.png",
   "object-practice.png",
+  "named-practice.png",
   "startup-recovery.png",
   "profile.png",
   "themes.png",

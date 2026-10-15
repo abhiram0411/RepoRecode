@@ -1,4 +1,5 @@
 import Editor, { loader } from "@monaco-editor/react";
+import { useEffect, useId } from "react";
 import { palettes, type ThemeId } from "../core/themes";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import "monaco-editor/esm/vs/language/typescript/monaco.contribution";
@@ -47,13 +48,24 @@ export default function CodeEditor({
   readOnly,
   theme = "dark",
   jsx = false,
+  typeContext,
 }: {
   value: string;
   onChange?: (v: string) => void;
   readOnly?: boolean;
   theme?: ThemeId;
   jsx?: boolean;
+  typeContext?: string;
 }) {
+  const contextId = useId();
+  useEffect(() => {
+    if (!typeContext) return;
+    const library = monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      typeContext,
+      `inmemory://reporecode/contracts/${encodeURIComponent(contextId)}.d.ts`,
+    );
+    return () => library.dispose();
+  }, [typeContext, contextId]);
   return (
     <Editor
       height="360px"

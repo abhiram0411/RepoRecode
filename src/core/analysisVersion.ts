@@ -1,2 +1,2 @@
 // Increment when stored indexes need rebuilding to expose new analysis behavior.
-export const ANALYSIS_VERSION = 3;
+export const ANALYSIS_VERSION = 4;

@@ -118,13 +118,38 @@ export const defaultPreferences: Preferences = {
   name: "Explorer",
   visual: true,
 };
-export const loadPreferences = async () =>
-  validatePreferences({
+const preferenceKey = "reporecode:preferences:v1";
+export const loadPreferences = async () => {
+  // Prefer the synchronous copy: a page may have closed before IndexedDB's
+  // asynchronous transaction committed. Old installations still migrate below.
+  try {
+    const stored = localStorage.getItem(preferenceKey);
+    if (stored && stored.length <= 200000)
+      return validatePreferences({
+        ...defaultPreferences,
+        ...JSON.parse(stored),
+      });
+  } catch {
+    // Storage may be blocked or an older/manual value may be malformed.
+  }
+  return validatePreferences({
     ...defaultPreferences,
     ...(await (await db).get("settings", "preferences")),
   });
+};
 export const savePreferences = async (p: Preferences) => {
-  await (await db).put("settings", validatePreferences(p), "preferences");
+  const validated = validatePreferences(p);
+  // Write before the first await, so an immediate reload keeps the selection.
+  // IndexedDB remains a fallback if browser localStorage is unavailable/full.
+  try {
+    localStorage.setItem(preferenceKey, JSON.stringify(validated));
+  } catch {
+    // Do not keep preferring an older copy after a quota failure.
+    try {
+      localStorage.removeItem(preferenceKey);
+    } catch {}
+  }
+  await (await db).put("settings", validated, "preferences");
 };
 export function workerTask<T>(
   worker: Worker,

@@ -1,5 +1,12 @@
 # Changelog
 
+## Named input types and immediate-reload preferences — 15 October 2026
+
+Named-input support now follows simple aliases and non-inherited interfaces through relative imports/reexports, preserves original source names, supplies read-only definitions to the editor/compiler and retains omitted/undefined/readonly behavior. Expansion is bounded to depth 8, 256 nodes, 16 aliases and an 8 KiB context; existing three-parameter/64-probe and shallow-object limits remain. Generic/merged/inherited/recursive/namespace-qualified types and body-local type dependencies remain unsupported. Analysis version 4 offers saved-index refresh. New evidence: 18 named-input tests and the real import/rewrite/reload browser journey.
+
+Fixed preference loss when a page reloads before IndexedDB commits. Validated preferences now save synchronously as well, with safe database fallback. Added regression coverage rather than weakening the existing reload check. The initial public GitHub source is published; subsequent failed CI theme checks are preserved in the journal.
+
+
 ## Startup recovery and stylesheet reuse — 14 October 2026
 
 A readable loading/reload message replaces the empty startup screen when app scripts fail; no-JavaScript guidance is included. Interactive previews reuse sanitized styles per immutable session while validating paths, order and aggregate limits on each action. Cache disposal and changed snapshots are tested.

@@ -2,6 +2,7 @@ import ts from "typescript";
 import { describeExpression } from "./expressionExplanation";
 import { reactStateHook } from "./hookSites";
 import { parameterValues } from "./practiceInputs";
+import { practiceTypeContext } from "./practiceTypes";
 import { stateRelations } from "./stateRelations";
 import type {
   Analysis,
@@ -347,8 +348,10 @@ function analyzeSources(
             type: p.type?.getText(sf) ?? "unknown",
             declaration: p.getText(sf),
           })) ?? [];
+        const practiceTypes = fn ? practiceTypeContext(fn, checker) : null;
         const simpleParams =
           !!fn &&
+          practiceTypes !== null &&
           fn.parameters.length <= 3 &&
           fn.parameters.every(
             (p) =>
@@ -379,7 +382,7 @@ function analyzeSources(
             : jsx
               ? "Exported components can use separate initial-render checks when their props and dependencies are supported."
               : !simpleParams
-                ? "Behavioral probes support up to three explicitly typed scalar, literal-union, scalar-array, fixed-tuple or small inline object parameters. Nested objects, named types and rest parameters need a custom harness."
+                ? "Behavioral probes support up to three scalar, literal-union, scalar-array, fixed-tuple or small object parameters, including simple resolved type aliases and interfaces. Nested objects, generics, inherited interfaces and rest parameters need a custom harness."
                 : external.size
                   ? `Requires external context: ${[...external].slice(0, 5).join(", ")}.`
                   : "This function requires a project runtime or unsupported syntax.";
@@ -393,6 +396,7 @@ function analyzeSources(
           line: sf.getLineAndCharacterOfPosition(start).line + 1,
           endLine: sf.getLineAndCharacterOfPosition(end).line + 1,
           code: node.getText(sf),
+          ...(practiceTypes ? { practiceTypes } : {}),
           parameters: params,
           calls: [...calls],
           concepts: [...concepts],

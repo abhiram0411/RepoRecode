@@ -1,5 +1,6 @@
 import ts from "typescript";
 import type { SymbolInfo } from "./types";
+import { expandPracticeType } from "./practiceTypes";
 
 const vectors: Record<string, unknown[]> = {
   number: [0, 1, -1, 2, 10, 0.5, -3, 100],
@@ -120,6 +121,20 @@ export function parameterValues(
   type: ts.TypeNode,
   checker?: ts.TypeChecker,
 ): unknown[] | null {
+  if (checker) {
+    const expanded = expandPracticeType(type, checker);
+    if (expanded === null) return null;
+    const parsed = ts.createSourceFile(
+      "contract.ts",
+      `type Contract = ${expanded};`,
+      ts.ScriptTarget.Latest,
+      true,
+    );
+    const declaration = parsed.statements[0];
+    return ts.isTypeAliasDeclaration(declaration)
+      ? parameterValues(declaration.type)
+      : null;
+  }
   const simple = scalar(type);
   if (simple) return simple;
   if (ts.isTypeLiteralNode(type)) return objectValues(type);
@@ -138,12 +153,12 @@ export function parameterValues(
     ["Array", "ReadonlyArray"].includes(type.typeName.text) &&
     type.typeArguments?.length === 1
   ) {
-    // Imported/local aliases named Array are not the built-in input contract.
-    if (checker?.getSymbolAtLocation(type.typeName)?.declarations?.length)
-      return null;
+    // When source declarations are available, expansion above has already
+    // rejected imported/local aliases named Array or ReadonlyArray.
     element = type.typeArguments[0];
   }
   if (element) {
+    while (ts.isParenthesizedTypeNode(element)) element = element.type;
     const domain = scalar(element);
     if (!domain) return null;
     const preset = vectors[`${element.getText()}[]`];
@@ -242,30 +257,49 @@ export function normalizeFunction(code: string) {
     : `const ${code};`;
 }
 
-function signature(code: string) {
-  const sf = ts.createSourceFile(
+function signature(code: string, context = "") {
+  let sf = ts.createSourceFile(
     "input.ts",
-    normalizeFunction(code),
+    `${context}\n${normalizeFunction(code)}`,
     ts.ScriptTarget.Latest,
     true,
   );
-  const first = sf.statements[0];
-  if (first && ts.isFunctionDeclaration(first)) return first.parameters;
+  let checker: ts.TypeChecker | undefined;
+  if (context) {
+    const host: ts.CompilerHost = {
+      getSourceFile: (name) => (name === "input.ts" ? sf : undefined),
+      getDefaultLibFileName: () => "",
+      writeFile: () => {},
+      getCurrentDirectory: () => "",
+      getDirectories: () => [],
+      fileExists: (name) => name === "input.ts",
+      readFile: (name) => (name === "input.ts" ? sf.text : undefined),
+      getCanonicalFileName: (name) => name,
+      useCaseSensitiveFileNames: () => true,
+      getNewLine: () => "\n",
+    };
+    const program = ts.createProgram(["input.ts"], { noLib: true }, host);
+    checker = program.getTypeChecker();
+    sf = program.getSourceFile("input.ts")!;
+  }
+  const first = sf.statements.find((s) => !ts.isTypeAliasDeclaration(s));
+  if (first && ts.isFunctionDeclaration(first))
+    return { parameters: first.parameters, checker };
   if (first && ts.isVariableStatement(first)) {
     const fn = first.declarationList.declarations[0]?.initializer;
     if (fn && (ts.isArrowFunction(fn) || ts.isFunctionExpression(fn)))
-      return fn.parameters;
+      return { parameters: fn.parameters, checker };
   }
   return undefined;
 }
 
 export function probes(s: SymbolInfo): unknown[][] {
   // Read source so saved pre-upgrade indexes also get optional/default probes.
-  const parameters = signature(s.code);
+  const { parameters, checker } = signature(s.code, s.practiceTypes) ?? {};
   if (!parameters || parameters.length > 3) return [];
   const domains = parameters.map((p) => {
     if (!p.type || p.dotDotDotToken || !ts.isIdentifier(p.name)) return null;
-    const values = parameterValues(p.type);
+    const values = parameterValues(p.type, checker);
     return (
       values &&
       (p.questionToken || p.initializer

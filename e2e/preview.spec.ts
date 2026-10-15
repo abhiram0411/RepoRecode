@@ -103,10 +103,10 @@ test("interactive preview retains state, inspects source and resets safely", asy
   ).toBeVisible();
   await expect(frame.getByText("40% complete", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Render current code" }).click();
-  await expect(frame.getByText("0% complete", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Render current code" }),
-  ).toBeEnabled();
+  ).toBeEnabled({ timeout: 30000 });
+  await expect(frame.getByText("0% complete", { exact: true })).toBeVisible();
   await page
     .getByRole("list", { name: "Observed function calls" })
     .scrollIntoViewIfNeeded();

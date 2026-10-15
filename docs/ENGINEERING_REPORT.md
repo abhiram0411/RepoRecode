@@ -1,6 +1,6 @@
 # RepoRecode Engineering and Handover Report
 
-Prepared for Abhiram on 14 October 2026
+Prepared for Abhiram on 15 October 2026
 
 RepoRecode is a usable development release for learning from real JavaScript and TypeScript source. Its local learning workflow requires no account, database, model or payment method. This report describes implemented behavior, the recorded checks and the work still required by the master specification. It is not a claim of full product completion or an independent security assessment.
 
@@ -27,7 +27,7 @@ Read docs/RESUME.md, docs/MASTER_SPEC.md, docs/FEATURES.md and docs/SERVICE_SETU
 
 [architecture]
 
-React and Vite provide the browser interface. Monaco supplies source editing and React Flow displays source-linked relationships. The TypeScript compiler indexes local imports, declarations, calls and JSX relationships. IndexedDB holds imported snapshots, drafts, preferences and learning records on the user's device.
+React and Vite provide the browser interface. Monaco supplies source editing and React Flow displays source-linked relationships. The TypeScript compiler indexes local imports, declarations, calls and JSX relationships. IndexedDB holds imported snapshots, drafts, preferences and learning records on the user's device. A validated localStorage preference copy protects changes made immediately before reload.
 
 Workers keep parsing and evaluation off the UI thread. Source analysis reuses unchanged parsed files from its latest snapshot; semantic relationships are rebuilt. Evaluation remains disposable. QuickJS runs imported code with memory limits and deadlines, without a bridge to host files or networking. Initial preview uses React server rendering. Interactive preview keeps a React reconciler alive inside QuickJS. Both display sanitized HTML in a script-disabled iframe.
 
@@ -109,6 +109,10 @@ Local evidence currently records {{UNIT_TESTS}} passing unit and integration tes
 
 An early unrestricted Windows test run lost a worker process. Repeating with two workers passed; no failing test is concealed by that earlier crash. Browser accessibility also caught reduced text contrast during an entrance fade. The fade was removed while retaining movement. The final build and browser result files are the acceptance evidence.
 
+Named-input support now follows simple aliases and non-inherited interfaces through relative imports/reexports, preserves original source names, supplies read-only definitions to the editor/compiler and retains omitted/undefined/readonly behavior. Expansion is bounded to depth 8, 256 nodes, 16 aliases and an 8 KiB context; existing three-parameter/64-probe and shallow-object limits remain. Generic/merged/inherited/recursive/namespace-qualified types and body-local type dependencies remain unsupported. Analysis version 4 offers saved-index refresh. New evidence: 18 named-input tests and the real import/rewrite/reload browser journey.
+
+On 15 October, GitHub runs 38657450520 and 38683512075 both failed the immediate theme-reload assertion (expected light, received dark); all installation/unit/build/audit/scan steps passed. The initial success did not guarantee later runs. Preferences now write a validated synchronous localStorage copy before the asynchronous IndexedDB transaction and load that copy first. Invalid/blocked storage falls back to IndexedDB; quota failures remove stale copies when possible. Five regression tests cover persistence/fallback/validation/rapid saves, and a browser regression prevents the database write before immediate reload. Original failing assertions were retained. GitHub CI also now enables the disposable local community journey. These fixes need a new pushed CI result before claiming the notification issue resolved.
+
 ### Reproduce locally
 
 - Use Node.js 24 and run npm ci --ignore-scripts.
@@ -117,9 +121,9 @@ An early unrestricted Windows test run lost a worker process. Repeating with two
 - Set TEST_URL to http://127.0.0.1:5181 and LOCAL_COMMUNITY_E2E to true, then run npx playwright test.
 - The community journey creates disposable local data on port 8788 and refuses public targets. Do not send test feedback to production.
 
-Windows tests use Edge; CI is configured for Chromium, but a successful GitHub-hosted CI run is not asserted. The dependency audit reports known published issues, not a complete security assessment. The source scanner checks common secret patterns and remains heuristic.
+Windows tests use Edge. The initial public GitHub commit passed its hosted CI, including Chromium browser checks (run 38586172832). The dependency audit reports known published issues, not a complete security assessment. The source scanner checks common secret patterns and remains heuristic.
 
-Release through the existing public Sites project. Push the exact source, package the matching build, save its version and deploy that returned version. Verify deployment status and compare the public source ZIP hash with the local package. Preserve host receipts. A public GitHub repository is still pending; the Sites source repository and ZIP must not be described as GitHub.
+Release through the existing public Sites project. Push the exact source, package the matching build, save its version and deploy that returned version. Verify deployment status and compare the public source ZIP hash with the local package. Preserve host receipts. The public MIT repository is https://github.com/abhiram0411/RepoRecode. Its separate release checkout is tmp/github-v10; preserve its history independently of Sites.
 
 ## Operating costs and next work
 
@@ -131,7 +135,7 @@ Local feedback requires only the optional local Node gateway and a private data 
 
 - Provide a genuinely free, durable public feedback backend with a hard spending stop, or retain truthful unavailability.
 - Complete owner-configured Supabase, OAuth and GitHub App acceptance with real accounts and selected private repositories.
-- Create the public MIT GitHub repository using authorized account access and verify installation and CI there.
+- Keep subsequent source releases synchronized to GitHub and verify their CI. The initial public source and hosted CI are complete.
 - Expand practice contracts, incremental semantic indexing, state and data relationships, preview dependencies and framework support while preserving limits and evidence labels.
 - Verify Docker execution, low-end performance, additional browsers, manual accessibility, independent security and operator response procedures.
 
