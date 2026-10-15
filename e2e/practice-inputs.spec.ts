@@ -30,6 +30,9 @@ test("nullable/default input exercises preserve their contract and grade missing
     'function choose(mode:"on"|"off", value:number|null=99){return mode==="off"?0:value===null?-1:value;}',
   );
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Run checks", exact: true }),
+  ).toBeEnabled({ timeout: 30000 });
   await expect(page.getByRole("heading", { name: /Keep going/ })).toBeVisible();
   await expect(
     page.getByText('Input ["on",undefined]', { exact: true }),
@@ -38,6 +41,9 @@ test("nullable/default input exercises preserve their contract and grade missing
   await page.keyboard.press("Control+A");
   await page.keyboard.insertText(original);
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Run checks", exact: true }),
+  ).toBeEnabled({ timeout: 30000 });
   await expect(
     page.getByRole("heading", { name: "Behavior verified", exact: true }),
   ).toBeVisible();

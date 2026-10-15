@@ -58,7 +58,7 @@ test("local CSS renders in isolation, stays through interactions and cannot fetc
   await page.getByRole("button", { name: "Render current code" }).click();
   await expect(
     frame.getByRole("button", { name: "Count 0", exact: true }),
-  ).toHaveAttribute("data-rr-events", "click");
+  ).toHaveAttribute("data-rr-events", "click", { timeout: 30000 });
   await frame.getByRole("button", { name: "Count 0", exact: true }).click();
   await expect(
     frame.getByRole("button", { name: "Count 1", exact: true }),

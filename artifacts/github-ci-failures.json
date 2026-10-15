@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-15",
+  "repository": "abhiram0411/RepoRecode",
+  "commit": "b320297d6a3c4ae99fc401eeadb14274bd1541f8",
+  "runs": [38683512075, 38657450520],
+  "jobs": [116253086004, 116170480493],
+  "conclusion": "failure",
+  "passingSteps": ["install", "unit tests", "build", "dependency audit", "source scan"],
+  "failedStep": "npx playwright test",
+  "failedTest": "e2e/journey.spec.ts:82",
+  "error": "After selecting Fieldwork Paper and immediately reloading, data-theme expected light but remained dark for 5000ms.",
+  "browserResultsEach": { "passed": 18, "skipped": 1, "failed": 1 },
+  "fixPendingVerification": "Save validated preferences synchronously in localStorage before the IndexedDB write. Prefer this copy on reload, with database fallback for unavailable or malformed storage."
+}
