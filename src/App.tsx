@@ -1824,6 +1824,13 @@ export default function App() {
               <a href="/downloads/reporecode-source.zip" download>
                 Source ZIP
               </a>
+              <a
+                href="https://github.com/abhiram0411/RepoRecode"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub
+              </a>
               {["Privacy", "Terms", "Security", "Support", "License"].map(
                 (x) => (
                   <button key={x} onClick={() => setLegal(x)}>
@@ -2026,9 +2033,20 @@ export default function App() {
                   : legal === "Security"
                     ? "Source is parsed as untrusted data. Practice code runs in a disposable QuickJS WebAssembly runtime inside a worker, with time and memory limits and no host filesystem or network bridges. Full-project execution is disabled. This preview has not received an independent security assessment. Read SECURITY.md in the source distribution for limitations and reporting guidance."
                     : legal === "Support"
-                      ? "Installation, troubleshooting and API documentation are included in the source distribution. A public support address and GitHub repository URL have not been configured. No message will be sent from this form."
+                      ? "Installation, troubleshooting and API documentation are included in the source distribution and public GitHub repository. You can report a bug or suggest a feature on GitHub. A separate support email is not configured."
                       : "RepoRecode is licensed under the MIT License, approved by the project owner. You may use, modify and redistribute it subject to preserving the copyright and license notice. Third-party packages retain their own licenses. See LICENSE and THIRD_PARTY_NOTICES.md in the source distribution."}
             </p>
+            {legal === "Support" && (
+              <p>
+                <a
+                  href="https://github.com/abhiram0411/RepoRecode/issues"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open GitHub issues
+                </a>
+              </p>
+            )}
             <button className="secondary" onClick={() => setLegal("")}>
               Back to workspace
             </button>

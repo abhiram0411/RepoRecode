@@ -1,5 +1,14 @@
 # Continuation prompt
 
+## Current local update — awaiting publication
+
+Nested-object practice now supports two object levels and three scalar leaves across a parameter, preserving omitted/undefined nested containers and leaves. Every independent variation must fit within 16 object samples; wider shapes are rejected. Three parameters and 64 function probes remain the outer cap. Nested named contracts and readonly leaves work. ANALYSIS_VERSION=5 enables saved-index refresh. Footer/Support links point to the public GitHub repository and issues.
+
+235 unit/integration tests in 30 files passed in 14.98 seconds. The first build found a TypeScript narrowing error; corrected it and the production build passed. All 23 local browser journeys passed in 72.72 seconds, including nested missing-field grading, correction, reload and mobile Support links. Both new screenshots were visually inspected. Source scan checked 161 files with no heuristic findings. No dependencies changed. Publication and new GitHub CI are pending for this update.
+
+
+GitHub documentation/test commit 54f7463d78fb35d2e92b5ae915010c7772fcca33 passed CI run 38693583186. Both it and the application-fix commit are green; the temporary approval-review limit was resolved by a normal retry after the user continued.
+
 Continue RepoRecode at C:\Users\ABHIRAM\Desktop\Repo Recode. Read docs/RESUME.md first, then MASTER_SPEC.md, FEATURES.md and SERVICE_SETUP.md. Preserve uncommitted work; do not rebuild from scratch.
 
 Keep strict zero spend and MIT/public approval. No billing, paid services or tutor/chat/voice. The pet is silent and reactive.

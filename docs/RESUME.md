@@ -1,5 +1,12 @@
 # RepoRecode continuation checkpoint
 
+## Current local update — awaiting publication
+
+Nested-object practice now supports two object levels and three scalar leaves across a parameter, preserving omitted/undefined nested containers and leaves. Every independent variation must fit within 16 object samples; wider shapes are rejected. Three parameters and 64 function probes remain the outer cap. Nested named contracts and readonly leaves work. ANALYSIS_VERSION=5 enables saved-index refresh. Footer/Support links point to the public GitHub repository and issues.
+
+235 unit/integration tests in 30 files passed in 14.98 seconds. The first build found a TypeScript narrowing error; corrected it and the production build passed. All 23 local browser journeys passed in 72.72 seconds, including nested missing-field grading, correction, reload and mobile Support links. Both new screenshots were visually inspected. Source scan checked 161 files with no heuristic findings. No dependencies changed. Publication and new GitHub CI are pending for this update.
+
+
 Updated 15 October 2026. Continue the existing project; do not rebuild or discard changes. The full specification is not finished.
 
 ## Owner decisions
@@ -16,6 +23,8 @@ GitHub: https://github.com/abhiram0411/RepoRecode. Published application commit 
 
 ## Verification
 
+Final documentation/test commit 54f7463d78fb35d2e92b5ae915010c7772fcca33 also passed GitHub CI run 38693583186. Its final status check was briefly blocked by the automatic approval-review usage limit; the normal retry after the user's Continue instruction succeeded. Receipt: artifacts/github-ci-latest.json. The GitHub notification issue is resolved for both uploaded commits.
+
 228 tests in 30 files passed in 14.56 seconds. TypeScript/Vite production build passed. All 22 local browser journeys passed in 89.08 seconds. Source scan checked 160 files without heuristic findings. Dependencies unchanged; hosted audit passed. Large compiler/editor/VM bundles remain a performance limitation.
 
 Version 11 full live run: 19 passed, 1 local-only skip, 2 failed. Two five-second assertions expired while work was still pending: nullable/default grading and the styled preview's transition from initial HTML to interactive events. Tests now allow 30 seconds for those existing completion signals, retaining the result assertions. Both targeted public repeats: 2 passed, 0 failed in 37.32 seconds. Preserve both receipts; this is not a newly all-green full live run. Receipts: artifacts/public-browser-results-v11.json and public-practice-retry-v11.json.
@@ -30,7 +39,7 @@ Earlier implemented foundation: bounded public GitHub/folder/ZIP imports, declar
 
 ## Exact remaining work
 
-1. Continue the implementation backlog in MASTER_SPEC.md and FEATURES.md: nested/generic/asynchronous practice contracts, incremental semantic indexing beyond the current parsing cache, indirect state/data/API relationships and broader isolated React dependencies/styles/frameworks. Preserve finite coverage and truthful unsupported labels. The Support modal still has outdated repository-unconfigured wording; replace it with the verified GitHub link in the next UI release.
+1. Continue the implementation backlog in MASTER_SPEC.md and FEATURES.md: deeper/generic/asynchronous practice contracts, incremental semantic indexing beyond the current parsing cache, indirect state/data/API relationships and broader isolated React dependencies/styles/frameworks. Preserve finite coverage and truthful unsupported labels.
 2. Public feedback needs genuinely free same-origin durable storage with a hard zero-spend stop. Static Sites does not run the Node gateway. Local feedback works; public delivery/admin remain deliberately unavailable. Do not enable potentially billable D1/Workers/storage without establishing the zero-cost constraint.
 3. Supabase/OAuth/GitHub App are unconfigured. Setup instructions are ready in SERVICE_SETUP.md; no keys are required for core learning. Provider acceptance needs the owner's setup, real two-account RLS/MFA/recovery/linking/deletion/cloud restore/private repository checks and separate simultaneous PostgreSQL connections. Individual-device session inventory remains unfinished. Never ask for secrets in chat.
 4. Manual accessibility/additional browsers/low-end performance, Docker execution, independent security assessment and operator contacts remain. Docker engine was unavailable; PGlite is single-connection and cannot prove real locks/provider acceptance. Optional local Ollama remains unimplemented; no paid model is authorized.

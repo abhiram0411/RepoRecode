@@ -1,5 +1,12 @@
 # Verification checkpoint
 
+## Current local update — awaiting publication
+
+Nested-object practice now supports two object levels and three scalar leaves across a parameter, preserving omitted/undefined nested containers and leaves. Every independent variation must fit within 16 object samples; wider shapes are rejected. Three parameters and 64 function probes remain the outer cap. Nested named contracts and readonly leaves work. ANALYSIS_VERSION=5 enables saved-index refresh. Footer/Support links point to the public GitHub repository and issues.
+
+235 unit/integration tests in 30 files passed in 14.98 seconds. The first build found a TypeScript narrowing error; corrected it and the production build passed. All 23 local browser journeys passed in 72.72 seconds, including nested missing-field grading, correction, reload and mobile Support links. Both new screenshots were visually inspected. Source scan checked 161 files with no heuristic findings. No dependencies changed. Publication and new GitHub CI are pending for this update.
+
+
 Final local acceptance on 15 October: 228 tests across 30 files passed in 14.56 seconds; production build passed; all 22 browser journeys passed in 89.08 seconds. This includes the immediate-reload regression with the IndexedDB write prevented, original journey assertion, named-input import/rewrite and disposable community gateway. Source scan: 160 files, no heuristic findings. No dependency changes were made. Publication and new GitHub CI must be checked separately.
 
 15 October 2026. Development release; full specification incomplete.

@@ -1,5 +1,9 @@
 # Changelog
 
+## Nested object practice and public support — 15 October 2026
+
+Practice now accepts two object levels with three scalar leaves across the whole parameter, including nested named aliases/interfaces and optional containers. Missing fields and explicit undefined remain distinct at both levels. Independent field variations must fit within 16 object samples; wider shapes are rejected instead of silently losing coverage. The existing three-parameter/64-probe cap remains. Analysis version 5 enables saved-index refresh. The footer and Support dialog now link to the public GitHub repository and issues.
+
 ## Named input types and immediate-reload preferences — 15 October 2026
 
 Named-input support now follows simple aliases and non-inherited interfaces through relative imports/reexports, preserves original source names, supplies read-only definitions to the editor/compiler and retains omitted/undefined/readonly behavior. Expansion is bounded to depth 8, 256 nodes, 16 aliases and an 8 KiB context; existing three-parameter/64-probe and shallow-object limits remain. Generic/merged/inherited/recursive/namespace-qualified types and body-local type dependencies remain unsupported. Analysis version 4 offers saved-index refresh. New evidence: 18 named-input tests and the real import/rewrite/reload browser journey.

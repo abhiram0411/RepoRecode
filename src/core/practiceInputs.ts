@@ -195,9 +195,15 @@ export function parameterValues(
   return null;
 }
 
-function objectValues(type: ts.TypeLiteralNode): unknown[] | null {
-  // Deliberately shallow: no named types, methods, index signatures or nesting.
-  if (type.members.length > 3) return null;
+function objectValues(
+  type: ts.TypeLiteralNode,
+  depth = 0,
+  budget = { leaves: 0 },
+): unknown[] | null {
+  // Two object levels and three scalar leaves across the entire parameter.
+  // Nested domains contain independent field variations, preserving room for
+  // each sibling's variation inside the existing sixteen-object sample cap.
+  if (depth > 1 || type.members.length > 3) return null;
   const missing = Symbol("missing property");
   const fields: { name: string; values: unknown[] }[] = [];
   for (const member of type.members) {
@@ -209,13 +215,16 @@ function objectValues(type: ts.TypeLiteralNode): unknown[] | null {
       return null;
     const name = member.name.text;
     if (name.length > 100 || fields.some((f) => f.name === name)) return null;
-    let values = scalar(member.type);
-    if (!values) return null;
     // Primitive number/string domains are sampled; literal unions retain every
     // declared choice or are rejected if too wide for per-field coverage.
     let leaf = member.type;
     while (ts.isParenthesizedTypeNode(leaf)) leaf = leaf.type;
-    if (values.length > 4) {
+    const nested = ts.isTypeLiteralNode(leaf);
+    let values = ts.isTypeLiteralNode(leaf)
+      ? objectValues(leaf, depth + 1, budget)
+      : scalar(leaf);
+    if (!values || (!nested && ++budget.leaves > 3)) return null;
+    if (!nested && values.length > 4) {
       if (
         ![ts.SyntaxKind.NumberKeyword, ts.SyntaxKind.StringKeyword].includes(
           leaf.kind,
@@ -234,12 +243,15 @@ function objectValues(type: ts.TypeLiteralNode): unknown[] | null {
         : values,
     });
   }
-  // combinations serializes its input for deduplication, so use finite indexes
-  // rather than the private omission marker. At most 6 choices x 3 fields:
-  // 1 + 3 * (6 - 1) fits 16 and varies every field before mixed combinations.
+  // Never silently drop independent leaf/container variations to fit the cap.
+  const required =
+    1 + fields.reduce((n, field) => n + field.values.length - 1, 0);
+  if (required > 16) return null;
+  // Serialize finite indexes instead of the private omission marker. Inner
+  // objects use only the independent variations; the root may add mixed cases.
   return combinations(
     fields.map((f) => f.values.map((_, i) => i)),
-    16,
+    depth ? required : 16,
   ).map((row) =>
     Object.fromEntries(
       fields.flatMap((f, i) => {

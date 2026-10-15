@@ -9,6 +9,27 @@ const symbol = (content: string) =>
   )!;
 
 describe("resolved named practice inputs", () => {
+  it("expands nested named contracts and enforces their readonly leaves", async () => {
+    const s = symbol(
+      "interface Settings {readonly active:boolean} type Input={settings?:Settings}; export function read(input:Input){return input.settings?.active??false;}",
+    );
+    expect(s.standalone).toBe(true);
+    expect(probes(s)).toEqual(
+      expect.arrayContaining([
+        [{}],
+        [{ settings: undefined }],
+        [{ settings: { active: false } }],
+        [{ settings: { active: true } }],
+      ]),
+    );
+    expect((await evaluate(s, s.code)).passed).toBe(true);
+    const bad = await evaluate(
+      s,
+      "function read(input:Input){if(input.settings)input.settings.active=true;return input.settings?.active??false;}",
+    );
+    expect(bad.passed).toBe(false);
+    expect(bad.diagnostics.join(" ")).toContain("read-only");
+  });
   it("retains named interface contracts, omissions and readonly checks", async () => {
     const s = symbol(
       'type Flag = boolean | null; interface Input {readonly flag?:Flag} export function read(input:Input):number{return !("flag" in input)?1:input.flag===undefined?2:input.flag===null?3:input.flag?4:5;}',
@@ -84,7 +105,7 @@ describe("resolved named practice inputs", () => {
     "interface Base {value:number} interface Input extends Base {}",
     "interface Input {a:number} interface Input {b:number}",
     "type Input<T=number> = T;",
-    "type Input = {value:{nested:number}};",
+    "type Input = {value:{nested:{deep:number}}};",
     "type Input = {a:number;b:number;c:number;d:number};",
     "type Input = {method():number};",
     "class Input {value=1}",

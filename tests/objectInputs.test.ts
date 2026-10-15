@@ -10,6 +10,109 @@ const symbol = (code: string) =>
   )!;
 
 describe("bounded inline object inputs", () => {
+  it("varies every nested leaf and rejects ignoring a nested sibling", async () => {
+    const s = symbol(
+      "export function score(input:{stats:{count:number;active:boolean};label:string}){return input.stats.count+(input.stats.active?10:0)+input.label.length;}",
+    );
+    expect(s.standalone).toBe(true);
+    const values = probes(s).map(
+      (r) =>
+        r[0] as { stats: { count: number; active: boolean }; label: string },
+    );
+    expect(values.length).toBeLessThanOrEqual(16);
+    expect(new Set(values.map((v) => v.stats.count)).size).toBe(4);
+    expect(new Set(values.map((v) => v.stats.active)).size).toBe(2);
+    expect(new Set(values.map((v) => v.label)).size).toBe(4);
+    expect((await evaluate(s, s.code)).passed).toBe(true);
+    expect(
+      (
+        await evaluate(
+          s,
+          "function score(input:{stats:{count:number;active:boolean};label:string}){return input.stats.count+input.label.length;}",
+        )
+      ).passed,
+    ).toBe(false);
+  });
+
+  it("preserves omission and undefined at both object levels", async () => {
+    const s = symbol(
+      'export function read(input:{settings?:{flag?:boolean|null}}){return !("settings" in input)?1:input.settings===undefined?2:!("flag" in input.settings)?3:input.settings.flag===undefined?4:input.settings.flag===null?5:input.settings.flag?6:7;}',
+    );
+    expect(s.standalone).toBe(true);
+    const values = probes(s).map((r) => r[0]);
+    expect(values).toEqual(
+      expect.arrayContaining([
+        {},
+        { settings: undefined },
+        { settings: {} },
+        { settings: { flag: undefined } },
+        { settings: { flag: null } },
+        { settings: { flag: false } },
+        { settings: { flag: true } },
+      ]),
+    );
+    expect(new Set(values.map(inputExpression)).size).toBe(values.length);
+    expect((await evaluate(s, s.code)).passed).toBe(true);
+    expect(
+      (await evaluate(s, s.code.replace('!("flag" in input.settings)?3:', "")))
+        .passed,
+    ).toBe(false);
+  });
+
+  it("keeps nested own __proto__ keys and constant empty objects as data", async () => {
+    const s = symbol(
+      'export function read(input:{"__proto__":({"__proto__":boolean});empty:{}}){return input["__proto__"]["__proto__"];}',
+    );
+    expect(s.standalone).toBe(true);
+    const values = probes(s).map((r) => r[0] as Record<string, object>);
+    expect(
+      values.every(
+        (v) =>
+          Object.hasOwn(v, "__proto__") &&
+          Object.hasOwn(v["__proto__"], "__proto__"),
+      ),
+    ).toBe(true);
+    expect(
+      values.every((v) => Object.getPrototypeOf(v) === Object.prototype),
+    ).toBe(true);
+    expect((await evaluate(s, s.code)).passed).toBe(true);
+    const empty = symbol("export function empty(input:{a:{}}){return 1;}");
+    expect(probes(empty)).toEqual([[{ a: {} }]]);
+  });
+
+  it("retains every nested domain across three parameters without exceeding 64 probes", () => {
+    const shape = "{group?:{a?:boolean;b?:boolean;c?:boolean}}";
+    const s = symbol(
+      `export function read(x:${shape},y:${shape},z:${shape}){return x.group?.a??y.group?.b??z.group?.c??false;}`,
+    );
+    expect(s.standalone).toBe(true);
+    const rows = probes(s);
+    expect(rows.length).toBeLessThanOrEqual(64);
+    for (let i = 0; i < 3; i++) {
+      const values = rows.map(
+        (r) => r[i] as { group?: Record<string, unknown> },
+      );
+      expect(values.some((v) => !Object.hasOwn(v, "group"))).toBe(true);
+      expect(
+        values.some((v) => Object.hasOwn(v, "group") && v.group === undefined),
+      ).toBe(true);
+      for (const key of ["a", "b", "c"]) {
+        expect(
+          values.some((v) => v.group && !Object.hasOwn(v.group, key)),
+        ).toBe(true);
+        for (const value of [undefined, false, true])
+          expect(
+            values.some(
+              (v) =>
+                v.group &&
+                Object.hasOwn(v.group, key) &&
+                v.group[key] === value,
+            ),
+          ).toBe(true);
+      }
+    }
+  });
+
   it("checks independent fields and rejects implementations that ignore one", async () => {
     const s = symbol(
       "export function score(input:{count:number;enabled:boolean;label:string}){return input.count+(input.enabled?10:0)+input.label.length;}",
@@ -124,7 +227,9 @@ describe("bounded inline object inputs", () => {
   });
 
   it.each([
-    "{nested:{value:number}}",
+    "{nested:{deep:{value:number}}}",
+    "{nested:{a:number;b:number};other:{c:number;d:number}}",
+    "{a?:{x?:number};b?:{y?:number};c?:{z?:number}}",
     "{items:number[]}",
     "{f():number}",
     "{[key:string]:number}",

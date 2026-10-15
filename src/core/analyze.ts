@@ -382,7 +382,7 @@ function analyzeSources(
             : jsx
               ? "Exported components can use separate initial-render checks when their props and dependencies are supported."
               : !simpleParams
-                ? "Behavioral probes support up to three scalar, literal-union, scalar-array, fixed-tuple or small object parameters, including simple resolved type aliases and interfaces. Nested objects, generics, inherited interfaces and rest parameters need a custom harness."
+                ? "Behavioral probes support up to three scalar, literal-union, scalar-array, fixed-tuple or small object parameters, including simple resolved types. Objects allow two levels and three scalar leaves within 16 samples. Deeper shapes, generics, inherited interfaces and rest parameters need a custom harness."
                 : external.size
                   ? `Requires external context: ${[...external].slice(0, 5).join(", ")}.`
                   : "This function requires a project runtime or unsupported syntax.";
