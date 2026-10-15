@@ -43,7 +43,7 @@ npm run preview
 - Optional Supabase sign-in, identity linking, recovery, TOTP MFA, session sign-out controls, account deletion, project and preference sync.
 - Silent Coding Pet reacts to practice and verified results. Source explanations, including bounded arithmetic/condition descriptions, remain in the main learning UI.
 - Versioned learning-only progress export/import, exact-revision validation and duplicate-safe merges that preserve drafts and notes. Full-source backups remain separately labeled.
-- Optional local feedback gateway, anonymous submissions, protected admin counts, and strictly opt-in anonymous activity with revocation. Public delivery needs a free same-origin backend; unavailable counts are never invented.
+- Optional local feedback gateway, anonymous submissions, protected admin counts, and strictly opt-in anonymous activity with revocation. Without a gateway, visitors can review a public GitHub issue draft or copy their full feedback. GitHub requires an account; anonymous hosted delivery still needs a free backend. Unavailable counts are never invented.
 - Protected administration, usage accounting, request history, deduplicated email/Telegram alerts and an independent uptime monitor.
 
 ## Supported boundaries

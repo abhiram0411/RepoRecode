@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-type FeedbackCategory = "feature" | "bug" | "general";
+import { feedbackDraft, type FeedbackCategory } from "../core/feedbackDraft";
 export type CommunitySnapshot = {
   feedbackCount: number;
   featureRequests: number;
@@ -45,6 +45,8 @@ export default function Community() {
     [rating, setRating] = useState(""),
     [website, setWebsite] = useState("");
   const [enabled, setEnabled] = useState(false),
+    [activityEnabled, setActivityEnabled] = useState(false),
+    [loading, setLoading] = useState(true),
     [consent, setConsent] = useState(false),
     [status, setStatus] = useState(""),
     [busy, setBusy] = useState(false),
@@ -56,7 +58,9 @@ export default function Community() {
     } catch {
       /* Storage may be unavailable. Collection stays off. */
     }
-    void fetch("/api/community/status", { signal: controller.signal })
+    void fetch("/api/community/status", {
+      signal: AbortSignal.any([controller.signal, AbortSignal.timeout(8000)]),
+    })
       .then(async (r) => {
         if (
           !r.ok ||
@@ -65,6 +69,7 @@ export default function Community() {
           return;
         const data = await r.json();
         setEnabled(data.feedbackEnabled === true);
+        setActivityEnabled(data.telemetryEnabled === true);
         if (data.telemetryEnabled !== true) return;
         const pending = localStorage.getItem(deleteKey);
         if (pending) {
@@ -86,7 +91,10 @@ export default function Community() {
           localStorage.setItem(dayKey, day);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     return () => controller.abort();
   }, []);
   async function toggle(checked: boolean) {
@@ -94,7 +102,8 @@ export default function Community() {
     setActivityStatus("");
     try {
       if (checked) {
-        if (!enabled) throw Error("Activity service is not configured.");
+        if (!activityEnabled)
+          throw Error("Activity service is not configured.");
         const pending = localStorage.getItem(deleteKey);
         if (pending) {
           await api("/api/activity", "DELETE", { installationId: pending });
@@ -134,24 +143,46 @@ export default function Community() {
       setBusy(false);
     }
   }
+  const draft = feedbackDraft(category, message);
+  async function copyFeedback() {
+    if (!draft) return;
+    try {
+      await navigator.clipboard.writeText(draft.body);
+      setStatus(
+        "Feedback copied. Paste it into a GitHub issue and review before submitting.",
+      );
+    } catch {
+      setStatus(
+        "Clipboard access is unavailable. Select and copy your feedback text manually; it remains in this form.",
+      );
+    }
+  }
   return (
     <section className="settings-card community-card">
       <p className="eyebrow">HELP SHAPE REPORECODE</p>
       <h2>Feedback & feature requests</h2>
       <p className="muted">
-        Send only what you write below. No source code or learning progress is
-        attached. Contact and rating are optional; you can submit anonymously.
+        {enabled
+          ? "Send only what you write below. No source code or learning progress is attached. Contact and rating are optional; you can submit anonymously."
+          : "Share a bug report or an idea through the project's GitHub issues. Only the feedback you enter is included; no source code or learning progress is attached."}
       </p>
-      {!enabled && (
-        <p className="service-note">
-          Feedback delivery is unavailable on this installation. Text stays in
-          this form while it is open; nothing is sent. Copy your message before
-          leaving this page.
-        </p>
+      {loading ? (
+        <p role="status">Checking feedback availability…</p>
+      ) : (
+        !enabled && (
+          <p className="service-note">
+            Direct anonymous delivery is unavailable here. GitHub requires an
+            account, and submitted issues are public under your GitHub username.
+            Opening a draft sends its text to GitHub for your review; it does
+            not submit the issue. Keep private source, passwords and personal
+            details out of public feedback.
+          </p>
+        )
       )}
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          if (!enabled || busy) return;
           setBusy(true);
           setStatus("");
           void api("/api/feedback", "POST", {
@@ -177,7 +208,10 @@ export default function Community() {
           Category
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value as FeedbackCategory)}
+            onChange={(e) => {
+              setCategory(e.target.value as FeedbackCategory);
+              setStatus("");
+            }}
           >
             <option value="feature">Feature request</option>
             <option value="bug">Bug report</option>
@@ -192,30 +226,40 @@ export default function Community() {
             maxLength={3000}
             rows={5}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              setStatus("");
+            }}
             placeholder="What would make learning from your code easier?"
           />
         </label>
-        <label>
-          Rating (optional)
-          <select value={rating} onChange={(e) => setRating(e.target.value)}>
-            <option value="">No rating</option>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>
-                {n} / 5
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Contact email (optional)
-          <input
-            type="email"
-            maxLength={254}
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-          />
-        </label>
+        {enabled && (
+          <>
+            <label>
+              Rating (optional)
+              <select
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+              >
+                <option value="">No rating</option>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <option key={n} value={n}>
+                    {n} / 5
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Contact email (optional)
+              <input
+                type="email"
+                maxLength={254}
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+              />
+            </label>
+          </>
+        )}
         <label className="feedback-trap" aria-hidden="true">
           Website
           <input
@@ -225,13 +269,57 @@ export default function Community() {
             onChange={(e) => setWebsite(e.target.value)}
           />
         </label>
-        <button
-          className="secondary"
-          disabled={!enabled || busy || message.trim().length < 10}
-        >
-          Send feedback
-        </button>
+        {enabled && (
+          <button
+            className="secondary"
+            disabled={!enabled || busy || message.trim().length < 10}
+          >
+            Send feedback
+          </button>
+        )}
       </form>
+      {!loading && !enabled && (
+        <div className="public-feedback-actions">
+          <button
+            type="button"
+            className="secondary"
+            disabled={!draft}
+            onClick={() => void copyFeedback()}
+          >
+            Copy feedback
+          </button>
+          {draft && (
+            <a
+              className="secondary"
+              href={draft.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {draft.prefilled
+                ? "Review draft on GitHub"
+                : "Open GitHub and paste feedback"}
+            </a>
+          )}
+          {draft && !draft.prefilled && (
+            <p className="muted">
+              This message is too long for a prefilled link. Copy it first, then
+              paste it into GitHub. The full text is kept.
+            </p>
+          )}
+          <p className="muted">
+            Text stays in this form while it is open. Copy it before leaving
+            this page. You can also{" "}
+            <a
+              href="https://github.com/abhiram0411/RepoRecode/issues"
+              target="_blank"
+              rel="noreferrer"
+            >
+              browse existing issues
+            </a>
+            .
+          </p>
+        </div>
+      )}
       <p role="status">{status}</p>
       <h3>Anonymous usage · off by default</h3>
       <p className="muted">
@@ -244,7 +332,7 @@ export default function Community() {
         <input
           type="checkbox"
           checked={consent}
-          disabled={busy || (!enabled && !consent)}
+          disabled={busy || (!activityEnabled && !consent)}
           onChange={(e) => void toggle(e.target.checked)}
         />
         Share anonymous activity

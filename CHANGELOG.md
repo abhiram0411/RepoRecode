@@ -1,5 +1,9 @@
 # Changelog
 
+## Public feedback without a hosted gateway — 15 October 2026
+
+Preferences offers reviewable GitHub issue drafts when anonymous feedback delivery is unavailable. Only entered category/message is shared on opening the draft; the visitor submits it on GitHub. Public visibility and account requirements are explicit. Long encoded messages use full-text copy/paste, with a manual fallback when clipboard access is denied. Feedback and activity availability now use their separate service flags; the status request has an eight-second deadline. No server, secret, paid service or automatic issue submission was added.
+
 ## Nested object practice and public support — 15 October 2026
 
 Practice now accepts two object levels with three scalar leaves across the whole parameter, including nested named aliases/interfaces and optional containers. Missing fields and explicit undefined remain distinct at both levels. Independent field variations must fit within 16 object samples; wider shapes are rejected instead of silently losing coverage. The existing three-parameter/64-probe cap remains. Analysis version 5 enables saved-index refresh. The footer and Support dialog now link to the public GitHub repository and issues.

@@ -22,7 +22,9 @@ Anonymous activity is off by default. Explicit consent generates a random browse
 
 After revocation the local gateway retains a hashed rejection marker for 30 days, preventing delayed collection requests from recreating the deleted activity record. This marker has no activity dates or source. The marker store is bounded; when full, collection pauses rather than dropping protection. This privacy behavior is also described in the app.
 
-The current public Sites deployment serves the static frontend, not the Node gateway. It therefore truthfully shows feedback delivery and hosted admin metrics as unavailable. A same-origin free backend with durable storage and a hard zero-spend stop is required before enabling these on the public site. Local functionality does not depend on finding that host.
+The public Sites installation serves the static frontend, not the Node gateway. When direct feedback is unavailable, Preferences offers a GitHub issue draft and copy/paste fallback. Visitors review and submit on GitHub themselves; a GitHub account is required and submitted issues are public. Only the entered category/message is included, with no contact email, source, progress or activity identifier. Long encoded messages use copy/paste without truncation. GitHub documents this flow in [Creating an issue from a URL query](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue#creating-an-issue-from-a-url-query).
+
+This adds no server, service key, paid plan or automated issue submission. Anonymous delivery and hosted admin metrics still require a same-origin free backend with durable storage and a hard zero-spend stop. GitHub issues are managed on GitHub and are not counted in the local administrator's metrics.
 
 ## Optional Supabase identity and cloud copies
 

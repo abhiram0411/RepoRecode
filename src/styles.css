@@ -17,6 +17,16 @@
 .feedback-entry p {
   white-space: pre-wrap;
 }
+.public-feedback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.public-feedback-actions p {
+  flex-basis: 100%;
+}
 .service-note {
   padding: 12px;
   border: 1px solid var(--line);
@@ -1397,10 +1407,12 @@ summary {
 .settings-grid {
   align-items: start;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
 }
 .settings-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
   border: 1px solid var(--line);
   background: var(--panel);
   border-radius: 7px;
@@ -1421,6 +1433,7 @@ summary {
 .settings-card input,
 .settings-card select {
   font-size: 12px;
+  max-width: 100%;
 }
 .settings-card p {
   font-size: 12px;
@@ -1991,7 +2004,7 @@ summary {
     display: none;
   }
   .settings-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .campaign-summary {
     grid-template-columns: 1fr;

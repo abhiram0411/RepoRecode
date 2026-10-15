@@ -82,7 +82,7 @@ The optional local gateway accepts bounded bug, feature and general feedback wit
 
 Activity collection is off by default. Explicit consent creates a random browser identifier; the gateway stores its hash and day-only first and last activity. It receives no source, paths or answers. Inactive records expire after 30 days. Revocation deletes activity and retains a hashed rejection marker for 30 days so delayed requests cannot recreate it. A full marker store pauses collection. Offline deletion retries when Preferences opens online.
 
-The local submit, admin, opt-in and revoke journey is browser-tested with disposable data. Public feedback remains unavailable because a durable same-origin backend with a hard zero-spend stop has not been configured. Installation counts are not people, downloads or GitHub clones; unavailable metrics remain unavailable.
+The local submit, admin, opt-in and revoke journey is browser-tested with disposable data. Without a gateway, visitors can prepare a GitHub issue draft or copy their complete feedback. GitHub requires an account, and submitted issues are public; the app never submits automatically. Anonymous hosted delivery and integrated admin metrics still need a free durable backend. Installation counts are not people, downloads or GitHub clones; unavailable metrics remain unavailable.
 
 ## Authentication and security
 
@@ -121,9 +121,9 @@ Two GitHub runs on 15 October found preference loss when reloading immediately a
 - Set TEST_URL to http://127.0.0.1:5181 and LOCAL_COMMUNITY_E2E to true, then run npx playwright test.
 - The community journey creates disposable local data on port 8788 and refuses public targets. Do not send test feedback to production.
 
-Windows tests use Edge. The current published code passed hosted Chromium checks in run 38692161774. The dependency audit reports known published issues, not a complete security assessment. The source scanner checks common secret patterns and remains heuristic.
+Windows tests use Edge. Version 11 passed hosted Chromium checks in runs 38692161774 and 38693583186. GitHub commit a7854541ccf7faad1956d384f1e5c4aa248f1637 passed run 38736911049: https://github.com/abhiram0411/RepoRecode/actions/runs/38736911049. Install, 235 tests, build, dependency audit, source scan and all 23 Chromium journeys passed. The dependency audit reports known published issues, not a complete security assessment. The source scanner checks common secret patterns and remains heuristic.
 
-The version 11 live run passed 19 journeys, skipped local-only feedback and had two five-second timeouts while grading or interactive rendering was still pending. Both targeted repeats passed after waiting for completion signals for up to 30 seconds. The full run and retry are retained separately; this is not a new all-green full live run.
+Version 12 full live verification passed 22 journeys, skipped only local feedback and had no failures (136.48 seconds). Its source ZIP was verified against the release package. Earlier version 11 timeout and retry records remain in the journal.
 
 Release through the existing public Sites project. Push the exact source, package the matching build, save its version and deploy that returned version. Verify deployment status and compare the public source ZIP hash with the local package. Preserve host receipts. The public MIT repository is https://github.com/abhiram0411/RepoRecode. Its separate release checkout is tmp/github-v10; preserve its history independently of Sites.
 
@@ -135,7 +135,7 @@ Local feedback requires only the optional local Node gateway and a private data 
 
 ### Remaining engineering and acceptance
 
-- Provide a genuinely free, durable public feedback backend with a hard spending stop, or retain truthful unavailability.
+- Provide a genuinely free, durable anonymous feedback backend with a hard spending stop; the public GitHub issue flow remains available separately.
 - Complete owner-configured Supabase, OAuth and GitHub App acceptance with real accounts and selected private repositories.
 - Keep subsequent source releases synchronized to GitHub and verify their CI. The initial public source and hosted CI are complete.
 - Expand practice contracts, incremental semantic indexing, state and data relationships, preview dependencies and framework support while preserving limits and evidence labels.
