@@ -44,18 +44,12 @@ test("real ZIP import, incorrect rewrite, correction, persisted XP and source gr
   await page.keyboard.insertText(
     "function double(value: number): number { return 0; }",
   );
-  await expect(page.locator(".coding-pet")).toHaveAttribute(
-    "data-state",
-    "watching",
-  );
+  await expect(page.locator(".coding-pet")).toHaveCount(0);
   await page.getByRole("button", { name: "Run checks" }).click();
   await expect(page.getByRole("heading", { name: /Keep going/ })).toBeVisible({
     timeout: 30000,
   });
-  await expect(page.locator(".coding-pet")).toHaveAttribute(
-    "data-state",
-    "frustrated",
-  );
+
   await editor.focus();
   await page.keyboard.press("Control+A");
   await page.keyboard.insertText(

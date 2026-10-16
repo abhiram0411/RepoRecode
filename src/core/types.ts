@@ -61,12 +61,11 @@ export type Preferences = {
   goal: "understand" | "debug" | "interview";
   theme: ThemeId;
   followDeviceTheme?: boolean;
+  // Legacy storage key retained for the profile avatar style, not a tutor.
   tutor: "robot" | "girl" | "boy";
   color: string;
-  muted: boolean;
   motion: boolean;
   name: string;
-  visual: boolean;
   hair?: "short" | "long" | "none";
   outfit?: "jacket" | "hoodie" | "tee";
   accessory?: "none" | "glasses" | "cap";
@@ -76,12 +75,6 @@ export type Preferences = {
   hairColor?: string;
   background?: string;
   picture?: string;
-  tutorHidden?: boolean;
-  tutorSize?: "small" | "medium" | "large";
-  tutorPosition?: "left" | "right";
-  voiceStyle?:
-    "mentor" | "friendly" | "energetic" | "robotic" | "commando" | "playful";
-  voice?: string;
 };
 export type Attempt = {
   symbolId: string;

@@ -2,20 +2,17 @@ import { it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { palettes } from "../src/core/themes";
-import { reactionForResult } from "../src/core/pet";
 import { validatePreferences } from "../src/core/preferences";
 import Avatar from "../src/components/Avatar";
-import type { Evaluation, Preferences } from "../src/core/types";
+import type { Preferences } from "../src/core/types";
 const prefs: Preferences = {
   level: "beginner",
   goal: "understand",
   theme: "dark",
   tutor: "robot",
   color: "#c5eb82",
-  muted: true,
   motion: true,
   name: "Explorer",
-  visual: true,
 };
 function contrast(a: string, b: string) {
   const luminance = (c: string) => {
@@ -68,18 +65,18 @@ it("has distinct character geometry and permits combined accessories on every pr
     art("girl").match(/d="[^"]+"/g),
   );
 });
-it("reacts to verified checks and never treats unsupported evaluation as failure", () => {
-  const result: Evaluation = {
-    supported: true,
-    passed: false,
-    diagnostics: [],
-    cases: [],
-    note: "",
-  };
-  expect(reactionForResult(result)).toBe("frustrated");
-  expect(reactionForResult({ ...result, supported: false })).toBe("watching");
-  expect(reactionForResult({ ...result, passed: true })).toBe("celebrating");
-  expect(reactionForResult({ ...result, passed: true }, true)).toBe(
-    "achievement",
-  );
+it("drops obsolete companion and voice settings while preserving profile avatar style", () => {
+  const parsed = validatePreferences({
+    ...prefs,
+    tutorHidden: false,
+    tutorSize: "large",
+    tutorPosition: "right",
+    voiceStyle: "playful",
+    voice: "old",
+    muted: false,
+    visual: true,
+  });
+  expect(parsed.tutor).toBe("robot");
+  for (const key of ["tutorHidden", "tutorSize", "tutorPosition", "voiceStyle", "voice", "muted", "visual"])
+    expect(parsed).not.toHaveProperty(key);
 });

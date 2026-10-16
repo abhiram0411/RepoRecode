@@ -59,10 +59,8 @@ describe("expanded learning features", () => {
       theme: "dark",
       tutor: "robot",
       color: "#c5eb82",
-      muted: true,
       motion: true,
       name: "Explorer",
-      visual: true,
     };
     for (const picture of [
       "https://tracking.example/image",

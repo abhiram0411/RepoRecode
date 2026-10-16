@@ -48,7 +48,6 @@ import {
 } from "./core/storage";
 import { demoFiles } from "./core/demo";
 import { cloud, cloudSave, cloudLoad, cloudDelete } from "./core/cloud";
-import Companion from "./components/Companion";
 import AccountPanel from "./components/AccountPanel";
 import AdminPanel from "./components/AdminPanel";
 import GithubRepositories from "./components/GithubRepositories";
@@ -69,8 +68,7 @@ import {
   PredictionPractice,
   ProgressPanel,
 } from "./components/LearningTools";
-import { achievements, sourceHash } from "./core/curriculum";
-import { reactionForResult, type PetEvent } from "./core/pet";
+import { sourceHash } from "./core/curriculum";
 import { AnalysisSession } from "./core/analysisSession";
 import { functionStub, parameterText } from "./core/functionStub";
 import { ANALYSIS_VERSION } from "./core/analysisVersion";
@@ -105,7 +103,6 @@ export default function App() {
   const [profileOpen, setProfileOpen] = useState(false),
     [split, setSplit] = useState(45);
   const activeTheme = useWorkspaceTheme(prefs.theme, prefs.followDeviceTheme);
-  const [petEvent, setPetEvent] = useState<PetEvent>({ id: 0, state: "idle" });
   const importDialog = useDialog(modal, () => setModal(false), !!busy);
   const legalDialog = useDialog(!!legal, () => setLegal(""));
   const project = projects.find((p) => p.id === active),
@@ -311,20 +308,6 @@ export default function App() {
       const mission = exerciseMode === "feature" || exerciseMode === "build";
       const newly =
         r.passed && !mission && !project.completed.includes(symbol.id);
-      const previouslyEarned = new Set(
-        achievements(projects)
-          .filter((a) => a.earned)
-          .map((a) => a.id),
-      );
-      const withCompletion = {
-        ...project,
-        completed: newly
-          ? [...project.completed, symbol.id]
-          : project.completed,
-      };
-      const unlocked = achievements(
-        projects.map((p) => (p.id === project.id ? withCompletion : p)),
-      ).some((a) => a.earned && !previouslyEarned.has(a.id));
       await persist({
         ...project,
         drafts: { ...project.drafts, [symbol.id]: code },
@@ -348,10 +331,6 @@ export default function App() {
           ? [...project.completed, symbol.id]
           : project.completed,
       });
-      setPetEvent((e) => ({
-        id: e.id + 1,
-        state: reactionForResult(r, unlocked),
-      }));
       if (newly)
         setNotice("Behavior verified on tested inputs. +100 XP earned.");
       else if (mission && r.passed)
@@ -1503,25 +1482,9 @@ export default function App() {
                   </button>
                 </section>
                 <section className="settings-card">
-                  <h2>Coding Pet</h2>
+                  <h2>Appearance</h2>
                   <label>
-                    Companion
-                    <select
-                      value={prefs.tutor}
-                      onChange={(e) =>
-                        setPrefs({
-                          ...prefs,
-                          tutor: e.target.value as Preferences["tutor"],
-                        })
-                      }
-                    >
-                      <option value="robot">Echo / robot</option>
-                      <option value="girl">Mira / girl</option>
-                      <option value="boy">Kai / boy</option>
-                    </select>
-                  </label>
-                  <label>
-                    Avatar & companion color
+                    Profile avatar color
                     <input
                       type="color"
                       value={prefs.color}
@@ -1842,12 +1805,6 @@ export default function App() {
           </footer>
         </main>
       </div>
-      <Companion
-        prefs={prefs}
-        setPrefs={setPrefs}
-        event={petEvent}
-        practicing={practice && page === "workspace"}
-      />
       {modal && (
         <div
           className="modal-backdrop"
@@ -2027,7 +1984,7 @@ export default function App() {
             <h2>{legal}</h2>
             <p>
               {legal === "Privacy"
-                ? "Projects, preferences, drafts and results stay in this browser until deleted. Public imports contact GitHub; explicit cloud upload transfers source to your configured account. Learning explanations run locally and the Coding Pet is silent. Feedback sends only the fields you submit. Anonymous activity is off by default; if you opt in on a configured installation, a random browser identifier and activity day are sent, with no source, paths, answers or account identity. You can revoke it in Preferences. Inactive activity records expire after 30 days; a temporary hashed revocation marker prevents late requests from recreating them. Device exports and deletion are available in Preferences."
+                ? "Projects, preferences, drafts and results stay in this browser until deleted. Public imports contact GitHub; explicit cloud upload transfers source to your configured account. Learning explanations run locally. Feedback sends only the fields you submit. Anonymous activity is off by default; if you opt in on a configured installation, a random browser identifier and activity day are sent, with no source, paths, answers or account identity. You can revoke it in Preferences. Inactive activity records expire after 30 days; a temporary hashed revocation marker prevents late requests from recreating them. Device exports and deletion are available in Preferences."
                 : legal === "Terms"
                   ? "This development release is provided for evaluation. Behavioral probes are limited and do not certify correctness, security, authorship or employment readiness. You must have permission to import and process source code. A public service agreement requires owner and legal review."
                   : legal === "Security"
