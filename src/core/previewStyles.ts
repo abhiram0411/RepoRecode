@@ -62,7 +62,7 @@ function declaration(node: CssNode): string | null {
     return null;
   return generate(node);
 }
-function selector(node: CssNode) {
+function selector(node: CssNode, nested = false) {
   let safe = true,
     count = 0;
   walk(node, (n) => {
@@ -70,6 +70,9 @@ function selector(node: CssNode) {
     switch (n.type) {
       case "SelectorList":
       case "Selector":
+        break;
+      case "NestingSelector":
+        if (!nested) safe = false;
         break;
       case "TypeSelector":
         if (n.name !== "*" && !name.test(n.name)) safe = false;
@@ -100,21 +103,21 @@ export function sanitizeStylesheet(text: string) {
   let omitted = 0,
     rules = 0,
     declarations = 0;
-  function render(children: List<CssNode>, depth = 0): string {
+  function render(children: List<CssNode>, depth = 0, inRule = false): string {
     const output: string[] = [];
     for (const node of children) {
+      if (node.type === "Declaration") {
+        if (++declarations > 3000)
+          throw Error("Stylesheet exceeds 3,000 declarations.");
+        const safe = inRule && declaration(node);
+        if (safe) output.push(safe + ";");
+        else omitted++;
+        continue;
+      }
       if (++rules > 1000) throw Error("Stylesheet exceeds 1,000 rules.");
-      if (node.type === "Rule" && selector(node.prelude)) {
-        const body: string[] = [];
-        for (const child of node.block.children) {
-          if (++declarations > 3000)
-            throw Error("Stylesheet exceeds 3,000 declarations.");
-          const safe = declaration(child);
-          if (safe) body.push(safe);
-          else omitted++;
-        }
-        if (body.length)
-          output.push(`${generate(node.prelude)}{${body.join(";")}}`);
+      if (node.type === "Rule" && depth < 4 && selector(node.prelude, inRule)) {
+        const body = render(node.block.children, depth + 1, true);
+        if (body) output.push(`${generate(node.prelude)}{${body}}`);
       } else if (
         node.type === "Atrule" &&
         node.name.toLowerCase() === "media" &&
@@ -128,12 +131,12 @@ export function sanitizeStylesheet(text: string) {
           /^[a-zA-Z0-9\s:().,%+-]+$/.test(condition)
         ) {
           output.push(
-            `@media ${condition}{${render(node.block.children, depth + 1)}}`,
+            `@media ${condition}{${render(node.block.children, depth + 1, inRule)}}`,
           );
         } else omitted++;
       } else omitted++;
     }
-    return output.join("");
+    return output.join("").replace(/;$/, "");
   }
   if (ast.type !== "StyleSheet") throw Error("Invalid stylesheet.");
   // Escape HTML's raw-text closing delimiter even inside quoted CSS strings.

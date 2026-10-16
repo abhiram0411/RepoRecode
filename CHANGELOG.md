@@ -1,5 +1,9 @@
 # Changelog
 
+## Explicit nested preview styles — 16 October 2026
+
+Safe local styles retain explicit & nested selectors and nested media declarations, preserving source order up to four combined rule/media levels. All existing resource/value restrictions and total budgets apply at every depth. Implicit nesting/raw parser recovery remains omitted with notices. CSS is displayed using native browser nesting; no selector-product expansion or visual-equivalence grading is introduced.
+
 ## Bounded state initializer chains — 15 October 2026
 
 State relationships can trace two const-initializer steps within one function, show intermediate source links and show numbered graph arrows with readable relationship details and source controls. The analysis excludes calls, property access, mutable bindings and closures; it records lexical references rather than evaluated data flow. Bounds are 200 candidate bindings, eight paths per binding and the existing 200 relationship/60 graph-edge limits. Analysis version 6 enables old-index refresh. Verification and publication are tracked in RESUME.md.

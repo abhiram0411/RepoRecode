@@ -1,6 +1,6 @@
 # RepoRecode Engineering Report
 
-Prepared for Abhiram on 15 October 2026
+Prepared for Abhiram on 16 October 2026
 
 RepoRecode is a usable development release for learning from real JavaScript and TypeScript source. Its local learning workflow requires no account, database, model or payment method. This report describes implemented behavior, the recorded checks and the work still required by the master specification. It is not a claim of full product completion or an independent security assessment.
 
@@ -35,6 +35,8 @@ The optional Node gateway handles GitHub App access, protected administration an
 
 There is no paid model adapter or background source upload. The source archive excludes credentials, dependencies, local operational data and Git metadata. Imported projects are never installed or modified in their original locations.
 
+Local CSS preview supports explicit & nesting up to four combined rule/media levels, retaining source order and the same value/selector allowlists. Implicit nesting and raw parser recovery remain omitted with notices; resources remain blocked.
+
 ## Source learning and correctness
 
 Public GitHub import pins a source revision. Folder and ZIP imports validate supported files. Limits are 200 source files, 128 KiB per file, 2 MiB total accepted source and 5 MiB compressed ZIP. Path traversal, duplicate paths, suspicious archives and unsupported formats are rejected within the implemented checks.
@@ -58,7 +60,7 @@ Function contracts support up to three explicitly typed scalar, literal-union, n
 
 If the application script fails to load, a static message provides a reload link and no-JavaScript guidance. The workspace combines source or live preview, technical-flow diagrams, lessons and Monaco practice. Users can resize panels, inspect supported rendered elements, navigate to their JSX source and view practice edits. Failed renders preserve the last successful output. Source or props changes require a fresh interactive session.
 
-Synchronous click, input, change and submit handlers run inside QuickJS. React state, reducers and synchronous effects persist across at most 200 interactions, with 100 mapped function entries per action. Plain local CSS imports support bounded layout, variables and media queries through an allowlist; omissions are reported and resource loading is blocked. Sessions reuse sanitized CSS while rechecking loaded paths and bounds. DOM references, timers, asynchronous handlers, arbitrary packages, CSS modules/nesting/animations and full browser semantics remain unsupported.
+Synchronous click, input, change and submit handlers run inside QuickJS. React state, reducers and synchronous effects persist across at most 200 interactions, with 100 mapped function entries per action. Plain local CSS imports support bounded layout, variables, explicit & nesting and media queries through an allowlist; omissions are reported and resource loading is blocked. Sessions reuse sanitized CSS while rechecking loaded paths and bounds. DOM references, timers, asynchronous handlers, arbitrary packages, CSS modules, implicit nesting, animations and full browser semantics remain unsupported.
 
 Observed state reads show bounded values from directly imported React useState/useReducer calls, with source links and a 100-read limit per action. They are render-order observations, not an instance inventory or before/after diff; getters and toJSON are not invoked. A separate static list and diagram link state bindings to reads, updaters, initializers and props. Const chains preserve intermediate source links across two steps in one function; calls, properties, mutation and closures are excluded. Limits are 200 candidate bindings, eight paths per binding, 200 indexed relations and 60 diagrammed. These lexical references do not prove computed values or award mastery.
 
@@ -121,9 +123,9 @@ Two GitHub runs on 15 October found preference loss when reloading immediately a
 - Set TEST_URL to http://127.0.0.1:5181 and LOCAL_COMMUNITY_E2E to true, then run npx playwright test.
 - The community journey creates disposable local data on port 8788 and refuses public targets. Do not send test feedback to production.
 
-Windows tests use Edge. Version 11 passed hosted Chromium checks in runs 38692161774 and 38693583186. GitHub commit a7854541ccf7faad1956d384f1e5c4aa248f1637 passed run 38736911049: https://github.com/abhiram0411/RepoRecode/actions/runs/38736911049. Install, 235 tests, build, dependency audit, source scan and all 23 Chromium journeys passed. The dependency audit reports known published issues, not a complete security assessment. The source scanner checks common secret patterns and remains heuristic.
+Windows tests use Edge; GitHub uses Chromium. Version 14 passed GitHub run 38772970191 on commit 14a03657187d2439add5f6ab388d438fb0893e03, including 243 tests, build, audit, source scan and 27 Chromium journeys. Its full public run passed 26 journeys with one intentional local-server skip. The newer local CSS candidate has 251 tests and 28 browser journeys.
 
-Version 12 full live verification passed 22 journeys, skipped only local feedback and had no failures (136.48 seconds). Its source ZIP was verified against the release package. Earlier version 11 timeout and retry records remain in the journal.
+The dependency audit reports known published issues, not a complete security assessment. Source scanning remains heuristic. Earlier failures and retries remain in the journal with separate receipts.
 
 Release through the existing public Sites project. Push the exact source, package the matching build, save its version and deploy that returned version. Verify deployment status and compare the public source ZIP hash with the local package. Preserve host receipts. The public MIT repository is https://github.com/abhiram0411/RepoRecode. Its separate release checkout is tmp/github-v10; preserve its history independently of Sites.
 

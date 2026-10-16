@@ -60,6 +60,7 @@ for (const file of [
   "react-preview.png",
   "interactive-preview.png",
   "styled-preview.png",
+  "nested-styles.png",
   "state-relationships.png",
   "state-derivations.png",
   "object-practice.png",

@@ -1,12 +1,10 @@
 # RepoRecode continuation checkpoint
 
-Updated 15 October 2026. Continue the existing project; preserve uncommitted work. The full master specification remains unfinished. The user explicitly asked to keep working in this chat and not hand over to another AI; maintain this file only as a recovery record.
+Updated 16 October 2026. Continue the existing project; preserve uncommitted work. The full master specification remains unfinished. The user explicitly asked to keep working in this chat and not hand over to another AI; maintain this file only as a recovery record.
 
-## Active work after version 13
+## Active work after version 14
 
-State relationships trace up to two const-initializer steps in the same function, with intermediate source links. Bounds: 200 candidate bindings, eight paths per binding, 200 indexed relationships and 60 diagram arrows. Calls, property access, mutation, mutable aliases and closures are excluded from propagation. This is lexical source evidence, not evaluated values or execution order. Analysis version 6 enables refresh of old indexes. Numbered arrows and a keyboard-accessible relationship picker keep full explanations and source links readable.
-
-243 tests in 31 files and the production build passed. All 27 local Edge journeys passed (79.19 seconds) after the diagram refinement. The state-chain screenshot was inspected. The relationship picker, intermediate source controls and mobile width passed. Source scan: 167 files, no heuristic findings. Publication pending.
+Active local work after version 14: bounded explicit & CSS nesting, preserving declaration order and sanitizing all nested content. Four combined rule/media levels; implicit nesting and raw parser recovery remain omitted with notices. 251 tests in 32 files passed (14.36 seconds), production build passed, all 28 local Edge journeys passed (90.84 seconds), and source scan covered 169 files with no heuristic findings. The nested-style screenshot was inspected. Browser assertions verify declaration order, nested child/hover/media styles, state interaction, unchanged host styles, omitted unsafe URL content and no external resource requests. Publication pending.
 
 ## Owner decisions
 
@@ -14,11 +12,9 @@ Strict zero spend: no paid services, billing, overages, payment methods or top-u
 
 ## Latest release
 
-Version 13 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source commit: 9c4a2d45fc98b2bd473a06aa43eb57922328d558. Saved version: appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_86ef35d9c8f881918ad2e8f7c67b3b18. Deployment: appgdep_6ad1017947908191bcd98f5b0a952fe6, status succeeded. Source ZIP: HTTP 200, 191 files, 2836100 bytes, SHA-256 d3ebeab67562b2b77157621afa27d637e4701e77cc901c96817b533b9890329b; matched the version 13 package. Local builds for later work may replace the package.
+Version 14 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source: c5f10a1158f6017608a871057160650922daedb7. Saved version: appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_e996c86e125881918fc2bd43047da8f1. Deployment appgdep_6ad1690f70c08191aad73c9965996dc5 succeeded. Source ZIP: HTTP 200, 195 files, 3062338 bytes; SHA-256 2c97fccdcfcf1db8e82f62f278089c480a1659694640dd77ee542414b7f6d988, matched the release package. GitHub 14a03657187d2439add5f6ab388d438fb0893e03 passed run 38772970191: https://github.com/abhiram0411/RepoRecode/actions/runs/38772970191. The full public run passed 26 journeys with one intentional local-server skip (158.33 seconds).
 
-GitHub commit 9b1298ed9cda294baee82046cec63129f26837e6 passed run 38770487895: https://github.com/abhiram0411/RepoRecode/actions/runs/38770487895. Install, 235 tests, build, dependency audit, source scan and all 26 Chromium journeys passed.
-
-Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v13.json, public-feedback-retry-v13.json and github-ci-v13.json. Published ZIP is immutable and cannot contain its own later deployment receipt. Current documentation/evidence updates are newer than its source snapshot.
+Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v14.json and github-ci-v14.json. The immutable release ZIP cannot contain its own later publication receipts. Later builds may replace the local ZIP.
 
 ## Verified implementation
 
@@ -36,7 +32,7 @@ Earlier foundation: bounded GitHub/folder/ZIP imports; TypeScript declaration/re
 
 The user-reported GitHub theme failures on b320297 were fixed by synchronously saving validated preferences before IndexedDB. Original assertion retained; regression blocks database writes. Version 11 application f951441 and documentation/test 54f7463 passed runs 38692161774 and 38693583186. Old failed runs remain historical.
 
-Version 11 full live run: 19 passed, 1 skip, 2 five-second assertion timeouts while grading/rendering was pending. Completion waits were added without weakening results; both targeted repeats passed. Receipts remain separate. Version 12's full run above now passes every applicable public journey.
+Version 11 full live run: 19 passed, 1 skip, 2 five-second assertion timeouts while grading/rendering was pending. Completion waits were added without weakening results; both targeted repeats passed. Receipts remain separate. Versions 12 and 14 each have a distinct successful full public run.
 
 ## Exact remaining work
 

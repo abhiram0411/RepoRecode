@@ -1,4 +1,4 @@
-"""Build the editable development handover from verified repository evidence."""
+"""Build the editable development report from verified repository evidence."""
 from pathlib import Path
 import json
 import math
@@ -41,13 +41,13 @@ doc.styles['Heading 1'].paragraph_format.space_after = Pt(12)
 doc.styles['Heading 2'].paragraph_format.space_before = Pt(10)
 doc.styles['Caption'].font.size = Pt(9)
 doc.styles['Caption'].font.italic = True
-doc.core_properties.title = 'RepoRecode Development and Handover Report'
+doc.core_properties.title = 'RepoRecode Development Report'
 doc.core_properties.subject = 'Verified development release and remaining production scope'
 doc.core_properties.author = 'RepoRecode'
-doc.core_properties.keywords = 'RepoRecode, development, verification, handover'
+doc.core_properties.keywords = 'RepoRecode, development, verification'
 footer = sec.footer.paragraphs[0]
 footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-footer.add_run('RepoRecode  |  15 October 2026  |  ').font.size = Pt(8)
+footer.add_run('RepoRecode  |  16 October 2026  |  ').font.size = Pt(8)
 f = OxmlElement('w:fldSimple'); f.set(qn('w:instr'), 'PAGE'); footer._p.append(f)
 
 def p(text, style=None):
