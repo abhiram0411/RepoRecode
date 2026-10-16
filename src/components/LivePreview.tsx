@@ -355,13 +355,15 @@ export default function LivePreview({
         {mode === "initial"
           ? "Initial render only; effects and event handlers do not run. "
           : "Interactive React supports synchronous click, input, change and submit handlers, state, reducers and effects. Sessions reset after source or props changes and allow up to 200 interactions. DOM refs, timers, async handlers and full browser behavior are unsupported. "}
-        Local side-effect CSS imports support bounded colors, layout,
-        typography, variables, media queries and explicit &amp; nested rules up
-        to four block levels. Implicit nesting and unsupported syntax are
-        omitted. CSS modules, animations, external styles/fonts, images, network
-        and other packages are unsupported. Imported code runs in QuickJS; this
-        frame contains sanitized HTML and cannot run scripts. Turn on source
-        inspection to select an element and find its JSX source.
+        Local side-effect CSS and default CSS module imports support bounded
+        colors, layout, typography, variables, media queries and explicit &amp;
+        nested rules up to four block levels. Implicit nesting and unsupported
+        syntax are omitted. Modules scope up to 200 class and ID names per file.
+        Composition, global module selectors, named/namespace CSS imports,
+        animations, external styles/fonts, images, network and other packages
+        are unsupported. Imported code runs in QuickJS; this frame contains
+        sanitized HTML and cannot run scripts. Turn on source inspection to
+        select an element and find its JSX source.
       </p>
       {!!snapshot?.styleWarnings?.length && (
         <details>

@@ -60,7 +60,7 @@ Function contracts support up to three explicitly typed scalar, literal-union, n
 
 If the application script fails to load, a static message provides a reload link and no-JavaScript guidance. The workspace combines source or live preview, technical-flow diagrams, lessons and Monaco practice. Users can resize panels, inspect supported rendered elements, navigate to their JSX source and view practice edits. Failed renders preserve the last successful output. Source or props changes require a fresh interactive session.
 
-Synchronous click, input, change and submit handlers run inside QuickJS. React state, reducers and synchronous effects persist across at most 200 interactions, with 100 mapped function entries per action. Plain local CSS imports support bounded layout, variables, explicit & nesting and media queries through an allowlist; omissions are reported and resource loading is blocked. Sessions reuse sanitized CSS while rechecking loaded paths and bounds. DOM references, timers, asynchronous handlers, arbitrary packages, CSS modules, implicit nesting, animations and full browser semantics remain unsupported.
+Synchronous click, input, change and submit handlers run inside QuickJS. React state, reducers and synchronous effects persist across at most 200 interactions, with 100 mapped function entries per action. Plain local CSS and default CSS module imports support bounded layout, variables, explicit & nesting and media queries through an allowlist; omissions are reported and resource loading is blocked. Sessions reuse sanitized CSS while rechecking loaded paths and bounds. DOM references, timers, asynchronous handlers, arbitrary packages, CSS module composition/global selectors, named/namespace CSS imports, implicit nesting, animations and full browser semantics remain unsupported.
 
 Observed state reads show bounded values from directly imported React useState/useReducer calls, with source links and a 100-read limit per action. They are render-order observations, not an instance inventory or before/after diff; getters and toJSON are not invoked. A separate static list and diagram link state bindings to reads, updaters, initializers and props. Const chains preserve intermediate source links across two steps in one function; calls, properties, mutation and closures are excluded. Limits are 200 candidate bindings, eight paths per binding, 200 indexed relations and 60 diagrammed. These lexical references do not prove computed values or award mastery.
 
@@ -123,7 +123,7 @@ Two GitHub runs on 15 October found preference loss when reloading immediately a
 - Set TEST_URL to http://127.0.0.1:5181 and LOCAL_COMMUNITY_E2E to true, then run npx playwright test.
 - The community journey creates disposable local data on port 8788 and refuses public targets. Do not send test feedback to production.
 
-Windows tests use Edge; GitHub uses Chromium. GitHub commit f30ccce83eff91fb21e5d19d904298c3d105c3b9 passed run 38827774336: https://github.com/abhiram0411/RepoRecode/actions/runs/38827774336. Full public run: 27 passed, 1 intentionally skipped, 0 failed (147.31 seconds).
+Windows tests use Edge; GitHub uses Chromium. GitHub commit 7c14b19ac3115408bae95dbb51c0736930485c18 passed run 38828699771: https://github.com/abhiram0411/RepoRecode/actions/runs/38828699771. Full public run: 28 passed, 1 intentionally skipped, 0 failed (167.54 seconds).
 
 The dependency audit reports known published issues, not a complete security assessment. Source scanning remains heuristic. Earlier failures and retries remain in the journal with separate receipts.
 
@@ -145,4 +145,4 @@ Local feedback requires only the optional local Node gateway and a private data 
 
 Optional local Ollama may improve explanations in the learning workspace. It remains unimplemented, is not required for core learning and must not turn the Coding Pet into a tutor. Device-theme following is implemented.
 
-This report is a development checkpoint. Keep docs/RESUME.md current with exact tests, failures, publication status and next actions. The full master specification remains open until each required behavior has implementation and acceptance evidence.
+This report records the current development release. Keep docs/RESUME.md current with exact tests, failures, publication status and next actions. The full master specification remains open until each required behavior has implementation and acceptance evidence.

@@ -96,13 +96,43 @@ function selector(node: CssNode, nested = false) {
 // Only worker-generated CSS reaches the frame; never pass original stylesheet
 // text through. URL nodes, arbitrary functions, raw recovery nodes, external
 // fonts/imports, pseudo elements and animations are excluded by allowlists.
-export function sanitizeStylesheet(text: string) {
+export function previewStylePrefix(files: SourceFile[], path: string) {
+  const index = files.findIndex((file) => file.path === path);
+  if (index < 0) throw Error("Stylesheet is outside the imported snapshot.");
+  return `rrm_${index}_`;
+}
+
+export function sanitizeStylesheet(text: string, modulePrefix?: string) {
+  if (modulePrefix !== undefined && !/^rrm_[0-9]+_$/.test(modulePrefix))
+    throw Error("Invalid stylesheet scope.");
   if (text.length > 128 * 1024) throw Error("Stylesheet exceeds 128 KiB.");
   const ast = parse(text, { parseCustomProperty: true });
   boundedTree(ast);
   let omitted = 0,
     rules = 0,
     declarations = 0;
+  const classes: Record<string, string> = Object.create(null);
+  function scope(prelude: CssNode): boolean {
+    if (!modulePrefix) return true;
+    const names: string[] = [];
+    walk(prelude, (node) => {
+      if (node.type === "ClassSelector" || node.type === "IdSelector")
+        names.push(node.name);
+    });
+    if (names.some((name) => name.length > 100)) return false;
+    for (const name of names) {
+      if (!Object.hasOwn(classes, name)) {
+        if (Object.keys(classes).length >= 200)
+          throw Error("CSS module exceeds 200 local names.");
+        classes[name] = modulePrefix + name;
+      }
+    }
+    walk(prelude, (node) => {
+      if (node.type === "ClassSelector" || node.type === "IdSelector")
+        node.name = classes[node.name];
+    });
+    return true;
+  }
   function render(children: List<CssNode>, depth = 0, inRule = false): string {
     const output: string[] = [];
     for (const node of children) {
@@ -115,7 +145,12 @@ export function sanitizeStylesheet(text: string) {
         continue;
       }
       if (++rules > 1000) throw Error("Stylesheet exceeds 1,000 rules.");
-      if (node.type === "Rule" && depth < 4 && selector(node.prelude, inRule)) {
+      if (
+        node.type === "Rule" &&
+        depth < 4 &&
+        selector(node.prelude, inRule) &&
+        scope(node.prelude)
+      ) {
         const body = render(node.block.children, depth + 1, true);
         if (body) output.push(`${generate(node.prelude)}{${body}}`);
       } else if (
@@ -141,7 +176,7 @@ export function sanitizeStylesheet(text: string) {
   if (ast.type !== "StyleSheet") throw Error("Invalid stylesheet.");
   // Escape HTML's raw-text closing delimiter even inside quoted CSS strings.
   const css = render(ast.children).replace(/</g, "\\3c ");
-  return { css, omitted };
+  return { css, omitted, ...(modulePrefix ? { classes } : {}) };
 }
 export function sanitizeInlineStyle(text: string) {
   if (text.length > 8000) return "";
@@ -169,6 +204,9 @@ export function collectPreviewStyles(files: SourceFile[], loaded: unknown) {
 // One immutable source snapshot per preview session. Never reuse sanitation
 // across changed snapshots or trust VM-supplied paths without checking them.
 export function createPreviewStyleCollector(files: SourceFile[]) {
+  const prefixes = new Map(
+    files.map((file, index) => [file.path, `rrm_${index}_`]),
+  );
   const styles = new Map(
     files
       .filter((f) => f.path.endsWith(".css"))
@@ -201,7 +239,10 @@ export function createPreviewStyleCollector(files: SourceFile[]) {
       for (const path of paths) {
         let result = cache.get(path);
         if (!result) {
-          result = sanitizeStylesheet(styles.get(path)!);
+          result = sanitizeStylesheet(
+            styles.get(path)!,
+            path.endsWith(".module.css") ? prefixes.get(path) : undefined,
+          );
           cache.set(path, result);
         }
         parts.push(result.css);
@@ -216,6 +257,7 @@ export function createPreviewStyleCollector(files: SourceFile[]) {
       disposed = true;
       cache.clear();
       styles.clear();
+      prefixes.clear();
     },
   };
 }

@@ -1,10 +1,10 @@
-# RepoRecode continuation checkpoint
+# RepoRecode development status
 
 Updated 16 October 2026. Continue the existing project; preserve uncommitted work. The full master specification remains unfinished. The user explicitly asked to keep working in this chat and not hand over to another AI; maintain this file only as a recovery record.
 
 ## Active work
 
-The inherited-interface update is local and not yet published. Complete browser verification, publish the reviewed source and verify the live site/GitHub checks. Continue in this chat.
+CSS Modules local acceptance: 273 tests in 34 files passed; production build passed; all 30 local Edge browser journeys passed (88.76 seconds). Source scan: 173 files with no heuristic findings. The new CSS Modules screenshot was inspected. Publication and public/GitHub verification are pending.
 
 Current local source: 265 tests in 33 files passed; production build passed. Latest completed local browser run: 29 passed, 0 failed (98.99 seconds). Source scan: 171 files, no heuristic findings. No dependencies changed; large compiler/editor/VM bundles remain a limitation.
 
@@ -14,11 +14,11 @@ Strict zero spend: no paid services, billing, overages, payment methods or top-u
 
 ## Latest release
 
-Version 15 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source 395bdae41e6b6090a971a75c215765672419149c; saved version appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_a440622897bc8191ae7d9fb4c9f38e9b; deployment appgdep_6ad16b55fbac8191bdc526c8ec3ae1f0 succeeded. Source ZIP: HTTP 200, 198 files, 3190537 bytes, SHA-256 ccbd24e5b1527107744a2096822e2f1c4b4b311959d59e7f7928396d657e03eb; matched the published release package. Later local builds may replace the local ZIP.
+Version 16 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source 0495f784288d5bea8b39a559c6121841147b3e70; saved version appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_3f024904d8ec81918e0c45f8bebab290; deployment appgdep_6ad16d62fc348191904160e99cb2f77d succeeded. Source ZIP: HTTP 200, 201 files, 3346241 bytes, SHA-256 63563ba5ee093af46878ba36ade66491289d94fd67fb429c640951859229c3fa; matched the published release package. Later local builds may replace the local ZIP.
 
-GitHub commit f30ccce83eff91fb21e5d19d904298c3d105c3b9 passed run 38827774336: https://github.com/abhiram0411/RepoRecode/actions/runs/38827774336. Full public run: 27 passed, 1 intentionally skipped, 0 failed (147.31 seconds).
+GitHub commit 7c14b19ac3115408bae95dbb51c0736930485c18 passed run 38828699771: https://github.com/abhiram0411/RepoRecode/actions/runs/38828699771. Full public run: 28 passed, 1 intentionally skipped, 0 failed (167.54 seconds).
 
-Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v15.json and github-ci-v15.json. The immutable release archive cannot contain its own later receipts.
+Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v16.json and github-ci-v16.json. The immutable release archive cannot contain its own later receipts.
 
 ## Verified implementation
 
@@ -28,7 +28,7 @@ Practice retains two object levels, three scalar leaves, 16 object samples and 6
 
 Public feedback offers reviewed GitHub drafts and full-text copy fallback. Anonymous local feedback remains supported with a configured gateway; anonymous hosted delivery is unconfigured. No automatic GitHub issue submission or paid infrastructure was added.
 
-Report binaries need regeneration and visual review after the latest accepted release.
+Word/PDF report binaries were regenerated for version 16 and all eight rendered pages inspected on 16 October 2026; no clipping or broken tables were found.
 
 ## Historical failures preserved
 

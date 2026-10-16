@@ -61,6 +61,7 @@ for (const file of [
   "interactive-preview.png",
   "styled-preview.png",
   "nested-styles.png",
+  "css-modules.png",
   "state-relationships.png",
   "state-derivations.png",
   "object-practice.png",

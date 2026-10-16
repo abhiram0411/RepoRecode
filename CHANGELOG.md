@@ -1,6 +1,12 @@
 # Changelog
 
-## Bounded inherited practice contracts — in development
+## 16 October 2026 — CSS Modules preview
+
+- Default local .module.css imports now expose bounded scoped class/ID names, including explicit nested selectors and interactive state updates.
+- Unsafe resources, unsupported module constructs and oversized export maps remain blocked or reported; unrelated unimported module errors do not prevent another entry from rendering.
+- Added focused unit coverage and a browser journey for independent same-name styles, nesting, interaction and resource isolation.
+
+## Bounded inherited practice contracts — 16 October 2026
 
 Practice now resolves small interface inheritance trees, including renamed imports/reexports, multiple distinct bases, optional and readonly inherited fields. Duplicate/overridden fields, diamond duplicates, cycles, merged declarations, generic/qualified/non-interface bases and oversized/deep shapes remain unsupported. Existing bounds remain: depth 8, 256 expansion visits, three properties per object, two object levels/three leaves, 16 object samples and 64 probes. Analysis version 7 refreshes old indexes.
 

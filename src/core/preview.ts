@@ -6,7 +6,12 @@ import type { SourceFile } from "./types";
 import { validateFiles } from "./import";
 import { patchSource, type SourcePatch } from "./sourcePatch";
 import { hookSites } from "./hookSites";
-import { collectPreviewStyles, sanitizeInlineStyle } from "./previewStyles";
+import {
+  collectPreviewStyles,
+  sanitizeInlineStyle,
+  sanitizeStylesheet,
+  previewStylePrefix,
+} from "./previewStyles";
 const tags = new Set(
   "div span p main section article header footer nav aside h1 h2 h3 h4 h5 h6 ul ol li strong em b i small pre code blockquote button input label select option textarea progress meter table thead tbody tr th td form img br hr a details summary figure figcaption".split(
     " ",
@@ -84,9 +89,11 @@ export function instrument(
       ts.isImportDeclaration(statement) &&
       ts.isStringLiteral(statement.moduleSpecifier) &&
       statement.moduleSpecifier.text.endsWith(".css") &&
-      statement.importClause
+      statement.importClause &&
+      (!statement.moduleSpecifier.text.endsWith(".module.css") ||
+        statement.importClause.namedBindings)
     )
-      return "throw Error('CSS modules and bound CSS imports are unsupported. Use a local side-effect CSS import.');";
+      return "throw Error('Use a default CSS module import or a plain side-effect CSS import. Named/namespace CSS imports are unsupported.');";
   }
   const transformer: ts.TransformerFactory<ts.SourceFile> =
     (context) => (root) => {
@@ -273,15 +280,28 @@ export function previewBootstrap(
   files = patched.files;
   if (!files.some((f) => f.path === entry))
     throw Error("Entry file not found.");
+  function stylesheetModule(file: SourceFile) {
+    const loaded = `__rrStylePaths.add(${JSON.stringify(file.path)});`;
+    if (!file.path.endsWith(".module.css")) return loaded;
+    try {
+      const result = sanitizeStylesheet(
+        file.content,
+        previewStylePrefix(files, file.path),
+      );
+      // JSON.parse preserves an own __proto__ key; the export map has no prototype.
+      return `${loaded}module.exports=Object.freeze({__esModule:true,default:Object.freeze(Object.assign(Object.create(null),JSON.parse(${JSON.stringify(JSON.stringify(result.classes))})))});`;
+    } catch (error) {
+      // An unrelated unsupported stylesheet must not prevent rendering another entry.
+      return `throw Error(${JSON.stringify(error instanceof Error ? error.message : "CSS module could not be prepared.")});`;
+    }
+  }
   const modules = files
     .filter((f) => /\.[cm]?[jt]sx?$/.test(f.path) || f.path.endsWith(".css"))
     .map(
       (f) =>
         `${JSON.stringify(f.path)}:function(module,exports,require){${
           f.path.endsWith(".css")
-            ? f.path.endsWith(".module.css")
-              ? "throw Error('CSS modules are unsupported. Use a plain local stylesheet.');"
-              : `__rrStylePaths.add(${JSON.stringify(f.path)});`
+            ? stylesheetModule(f)
             : instrument(
                 f,
                 patched.originalLine,

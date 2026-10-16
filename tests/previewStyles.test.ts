@@ -101,10 +101,11 @@ describe("bounded local preview styles", () => {
     expect(result.css).not.toContain("<");
     expect(result.css).toContain("color:red");
   });
-  it("rejects CSS modules and bound imports with a clear limitation", async () => {
+  it("rejects bound plain CSS and named/namespace module imports with a clear limitation", async () => {
     for (const statement of [
       "import styles from './base.css';",
-      "import './card.module.css';",
+      "import {card} from './card.module.css';",
+      "import * as styles from './card.module.css';",
     ]) {
       await expect(
         renderPreview(
@@ -120,7 +121,7 @@ describe("bounded local preview styles", () => {
           "App.tsx",
           "default",
         ),
-      ).rejects.toThrow("CSS modules");
+      ).rejects.toThrow("CSS module import");
     }
   });
   it("does not reject a root just because an unrelated component uses CSS modules", async () => {
