@@ -2,9 +2,11 @@
 
 Updated 16 October 2026. Continue the existing project; preserve uncommitted work. The full master specification remains unfinished. The user explicitly asked to keep working in this chat and not hand over to another AI; maintain this file only as a recovery record.
 
-## Active work after version 14
+## Active work
 
-Active local work after version 14: bounded explicit & CSS nesting, preserving declaration order and sanitizing all nested content. Four combined rule/media levels; implicit nesting and raw parser recovery remain omitted with notices. 251 tests in 32 files passed (14.36 seconds), production build passed, all 28 local Edge journeys passed (90.84 seconds), and source scan covered 169 files with no heuristic findings. The nested-style screenshot was inspected. Browser assertions verify declaration order, nested child/hover/media styles, state interaction, unchanged host styles, omitted unsafe URL content and no external resource requests. Publication pending.
+The inherited-interface update is local and not yet published. Complete browser verification, publish the reviewed source and verify the live site/GitHub checks. Continue in this chat.
+
+Current local source: 265 tests in 33 files passed; production build passed. Latest completed local browser run: 29 passed, 0 failed (98.99 seconds). Source scan: 171 files, no heuristic findings. No dependencies changed; large compiler/editor/VM bundles remain a limitation.
 
 ## Owner decisions
 
@@ -12,21 +14,21 @@ Strict zero spend: no paid services, billing, overages, payment methods or top-u
 
 ## Latest release
 
-Version 14 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source: c5f10a1158f6017608a871057160650922daedb7. Saved version: appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_e996c86e125881918fc2bd43047da8f1. Deployment appgdep_6ad1690f70c08191aad73c9965996dc5 succeeded. Source ZIP: HTTP 200, 195 files, 3062338 bytes; SHA-256 2c97fccdcfcf1db8e82f62f278089c480a1659694640dd77ee542414b7f6d988, matched the release package. GitHub 14a03657187d2439add5f6ab388d438fb0893e03 passed run 38772970191: https://github.com/abhiram0411/RepoRecode/actions/runs/38772970191. The full public run passed 26 journeys with one intentional local-server skip (158.33 seconds).
+Version 15 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source 395bdae41e6b6090a971a75c215765672419149c; saved version appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_a440622897bc8191ae7d9fb4c9f38e9b; deployment appgdep_6ad16b55fbac8191bdc526c8ec3ae1f0 succeeded. Source ZIP: HTTP 200, 198 files, 3190537 bytes, SHA-256 ccbd24e5b1527107744a2096822e2f1c4b4b311959d59e7f7928396d657e03eb; matched the published release package. Later local builds may replace the local ZIP.
 
-Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v14.json and github-ci-v14.json. The immutable release ZIP cannot contain its own later publication receipts. Later builds may replace the local ZIP.
+GitHub commit f30ccce83eff91fb21e5d19d904298c3d105c3b9 passed run 38827774336: https://github.com/abhiram0411/RepoRecode/actions/runs/38827774336. Full public run: 27 passed, 1 intentionally skipped, 0 failed (147.31 seconds).
+
+Receipts: artifacts/deployment.json, source-download.json, public-browser-results-v15.json and github-ci-v15.json. The immutable release archive cannot contain its own later receipts.
 
 ## Verified implementation
 
-Practice accepts two object levels with three scalar leaves across each parameter, preserving missing/undefined containers and fields. Required independent variations must fit 16 object samples; wider shapes are rejected. The overall cap remains three parameters and 64 probes. Nested named aliases/interfaces and readonly leaves are tested. The nested-practice release used analysis version 5; the current state-chain update uses version 6. Footer and Support links now point to the public GitHub repository and issues.
+State diagrams trace two const-initializer steps with source links and readable numbered arrows. Local CSS supports explicit & nesting and media declarations to four combined block levels, with unchanged resource restrictions. Small inherited-interface practice preserves readonly/optional fields, named imports and finite input coverage; ambiguous inheritance remains unsupported. Analysis version 7 enables index refresh.
 
-Version 13 local checks: 235 tests in 30 files passed (12.79 seconds); TypeScript/Vite build passed; all 26 Edge journeys passed (75.28 seconds). Source scan: 163 files, no heuristic findings. Full public run: 24 passed, 1 local-only skip, 1 failed because the test's broad write observer counted the host's independent Cloudflare bot-check POST. Scoped the assertion to app API/GitHub writes, preserving the no-automatic-feedback-submission check. All three feedback repeats passed (12.3 seconds). Keep original and retry receipts; this is not a newly all-green full public run. No dependencies changed; hosted audit passed. Large compiler/editor/VM bundles remain a limitation.
+Practice retains two object levels, three scalar leaves, 16 object samples and 64 probes. Inheritance resolution rejects conflicting/duplicate fields, cycles, merged/generic/qualified/non-interface bases and excessive expansion. Existing imports, learning, practice, progress transfer, 15 themes, silent pet, isolated previews and cloud/gateway code are retained.
 
-Public feedback now offers user-reviewed GitHub issue drafts and full-text copy fallback, with public visibility/account requirements explained. Anonymous hosted delivery remains unavailable. Status fetch has an eight-second deadline; feedback and activity flags are independent. The mobile Preferences overflow found by the new test is fixed. Existing PDF/DOCX binaries currently describe version 12; regenerate and visually inspect after the next accepted release.
+Public feedback offers reviewed GitHub drafts and full-text copy fallback. Anonymous local feedback remains supported with a configured gateway; anonymous hosted delivery is unconfigured. No automatic GitHub issue submission or paid infrastructure was added.
 
-The first build found a TypeScript narrowing error in the new nested-object branch; the direct type guard corrected it and the rebuild passed. The first approval review timed out; its allowed retry succeeded. Neither remains blocked. Nested-practice and mobile Support screenshots were inspected.
-
-Earlier foundation: bounded GitHub/folder/ZIP imports; TypeScript declaration/reference analysis; source lessons, roadmaps, missions, typed predictions, reflections, Monaco; isolated initial/interactive React with observed hooks/direct state relationships; sanitized local CSS; atomic source refresh/cloud restore; local progress transfer; 15 palettes/device following; silent customizable pet; optional local feedback/admin; shared GitHub PKCE/refresh lifecycle and six SQL migrations.
+Report binaries need regeneration and visual review after the latest accepted release.
 
 ## Historical failures preserved
 

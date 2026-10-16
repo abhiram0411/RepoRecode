@@ -36,10 +36,10 @@ export function expandPracticeType(
       let result: string | null;
       if (ts.isTypeAliasDeclaration(declaration))
         result = expand(declaration.type, depth + 1);
-      else
-        result = declaration.heritageClauses?.length
-          ? null
-          : object(declaration.members, depth + 1);
+      else {
+        const members = interfaceMembers(declaration, depth + 1);
+        result = members === null ? null : object(members, depth + 1);
+      }
       active.delete(symbol);
       return result;
     }
@@ -87,8 +87,44 @@ export function expandPracticeType(
       return node.getText();
     return null;
   }
+  // Flatten only unambiguous interface inheritance. Duplicate/overridden fields,
+  // merged declarations, generics and qualified bases need a richer type harness.
+  function interfaceMembers(
+    declaration: ts.InterfaceDeclaration,
+    depth: number,
+  ): ts.TypeElement[] | null {
+    if (--remaining < 0 || depth > 8) return null;
+    const members: ts.TypeElement[] = [];
+    for (const clause of declaration.heritageClauses ?? []) {
+      if (clause.token !== ts.SyntaxKind.ExtendsKeyword) return null;
+      for (const base of clause.types) {
+        if (base.typeArguments?.length || !ts.isIdentifier(base.expression))
+          return null;
+        let symbol = checker.getSymbolAtLocation(base.expression);
+        if (!symbol) return null;
+        if (symbol.flags & ts.SymbolFlags.Alias)
+          symbol = checker.getAliasedSymbol(symbol);
+        if (active.has(symbol) || symbol.declarations?.length !== 1)
+          return null;
+        const inherited = symbol.declarations[0];
+        if (
+          !ts.isInterfaceDeclaration(inherited) ||
+          inherited.typeParameters?.length
+        )
+          return null;
+        active.add(symbol);
+        const inheritedMembers = interfaceMembers(inherited, depth + 1);
+        active.delete(symbol);
+        if (inheritedMembers === null) return null;
+        members.push(...inheritedMembers);
+        if (members.length > 3) return null;
+      }
+    }
+    members.push(...declaration.members);
+    return members.length <= 3 ? members : null;
+  }
   function object(
-    members: ts.NodeArray<ts.TypeElement>,
+    members: readonly ts.TypeElement[],
     depth: number,
   ): string | null {
     if (members.length > 3) return null;

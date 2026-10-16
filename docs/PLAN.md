@@ -1,7 +1,11 @@
 # Current plan
 
-Version 14 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source: c5f10a1158f6017608a871057160650922daedb7. Saved version: appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_e996c86e125881918fc2bd43047da8f1. Deployment appgdep_6ad1690f70c08191aad73c9965996dc5 succeeded. Source ZIP: HTTP 200, 195 files, 3062338 bytes; SHA-256 2c97fccdcfcf1db8e82f62f278089c480a1659694640dd77ee542414b7f6d988, matched the release package. GitHub 14a03657187d2439add5f6ab388d438fb0893e03 passed run 38772970191: https://github.com/abhiram0411/RepoRecode/actions/runs/38772970191. The full public run passed 26 journeys with one intentional local-server skip (158.33 seconds).
+The inherited-interface update is local and not yet published. Complete browser verification, publish the reviewed source and verify the live site/GitHub checks. Continue in this chat.
 
-Active local work after version 14: bounded explicit & CSS nesting, preserving declaration order and sanitizing all nested content. Four combined rule/media levels; implicit nesting and raw parser recovery remain omitted with notices. 251 tests in 32 files passed (14.36 seconds), production build passed, all 28 local Edge journeys passed (90.84 seconds), and source scan covered 169 files with no heuristic findings. The nested-style screenshot was inspected. Browser assertions verify declaration order, nested child/hover/media styles, state interaction, unchanged host styles, omitted unsafe URL content and no external resource requests. Publication pending.
+Version 15 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source 395bdae41e6b6090a971a75c215765672419149c; saved version appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_a440622897bc8191ae7d9fb4c9f38e9b; deployment appgdep_6ad16b55fbac8191bdc526c8ec3ae1f0 succeeded. Source ZIP: HTTP 200, 198 files, 3190537 bytes, SHA-256 ccbd24e5b1527107744a2096822e2f1c4b4b311959d59e7f7928396d657e03eb; matched the published release package. Later local builds may replace the local ZIP.
 
-Continue the implementation/provider/operations backlog in RESUME.md and MASTER_SPEC.md. Strict zero spending; no tutor or handoff.
+GitHub commit f30ccce83eff91fb21e5d19d904298c3d105c3b9 passed run 38827774336: https://github.com/abhiram0411/RepoRecode/actions/runs/38827774336. Full public run: 27 passed, 1 intentionally skipped, 0 failed (147.31 seconds).
+
+Current local source: 265 tests in 33 files passed; production build passed. Latest completed local browser run: 29 passed, 0 failed (98.99 seconds). Source scan: 171 files, no heuristic findings. No dependencies changed; large compiler/editor/VM bundles remain a limitation.
+
+Continue the exact backlog in RESUME.md, FEATURES.md and MASTER_SPEC.md. Keep zero spending and no tutor.

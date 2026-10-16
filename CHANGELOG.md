@@ -1,5 +1,9 @@
 # Changelog
 
+## Bounded inherited practice contracts — in development
+
+Practice now resolves small interface inheritance trees, including renamed imports/reexports, multiple distinct bases, optional and readonly inherited fields. Duplicate/overridden fields, diamond duplicates, cycles, merged declarations, generic/qualified/non-interface bases and oversized/deep shapes remain unsupported. Existing bounds remain: depth 8, 256 expansion visits, three properties per object, two object levels/three leaves, 16 object samples and 64 probes. Analysis version 7 refreshes old indexes.
+
 ## Explicit nested preview styles — 16 October 2026
 
 Safe local styles retain explicit & nested selectors and nested media declarations, preserving source order up to four combined rule/media levels. All existing resource/value restrictions and total budgets apply at every depth. Implicit nesting/raw parser recovery remains omitted with notices. CSS is displayed using native browser nesting; no selector-product expansion or visual-equivalence grading is introduced.

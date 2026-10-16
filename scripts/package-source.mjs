@@ -65,6 +65,7 @@ for (const file of [
   "state-derivations.png",
   "object-practice.png",
   "named-practice.png",
+  "inherited-practice.png",
   "nested-practice.png",
   "support-mobile.png",
   "public-feedback-mobile.png",

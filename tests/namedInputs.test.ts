@@ -102,7 +102,7 @@ describe("resolved named practice inputs", () => {
     "type Input = Input;",
     "type Other = Input; type Input = Other;",
     "interface Input {nested:Input}",
-    "interface Base {value:number} interface Input extends Base {}",
+    "interface Base<T> {value:T} interface Input extends Base<number> {}",
     "interface Input {a:number} interface Input {b:number}",
     "type Input<T=number> = T;",
     "type Input = {value:{nested:{deep:number}}};",
