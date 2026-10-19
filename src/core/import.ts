@@ -103,13 +103,16 @@ export function zipImport(bytes: Uint8Array) {
   let p = offset,
     total = 0,
     n = 0;
+  const seenSourcePaths = new Set<string>();
   for (let i = 0; i < count; i++) {
-    if (p + 46 > bytes.length || v.getUint32(p, true) !== 0x02014b50)
+    if (p + 46 > end || v.getUint32(p, true) !== 0x02014b50)
       throw Error("Invalid ZIP entry.");
     const size = v.getUint32(p + 24, true),
       len = v.getUint16(p + 28, true),
       extra = v.getUint16(p + 30, true),
       comment = v.getUint16(p + 32, true);
+    if (p + 46 + len + extra + comment > end)
+      throw Error("Invalid ZIP entry.");
     const name = new TextDecoder().decode(bytes.slice(p + 46, p + 46 + len));
     if (!safePath(name.replace(/\/$/, ""))) throw Error("Unsafe ZIP path.");
     if (
@@ -118,6 +121,9 @@ export function zipImport(bytes: Uint8Array) {
     )
       throw Error("Symlinks/encrypted ZIPs are unsupported.");
     if (allowed(name)) {
+      if (seenSourcePaths.has(name))
+        throw Error(`Duplicate ZIP source path: ${name}`);
+      seenSourcePaths.add(name);
       total += size;
       n++;
       if (
