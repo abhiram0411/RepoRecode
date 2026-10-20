@@ -34,19 +34,10 @@ export function createGateway({
         db: createGithubStore(admin),
       })
     : null;
-  const counts = new Map(),
-    requests = [];
-  let active = 0,
-    totalToday = 0,
-    day = "";
+  const requests = [];
+  let active = 0;
   const boot = Date.now();
   const server = http.createServer(async (req, res) => {
-    const currentDay = new Date().toISOString().slice(0, 10);
-    if (currentDay !== day) {
-      day = currentDay;
-      counts.clear();
-      totalToday = 0;
-    }
     const id = randomUUID(),
       started = Date.now();
     res.setHeader("X-Request-Id", id);
@@ -233,8 +224,6 @@ export function createGateway({
             ? Math.round(recent.reduce((s, r) => s + r.ms, 0) / recent.length)
             : 0,
           activeRequests: active,
-          dailyTutorRequests: totalToday,
-          dailyRequestCap: 100,
           authenticationFailures: recent.filter((r) => r.status === 401).length,
           authorizationFailures: recent.filter((r) => r.status === 403).length,
           infrastructureMetrics: null,
@@ -301,12 +290,6 @@ export function createGateway({
           recent.length >= 10 && failures / recent.length >= 0.2,
           "Elevated API failures",
           `${failures} of ${recent.length} recent requests failed.`,
-        );
-        await alerts.evaluate(
-          "ai-budget",
-          totalToday >= 80,
-          "Tutor request budget",
-          `${totalToday} of 100 daily process requests consumed.`,
         );
         await alerts.evaluate(
           "auth-failures",
