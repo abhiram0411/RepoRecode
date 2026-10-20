@@ -4,7 +4,7 @@ Core learning runs on your computer without an account, database, model or payme
 
 ## Local learning
 
-Use Node.js 24: `npm ci --ignore-scripts`, then `npm run dev`. Open the printed address. Import a folder, ZIP or the bundled sample. Public GitHub imports need connectivity; imported snapshots, source explanations and practice work locally. The Coding Pet has no AI, chat, microphone or speech dependency.
+Use Node.js 24: `npm ci --ignore-scripts`, then `npm run dev`. Open the printed address. Import a folder, ZIP or the bundled sample. Public GitHub imports need connectivity; imported snapshots, source explanations and practice work locally. The Coding Pet has been removed on the development branch; the independent profile avatar remains.
 
 Preferences → Your data → Export progress creates a version 1 learning-only JSON file. On another installation, import the exact same source revision, then Import progress. Duplicates are ignored and existing drafts/notes survive. A different revision is rejected rather than applying results to changed code. The separate full-project backup includes source and drafts; replacing an existing local project requires confirmation.
 
@@ -44,6 +44,6 @@ Local PostgreSQL tests execute the migrations and check role access, one-use sta
 
 ## AI, alerts and costs
 
-Paid model and tutor routes are removed and respond with HTTP 410 even if old AI credentials remain in the environment. No provider key is needed. Optional local Ollama explanations are permitted by the specification but are not integrated or verified yet. The pet must never become the explanation interface.
+Paid model and tutor routes are removed and respond with HTTP 410 even if old AI credentials remain in the environment. No provider key is needed. Optional local Ollama explanations are permitted by the specification but are not integrated or verified yet. No companion or tutor interface should be reintroduced.
 
 Leave external alerts disabled. Existing alert adapters are historical optional integration code and must not be enabled without verifying a genuinely free, hard-capped configuration. No purchase, billing account, payment method, paid plan or unattended paid fallback is authorized.
