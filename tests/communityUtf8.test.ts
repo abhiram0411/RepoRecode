@@ -33,3 +33,56 @@ it("preserves UTF-8 feedback split across incoming request chunks", async () => 
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+it("rejects invalid UTF-8 rather than silently changing feedback text", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "reporecode-invalid-utf8-"));
+  try {
+    const community = createCommunity({
+      COMMUNITY_STORAGE_PATH: join(directory, "feedback.json"),
+    });
+    const invalid = Buffer.concat([
+      Buffer.from('{"category":"general","message":"A useful report '),
+      Buffer.from([0xc3, 0x28]),
+      Buffer.from(' with details"}'),
+    ]);
+    const req = {
+      method: "POST",
+      socket: { remoteAddress: "127.0.0.1" },
+      async *[Symbol.asyncIterator]() {
+        yield invalid;
+      },
+    };
+    let status = 0;
+    await community.handle("/api/feedback", req, (code: number) => {
+      status = code;
+    });
+    expect(status).toBe(400);
+    expect((await community.snapshot()).feedbackCount).toBe(0);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+it("returns HTTP 413 for feedback exceeding the 16,000-byte request limit", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "reporecode-large-feedback-"));
+  try {
+    const community = createCommunity({
+      COMMUNITY_STORAGE_PATH: join(directory, "feedback.json"),
+    });
+    const req = {
+      method: "POST",
+      socket: { remoteAddress: "127.0.0.1" },
+      async *[Symbol.asyncIterator]() {
+        yield Buffer.alloc(16001, 0x61);
+      },
+    };
+    let status = 0;
+    await community.handle("/api/feedback", req, (code: number) => {
+      status = code;
+    });
+    expect(status).toBe(413);
+    expect((await community.snapshot()).feedbackCount).toBe(0);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

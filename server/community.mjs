@@ -71,10 +71,19 @@ export function createCommunity(env) {
     for await (const chunk of req) {
       const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
       size += bytes.length;
-      if (size > 16000) throw Error("Request too large");
+      if (size > 16000)
+        throw Object.assign(Error("Request too large"), { statusCode: 413 });
       chunks.push(bytes);
     }
-    return JSON.parse(Buffer.concat(chunks, size).toString("utf8"));
+    let decoded;
+    try {
+      decoded = new TextDecoder("utf-8", { fatal: true }).decode(
+        Buffer.concat(chunks, size),
+      );
+    } catch {
+      throw Object.assign(Error("Invalid UTF-8"), { statusCode: 400 });
+    }
+    return JSON.parse(decoded);
   }
   async function handle(route, req, send) {
     if (!enabled)
@@ -145,15 +154,18 @@ export function createCommunity(env) {
         });
       return send(202, { recorded: true });
     } catch (e) {
-      return send(
-        e instanceof z.ZodError || e instanceof SyntaxError ? 400 : 503,
-        {
-          error:
-            e instanceof z.ZodError || e instanceof SyntaxError
+      const badInput =
+        e instanceof z.ZodError ||
+        e instanceof SyntaxError ||
+        e?.statusCode === 400;
+      return send(e?.statusCode === 413 ? 413 : badInput ? 400 : 503, {
+        error:
+          e?.statusCode === 413
+            ? "Request too large."
+            : badInput
               ? "Invalid submission. Check the form fields."
               : "Submission could not be stored. Please try later.",
-        },
-      );
+      });
     }
   }
   async function snapshot() {
