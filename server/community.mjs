@@ -66,14 +66,15 @@ export function createCommunity(env) {
     return row.count <= 10;
   }
   async function body(req) {
-    let text = "",
-      size = 0;
+    const chunks = [];
+    let size = 0;
     for await (const chunk of req) {
-      size += chunk.length;
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      size += bytes.length;
       if (size > 16000) throw Error("Request too large");
-      text += chunk;
+      chunks.push(bytes);
     }
-    return JSON.parse(text);
+    return JSON.parse(Buffer.concat(chunks, size).toString("utf8"));
   }
   async function handle(route, req, send) {
     if (!enabled)
