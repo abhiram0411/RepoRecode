@@ -44,7 +44,20 @@ export default function ProfileSettings({
   }
   return (
     <section className="settings-card profile-settings">
-      <h2>Your character</h2>
+      <h2>Your profile avatar</h2>
+      <label>
+        Profile avatar style
+        <select
+          value={prefs.tutor}
+          onChange={(e) =>
+            setPrefs({ ...prefs, tutor: e.target.value as Preferences["tutor"] })
+          }
+        >
+          <option value="robot">Robot</option>
+          <option value="girl">Girl</option>
+          <option value="boy">Boy</option>
+        </select>
+      </label>
       <div className="profile-preview">
         <Avatar prefs={prefs} />
       </div>
@@ -151,48 +164,6 @@ export default function ProfileSettings({
           Use character instead of picture
         </button>
       )}
-      <h3>Companion controls</h3>
-      <label>
-        Size
-        <select
-          value={prefs.tutorSize ?? "medium"}
-          onChange={(e) =>
-            setPrefs({
-              ...prefs,
-              tutorSize: e.target.value as Preferences["tutorSize"],
-            })
-          }
-        >
-          <option value="small">Small</option>
-          <option value="medium">Medium</option>
-          <option value="large">Large</option>
-        </select>
-      </label>
-      <label>
-        Position
-        <select
-          value={prefs.tutorPosition ?? "left"}
-          onChange={(e) =>
-            setPrefs({
-              ...prefs,
-              tutorPosition: e.target.value as Preferences["tutorPosition"],
-            })
-          }
-        >
-          <option value="left">Bottom left</option>
-          <option value="right">Bottom right</option>
-        </select>
-      </label>
-      <label className="check">
-        <input
-          type="checkbox"
-          checked={!prefs.tutorHidden}
-          onChange={(e) =>
-            setPrefs({ ...prefs, tutorHidden: !e.target.checked })
-          }
-        />
-        Show companion
-      </label>
       {cloud && (
         <div className="button-row">
           <button
@@ -222,8 +193,7 @@ export default function ProfileSettings({
       )}
       <p className="muted">
         Original character artwork. Every outfit and accessory works with every
-        preset. The Coding Pet reacts silently; explanations stay in the
-        learning workspace.
+        preset. Source explanations stay in the learning workspace.
       </p>
       <p role="status">{status}</p>
     </section>

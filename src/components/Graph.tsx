@@ -88,6 +88,10 @@ export default function Graph({
           }));
   const nodes = records.map((f, i) => ({
     id: f.id,
+    // Give React Flow an initial size before ResizeObserver measurement.
+    // The measured dimensions can still replace these estimates.
+    initialWidth: 235,
+    initialHeight: 52,
     position: { x: (i % 2) * 300, y: Math.floor(i / 2) * 145 },
     data: { label: f.label, file: f.file, line: f.line },
     style: {

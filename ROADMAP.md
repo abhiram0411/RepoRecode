@@ -2,11 +2,11 @@
 
 ## Completed local release scope
 
-Source imports and AST index; real dependency lessons; multiple practice modes; finite correctness probes; initial and bounded interactive React rendering with state, effects and forms; source inspection and observed function-entry timeline; editor and static graphs; local data and backups; configurable profile and companion; real progress and mission unlocks.
+Source imports and AST index; real dependency lessons; multiple practice modes; finite correctness probes; initial and bounded interactive React rendering with state, effects and forms; source inspection and observed function-entry timeline; editor and static graphs; local data and backups; configurable independent profile avatar; real progress and mission unlocks.
 
 ## Implemented awaiting connected acceptance
 
-Supabase OAuth/linking/recovery/MFA/deletion and RLS; cloud project/preferences sync; GitHub App repositories; free-only companion explanations and hard-capped optional integrations; admin aggregates; hosted alerts and watchdog.
+Supabase OAuth/linking/recovery/MFA/deletion and RLS; cloud project/preferences sync; GitHub App repositories; deterministic source-grounded explanations and hard-capped free-only optional integrations; admin aggregates; hosted alerts and watchdog.
 
 ## Remaining engineering
 
@@ -16,7 +16,7 @@ Supabase OAuth/linking/recovery/MFA/deletion and RLS; cloud project/preferences 
 4. Automatic cloud conflict resolution, trusted server-side achievements and optional competitive systems.
 5. Per-device session inventory/revocation, GitHub token refresh and distributed OAuth state.
 6. Infrastructure CPU/memory/connections/slow-query metrics, billing adapters, distributed incident history and load testing.
-7. Validated sign-language content if pursued with qualified users; generic gestures remain explicitly not sign language.
+7. Manual keyboard, screen-reader and reduced-motion accessibility acceptance across supported browsers.
 8. Independent security assessment, legal review, real support contacts, live cloud acceptance and Docker verification.
 
 ## Contribution opportunities

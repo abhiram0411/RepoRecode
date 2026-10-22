@@ -4,7 +4,7 @@ Historical recovery reference only. The user's latest instruction is to continue
 
 Continue RepoRecode at C:\Users\ABHIRAM\Desktop\Repo Recode. Read docs/RESUME.md first, then MASTER_SPEC.md, FEATURES.md and SERVICE_SETUP.md. Preserve existing code, uncommitted work and both Git histories.
 
-Strict zero spend; MIT/public approval remains. No paid services, billing or tutor/chat/voice. The pet is silent and reactive.
+Strict zero spend; MIT/public approval remains. No paid services, billing or tutor/chat/voice. The Coding Pet/companion is removed in the reviewed development branch; the independent profile avatar remains.
 
 Version 12 is public at https://reporecode-learning-lab.milkyibex8.chatgpt.site. Sites source commit: a366ce38ec3aa985c2110511ab34590e86108b40. Saved version: appgprj_6acb65fab51c8191895a8630c3ce9334~appgver_6dc1c4a107908191a26ff6d30a1cdab5. Deployment: appgdep_6ad0ca96c700819182faea33bb2c1f62, status succeeded. Source ZIP: HTTP 200, 188 files, 2742868 bytes, SHA-256 2eeffc6c84d507edb21868b51101fc50b832e7b7f62d72e0d73ffed6de0f6d6f; identical to the local release package.
 

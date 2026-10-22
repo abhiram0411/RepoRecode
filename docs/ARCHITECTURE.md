@@ -1,6 +1,6 @@
 # Architecture and database
 
-October 13 update: see RESUME.md for the current architecture delta. Provider-request code and tutor/voice UI were removed; the legacy AI routes return 410. Learning explanations are deterministic AST syntax descriptions in the workspace. Coding Pet is reactions-only. Local feedback/activity use the optional single-process server/community.mjs store; no public Node backend is configured. Old AI quota tables described below are compatibility history, not an active service.
+October 13 update: see RESUME.md for the current architecture delta. Provider-request code and tutor/voice UI were removed; the legacy AI routes return 410. Learning explanations are deterministic AST syntax descriptions in the workspace. The Coding Pet was removed on the separate review branch; the independent profile avatar remains. Local feedback/activity use the optional single-process server/community.mjs store; no public Node backend is configured. Old AI quota tables described below are compatibility history, not an active service.
 
 ## Browser workspace
 
@@ -10,7 +10,7 @@ The index also records syntactic variables, state hook calls, HTTP calls, error 
 
 The state relationship index resolves const tuple bindings from imported React useState/useReducer declarations through the compiler checker. It links direct reads, updater calls, initializer references and JSX prop references back to the originating hook. Bounded provenance also follows two const initializer steps in the same function, preserving intermediate source locations. It considers at most 200 candidate bindings and eight distinct paths per binding; expressions are bounded to 128 nodes/depth 12. Calls, property access, mutation, closures, shadowed names, type-only references and non-React hooks are excluded from propagation. These are lexical dependencies, not computed values, callback delivery or execution order. The list caps at 200 distinct relationships with an omitted count; the diagram displays the first 60. Analysis version 7 triggers safe refresh for older snapshots.
 
-Roadmaps follow actual call dependencies and adapt wording to experience and goals. Source explanations, hints, quizzes and companion responses are deterministic and derive from indexed source facts, selected symbols, diagnostics and evaluation results. No external AI provider is required and no AI output grants mastery.
+Roadmaps follow actual call dependencies and adapt wording to experience and goals. Source explanations, hints and quizzes are deterministic and derive from indexed source facts, selected symbols, diagnostics and evaluation results. No external AI provider is required and no AI output grants mastery.
 
 ## Evaluation and preview
 
@@ -47,7 +47,7 @@ Apply migrations 001–006 in order to Supabase. All six execute in local PGlite
 | github_oauth_pending | One hashed state per owner, encrypted PKCE verifier, consumed marker and expiry | Service role only |
 | tutor_daily_quotas | Per-user/global daily reserved request counts | Service role RPC only |
 | ai_usage | Provider model, recorded tokens, creation time | Service writes; owner can read own usage |
-| preferences | Profile, theme, companion and learning settings | Owner RLS and bounded payload |
+| preferences | Profile, theme and learning settings (legacy companion fields are not active features) | Owner RLS and bounded payload |
 
 Owner foreign keys cascade on auth.users deletion. reserve_tutor_request locks the global row then the user row in one transaction and limits requests to 100 global and 20 per user per UTC day. admin_snapshot returns service-role-only aggregates of users, sign-ins, projects, connections and usage. Ordinary browser roles cannot invoke either privileged RPC.
 

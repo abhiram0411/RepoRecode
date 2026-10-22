@@ -4,7 +4,7 @@ Prepared for Abhiram on 16 October 2026
 
 RepoRecode is a usable development release for learning from real JavaScript and TypeScript source. Its local learning workflow requires no account, database, model or payment method. This report describes implemented behavior, the recorded checks and the work still required by the master specification. It is not a claim of full product completion or an independent security assessment.
 
-The owner approved MIT licensing and public publication. All spending remains prohibited, including paid plans, overages, payment methods and automatic top-ups. The Coding Pet is silent and reactions-only. Paid AI endpoints have been removed; optional local Ollama remains unimplemented.
+The owner approved MIT licensing and public publication. All spending remains prohibited, including paid plans, overages, payment methods and automatic top-ups. The Coding Pet has been removed on the separate development branch; this report otherwise describes earlier implementation history. Paid AI endpoints have been removed; optional local Ollama remains unimplemented.
 
 | Evidence | Current record |
 | --- | --- |
@@ -64,11 +64,11 @@ Synchronous click, input, change and submit handlers run inside QuickJS. React s
 
 Observed state reads show bounded values from directly imported React useState/useReducer calls, with source links and a 100-read limit per action. They are render-order observations, not an instance inventory or before/after diff; getters and toJSON are not invoked. A separate static list and diagram link state bindings to reads, updaters, initializers and props. Const chains preserve intermediate source links across two steps in one function; calls, properties, mutation and closures are excluded. Limits are 200 candidate bindings, eight paths per binding, 200 indexed relations and 60 diagrammed. These lexical references do not prove computed values or award mastery.
 
-### Appearance and Coding Pet
+### Appearance and independent profile avatar (companion retired)
 
-Fifteen palettes coordinate workspace colors, Monaco and graphs. Optional device-theme following responds to light/dark changes and retains the manual palette. Browser checks cover every palette and imported-preview independence. Distinct original Boy, Girl and Robot characters support hair, clothing, body color, cap, glasses, background, size, position and hiding. Preferences persist locally.
+Fifteen palettes coordinate workspace colors, Monaco and graphs. Optional device-theme following responds to light/dark changes and retains the manual palette. Browser checks cover every palette and imported-preview independence. The independent profile avatar remains customizable; obsolete companion-specific size, position and hiding controls were removed on the development branch. Preferences persist locally.
 
-The Coding Pet reacts silently to practice and completed supported checks, celebrates milestones and greets on click. It does not tutor, chat, explain code, speak or listen. Original CSS transitions and Motion animations provide short entrance and reaction effects. OS and app reduced-motion preferences are respected. Dialogs trap keyboard focus, close on Escape when permitted and restore focus to their opener. Automated accessibility checks supplement, but do not replace, manual review.
+The earlier Coding Pet reaction UI was removed on the development branch. No tutor, voice, microphone, sign-language character or paid AI behavior is required. Remaining UI transitions are lightweight and optional. OS and app reduced-motion preferences are respected. Dialogs trap keyboard focus, close on Escape when permitted and restore focus to their opener. Automated accessibility checks supplement, but do not replace, manual review.
 
 ## Persistence and community privacy
 
@@ -143,6 +143,6 @@ Local feedback requires only the optional local Node gateway and a private data 
 - Expand practice contracts, incremental semantic indexing, state and data relationships, preview dependencies and framework support while preserving limits and evidence labels.
 - Verify Docker execution, low-end performance, additional browsers, manual accessibility, independent security and operator response procedures.
 
-Optional local Ollama may improve explanations in the learning workspace. It remains unimplemented, is not required for core learning and must not turn the Coding Pet into a tutor. Device-theme following is implemented.
+Optional local Ollama may improve explanations in the learning workspace. It remains unimplemented, is not required for core learning and must remain optional, local and outside any companion interface. Device-theme following is implemented.
 
 This report records the current development release. Keep docs/RESUME.md current with exact tests, failures, publication status and next actions. The full master specification remains open until each required behavior has implementation and acceptance evidence.

@@ -10,8 +10,6 @@ type Metrics = {
   errorCount: number;
   averageLatencyMs: number;
   activeRequests: number;
-  dailyTutorRequests: number;
-  dailyRequestCap: number;
   authenticationFailures: number;
   authorizationFailures: number;
   note: string;
@@ -20,9 +18,6 @@ type Metrics = {
     usersSignedInLastSevenDays: number;
     storedProjects: number;
     databaseConnections: number;
-    aiRequestsToday: number;
-    recordedTokensToday: number;
-    usageRecordsWithoutTokenCount: number;
     measuredAt: string;
   } | null;
   traffic?: { minute: string; requests: number; errors: number }[];
@@ -190,7 +185,9 @@ export default function AdminPanel() {
             <h2>Database measurements</h2>
             {metrics.databaseMetrics ? (
               <dl>
-                {Object.entries(metrics.databaseMetrics).map(([key, value]) => (
+                {Object.entries(metrics.databaseMetrics)
+                  .filter(([key]) => !["aiRequestsToday", "recordedTokensToday", "usageRecordsWithoutTokenCount"].includes(key))
+                  .map(([key, value]) => (
                   <div key={key}>
                     <dt>{key.replace(/([A-Z])/g, " $1")}</dt>
                     <dd>{String(value)}</dd>
@@ -204,9 +201,8 @@ export default function AdminPanel() {
               </p>
             )}
             <p className="muted">
-              Recent sign-ins are not a live visitor count. Legacy AI counters
-              may appear in older database snapshots; AI provider routes are
-              disabled.
+              Recent sign-ins are not a live visitor count. Historical AI
+              counters are omitted; model and tutor routes remain disabled.
             </p>
           </div>
           {!!metrics.traffic?.length && (
@@ -235,10 +231,6 @@ export default function AdminPanel() {
           <div className="settings-card">
             <h2>Current process</h2>
             <p>Uptime: {metrics.uptimeSeconds} seconds</p>
-            <p>
-              Tutor budget: {metrics.dailyTutorRequests} /{" "}
-              {metrics.dailyRequestCap} requests
-            </p>
             <p>Authentication failures: {metrics.authenticationFailures}</p>
             <p>Authorization failures: {metrics.authorizationFailures}</p>
             <p>{metrics.note}</p>

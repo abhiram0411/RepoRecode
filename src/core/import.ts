@@ -103,13 +103,16 @@ export function zipImport(bytes: Uint8Array) {
   let p = offset,
     total = 0,
     n = 0;
+  const seenSourcePaths = new Set<string>();
   for (let i = 0; i < count; i++) {
-    if (p + 46 > bytes.length || v.getUint32(p, true) !== 0x02014b50)
+    if (p + 46 > end || v.getUint32(p, true) !== 0x02014b50)
       throw Error("Invalid ZIP entry.");
     const size = v.getUint32(p + 24, true),
       len = v.getUint16(p + 28, true),
       extra = v.getUint16(p + 30, true),
       comment = v.getUint16(p + 32, true);
+    if (p + 46 + len + extra + comment > end)
+      throw Error("Invalid ZIP entry.");
     const name = new TextDecoder().decode(bytes.slice(p + 46, p + 46 + len));
     if (!safePath(name.replace(/\/$/, ""))) throw Error("Unsafe ZIP path.");
     if (
@@ -118,6 +121,9 @@ export function zipImport(bytes: Uint8Array) {
     )
       throw Error("Symlinks/encrypted ZIPs are unsupported.");
     if (allowed(name)) {
+      if (seenSourcePaths.has(name))
+        throw Error(`Duplicate ZIP source path: ${name}`);
+      seenSourcePaths.add(name);
       total += size;
       n++;
       if (
@@ -167,6 +173,51 @@ export function githubRepo(url: string) {
     );
   return { owner: parts[0], repo: parts[1].replace(/\.git$/, "") };
 }
+// GitHub returns line-wrapped base64; validate canonical bytes and metadata
+// before allowing remote source into the browser's learning workspace.
+export function decodePublicGithubBlob(
+  blob: { encoding?: string; size?: number; content?: string } | null,
+  expectedSize: number,
+) {
+  if (
+    !Number.isSafeInteger(expectedSize) ||
+    expectedSize < 0 ||
+    expectedSize > LIMITS.fileBytes ||
+    !blob ||
+    blob.encoding !== "base64" ||
+    typeof blob.size !== "number" ||
+    !Number.isSafeInteger(blob.size) ||
+    blob.size < 0 ||
+    blob.size > LIMITS.fileBytes ||
+    typeof blob.content !== "string"
+  )
+    throw Error("Unsupported GitHub blob.");
+  const encoded = blob.content.replace(/\s/g, "");
+  if (
+    encoded.length > 4 * Math.ceil(LIMITS.fileBytes / 3) ||
+    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)
+  )
+    throw Error("Unsupported GitHub blob.");
+  let binary: string;
+  try {
+    binary = atob(encoded);
+  } catch {
+    throw Error("Unsupported GitHub blob.");
+  }
+  if (
+    binary.length !== blob.size ||
+    binary.length !== expectedSize ||
+    btoa(binary) !== encoded
+  )
+    throw Error("GitHub blob size or encoding mismatch.");
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(
+      Uint8Array.from(binary, (c) => c.charCodeAt(0)),
+    );
+  } catch {
+    throw Error("GitHub source is not valid UTF-8.");
+  }
+}
 export async function githubImport(url: string, progress: (s: string) => void) {
   const { owner, repo } = githubRepo(url);
   const base = `https://api.github.com/repos/${owner}/${repo}`;
@@ -196,23 +247,23 @@ export async function githubImport(url: string, progress: (s: string) => void) {
   );
   if (
     selected.length > LIMITS.files ||
+    selected.some(
+      (f: { size: number }) =>
+        !Number.isSafeInteger(f.size) ||
+        f.size < 0 ||
+        f.size > LIMITS.fileBytes,
+    ) ||
     selected.reduce((a: number, b: { size: number }) => a + b.size, 0) >
-      LIMITS.totalBytes ||
-    selected.some((f: { size: number }) => f.size > LIMITS.fileBytes)
+      LIMITS.totalBytes
   )
     throw Error("Repository exceeds source limits. Import a local subfolder.");
   const files: SourceFile[] = [];
   for (const f of selected) {
     progress(`Reading ${files.length + 1}/${selected.length}: ${f.path}`);
     const blob = await get(`/git/blobs/${f.sha}`);
-    if (blob.encoding !== "base64" || blob.size > LIMITS.fileBytes)
-      throw Error("Unsupported GitHub blob.");
-    const raw = Uint8Array.from(atob(blob.content.replace(/\s/g, "")), (c) =>
-      c.charCodeAt(0),
-    );
     files.push({
       path: f.path,
-      content: new TextDecoder("utf-8", { fatal: true }).decode(raw),
+      content: decodePublicGithubBlob(blob, f.size),
     });
   }
   return {

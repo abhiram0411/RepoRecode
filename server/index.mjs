@@ -8,6 +8,26 @@ import { createGithubIntegration } from "./github.mjs";
 import { createGithubStore } from "./githubStore.mjs";
 import { createCommunity } from "./community.mjs";
 
+// Parse bounded JSON bytes without corrupting split UTF-8 code points.
+export async function readJsonBody(req, maxBytes) {
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of req) {
+    const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += bytes.length;
+    if (size > maxBytes) return { status: 413 };
+    chunks.push(bytes);
+  }
+  try {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(
+      Buffer.concat(chunks, size),
+    );
+    return { value: JSON.parse(text) };
+  } catch {
+    return { status: 400 };
+  }
+}
+
 export function createGateway({
   env = process.env,
   fetcher = fetch,
@@ -34,19 +54,10 @@ export function createGateway({
         db: createGithubStore(admin),
       })
     : null;
-  const counts = new Map(),
-    requests = [];
-  let active = 0,
-    totalToday = 0,
-    day = "";
+  const requests = [];
+  let active = 0;
   const boot = Date.now();
   const server = http.createServer(async (req, res) => {
-    const currentDay = new Date().toISOString().slice(0, 10);
-    if (currentDay !== day) {
-      day = currentDay;
-      counts.clear();
-      totalToday = 0;
-    }
     const id = randomUUID(),
       started = Date.now();
     res.setHeader("X-Request-Id", id);
@@ -174,19 +185,11 @@ export function createGateway({
           await github.disconnect(user.id);
           return send(200, { disconnected: true });
         }
-        let raw = "",
-          size = 0;
-        for await (const chunk of req) {
-          size += chunk.length;
-          if (size > 1000) return send(413, { error: "Request too large" });
-          raw += chunk;
-        }
+        const parsed = await readJsonBody(req, 1000);
+        if (parsed.status) return send(parsed.status, { error: parsed.status === 413 ? "Request too large" : "Invalid repository selection" });
         let body;
         try {
-          body = z
-            .object({ repository: z.string().max(200) })
-            .strict()
-            .parse(JSON.parse(raw));
+          body = z.object({ repository: z.string().max(200) }).strict().parse(parsed.value);
         } catch {
           return send(400, { error: "Invalid repository selection" });
         }
@@ -233,8 +236,6 @@ export function createGateway({
             ? Math.round(recent.reduce((s, r) => s + r.ms, 0) / recent.length)
             : 0,
           activeRequests: active,
-          dailyTutorRequests: totalToday,
-          dailyRequestCap: 100,
           authenticationFailures: recent.filter((r) => r.status === 401).length,
           authorizationFailures: recent.filter((r) => r.status === 403).length,
           infrastructureMetrics: null,
@@ -246,21 +247,12 @@ export function createGateway({
           return send(503, {
             error: "Account administration is not configured",
           });
-        let text = "",
-          bytes = 0;
-        for await (const chunk of req) {
-          bytes += chunk.length;
-          if (bytes > 1000) return send(413, { error: "Request too large" });
-          text += chunk;
-        }
+        const parsed = await readJsonBody(req, 1000);
+        if (parsed.status) return send(parsed.status, { error: parsed.status === 413 ? "Request too large" : "Explicit deletion confirmation required" });
         try {
-          z.object({ confirmation: z.literal("DELETE") })
-            .strict()
-            .parse(JSON.parse(text));
+          z.object({ confirmation: z.literal("DELETE") }).strict().parse(parsed.value);
         } catch {
-          return send(400, {
-            error: "Explicit deletion confirmation required",
-          });
+          return send(400, { error: "Explicit deletion confirmation required" });
         }
         // The target is always the authenticated user, never an ID from the request body.
         if (deleteAccount) await deleteAccount(user.id);
@@ -301,12 +293,6 @@ export function createGateway({
           recent.length >= 10 && failures / recent.length >= 0.2,
           "Elevated API failures",
           `${failures} of ${recent.length} recent requests failed.`,
-        );
-        await alerts.evaluate(
-          "ai-budget",
-          totalToday >= 80,
-          "Tutor request budget",
-          `${totalToday} of 100 daily process requests consumed.`,
         );
         await alerts.evaluate(
           "auth-failures",

@@ -29,6 +29,29 @@ export function unseal(value, key) {
     ),
   );
 }
+// Decode GitHub blobs strictly so invalid UTF-8 cannot corrupt imported source.
+export function decodeGithubBlob(blob) {
+  if (
+    blob?.encoding !== "base64" ||
+    !Number.isSafeInteger(blob.size) ||
+    blob.size < 0 ||
+    blob.size > LIMITS.fileBytes ||
+    typeof blob.content !== "string"
+  ) throw Error("Unsupported GitHub blob.");
+  const encoded = blob.content.replace(/\s/g, "");
+  if (
+    encoded.length > 4 * Math.ceil(LIMITS.fileBytes / 3) ||
+    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)
+  ) throw Error("Unsupported GitHub blob.");
+  const bytes = Buffer.from(encoded, "base64");
+  if (bytes.length !== blob.size || bytes.toString("base64") !== encoded)
+    throw Error("GitHub blob size or encoding mismatch.");
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    throw Error("GitHub source is not valid UTF-8.");
+  }
+}
 export function createGithubIntegration({
   env,
   db,
@@ -266,18 +289,18 @@ export function createGithubIntegration({
       );
       if (
         selected.length > LIMITS.files ||
-        selected.some((f) => f.size > LIMITS.fileBytes) ||
+        selected.some((f) => !Number.isSafeInteger(f.size) || f.size < 0 || f.size > LIMITS.fileBytes) ||
         selected.reduce((s, f) => s + f.size, 0) > LIMITS.totalBytes
       )
         throw Error("Repository exceeds import limits.");
       const files = [];
       for (const f of selected) {
         const blob = await api(base + "/git/blobs/" + f.sha, token, deadline);
-        if (blob.encoding !== "base64" || blob.size > LIMITS.fileBytes)
-          throw Error("Unsupported blob.");
+        if (blob.size !== f.size)
+          throw Error("GitHub blob metadata mismatch.");
         files.push({
           path: f.path,
-          content: Buffer.from(blob.content, "base64").toString("utf8"),
+          content: decodeGithubBlob(blob),
         });
       }
       return {

@@ -26,7 +26,12 @@ export function roadmap(
     ordered.push(s);
   };
   candidates.forEach(add);
-  return ordered.slice(0, 60).map((s) => ({
+  // Cyclic call graphs cannot be represented as cyclic lesson prerequisites.
+  // Keep only dependencies that appear earlier in the learning order.
+  const lessonOrder = new Map(
+    ordered.slice(0, 60).map((symbol, index) => [symbol.id, index]),
+  );
+  return ordered.slice(0, 60).map((s, index) => ({
     id: s.id,
     symbolId: s.id,
     title: `${prefs.goal === "debug" ? "Trace" : prefs.goal === "interview" ? "Explain" : "Understand"} ${s.name}`,
@@ -42,14 +47,18 @@ export function roadmap(
           ? "Reconstruct initial React output using supported primitive props; event behavior is not graded."
           : "Study the source; executable practice requires additional runtime support.",
     ],
-    prerequisites: analysis.edges
-      .filter(
-        (e) =>
-          e.kind === "calls" &&
-          e.source === s.id &&
-          ordered.slice(0, 60).some((d) => d.id === e.target),
-      )
-      .map((e) => e.target),
+    prerequisites: [
+      ...new Set(
+        analysis.edges
+          .filter(
+            (e) =>
+              e.kind === "calls" &&
+              e.source === s.id &&
+              (lessonOrder.get(e.target) ?? Infinity) < index,
+          )
+          .map((e) => e.target),
+      ),
+    ],
   }));
 }
 export function explain(s: SymbolInfo) {

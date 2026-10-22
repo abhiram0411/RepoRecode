@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 // @ts-expect-error JavaScript gateway has injected test boundaries.
-import { createGateway } from "../server/index.mjs";
+import { createGateway, readJsonBody } from "../server/index.mjs";
 async function request(
   path: string,
   init?: RequestInit,
@@ -212,5 +212,39 @@ describe("gateway boundaries", () => {
     );
     expect(r.status).toBe(410);
     expect(called).toBe(false);
+  });
+  it("preserves UTF-8 characters split across incoming chunks", async () => {
+    const expected = { repository: "sample/नमस्ते-🧪" };
+    const bytes = Buffer.from(JSON.stringify(expected));
+    const split = bytes.indexOf(Buffer.from("🧪")) + 2;
+    const req = {
+      async *[Symbol.asyncIterator]() {
+        yield bytes.subarray(0, split);
+        yield bytes.subarray(split);
+      },
+    };
+    expect(await readJsonBody(req, 1000)).toEqual({ value: expected });
+  });
+
+  it("rejects invalid UTF-8 in gateway JSON", async () => {
+    const req = {
+      async *[Symbol.asyncIterator]() {
+        yield Buffer.concat([
+          Buffer.from('{"repository":"sample/'),
+          Buffer.from([0xc3, 0x28]),
+          Buffer.from('"}'),
+        ]);
+      },
+    };
+    expect(await readJsonBody(req, 1000)).toEqual({ status: 400 });
+  });
+
+  it("enforces the existing gateway JSON byte limit", async () => {
+    const req = {
+      async *[Symbol.asyncIterator]() {
+        yield Buffer.alloc(1001, 0x61);
+      },
+    };
+    expect(await readJsonBody(req, 1000)).toEqual({ status: 413 });
   });
 });

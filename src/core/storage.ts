@@ -113,10 +113,8 @@ export const defaultPreferences: Preferences = {
   followDeviceTheme: false,
   tutor: "robot",
   color: "#c5eb82",
-  muted: true,
   motion: true,
   name: "Explorer",
-  visual: true,
 };
 const preferenceKey = "reporecode:preferences:v1";
 export const loadPreferences = async () => {

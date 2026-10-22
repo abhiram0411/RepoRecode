@@ -16,7 +16,7 @@ export function useDialog(open: boolean, onClose: () => void, locked = false) {
     document.body.style.overflow = "hidden";
     const backgrounds = [
       ...document.querySelectorAll<HTMLElement>(
-        ".sidebar,.main-shell,.companion",
+        ".sidebar,.main-shell",
       ),
     ].filter((e) => !e.contains(dialog));
     const states = backgrounds.map((e) => e.inert);

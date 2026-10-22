@@ -1,5 +1,7 @@
 # REPORECODE — ULTIMATE CONSOLIDATED MASTER DEVELOPMENT PROMPT
 
+**October 12, 2026 owner override (authoritative over historical sections below):** Remove the Coding Pet/companion and all tutor, speech, TTS/STT, gesture/sign-language character and reaction features. Retain the separate top-right profile avatar. Prioritize secure imports, source-grounded AST/symbol/dependency analysis, deterministic explanations, verified hide/rewrite practice, preview on the left and editor/lesson/practice on the right, secure local progress and optional free-only authentication. No subscriptions, billing, payment methods, paid model calls or paid fallbacks. All Coding Pet instructions later in this historical specification are retired.
+
 ## COMPLETE DEVELOPMENT SPECIFICATION — FUNCTIONALITY, ARCHITECTURE, CODING PET, UI/UX, THEMES, SECURITY, DEPLOYMENT & OPEN SOURCE
 
 ### IMPORTANT: CONTINUE THE EXISTING PROJECT
@@ -15,7 +17,7 @@ This document combines and supersedes previous instructions, including:
 - Optional authentication and progress synchronization.
 - Progress Export/Import.
 - Feedback collection and maintainer analytics.
-- The customizable, non-AI Coding Pet.
+- Historical Coding Pet requirements, now explicitly retired by the October 12 override.
 - Modern frontend animation and UI libraries.
 - Expanded application color themes.
 - Final testing, deployment, and documentation requirements.
@@ -87,7 +89,7 @@ Implement and stabilize features in this general order:
 10. Hosted demonstration and local installation.
 11. Optional GitHub authentication.
 12. Feedback and lightweight analytics.
-13. Coding Pet customization and reactions.
+13. Accessible learning workflows and functional verification.
 14. Advanced frontend design, animations, and themes.
 15. Final verification, deployment, documentation, and release.
 

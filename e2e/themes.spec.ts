@@ -111,7 +111,6 @@ test("all 15 palettes are readable, selectable, persistent and match the source 
     "background-color",
     "rgb(48, 24, 33)",
   );
-  await expect(page.locator(".coding-pet")).toHaveClass(/still/);
   await expect(page.locator("main#main")).toHaveCSS("animation-name", "none");
 });
 

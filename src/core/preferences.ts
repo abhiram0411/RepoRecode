@@ -9,10 +9,8 @@ export const preferencesSchema = z.object({
   followDeviceTheme: z.boolean().optional(),
   tutor: z.enum(["robot", "boy", "girl"]),
   color,
-  muted: z.boolean(),
   motion: z.boolean(),
   name: z.string().max(40),
-  visual: z.boolean(),
   hair: z.enum(["short", "long", "none"]).optional(),
   outfit: z.enum(["jacket", "hoodie", "tee"]).optional(),
   accessory: z.enum(["none", "glasses", "cap"]).optional(),
@@ -26,13 +24,6 @@ export const preferencesSchema = z.object({
     .max(150000)
     .regex(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/)
     .optional(),
-  tutorHidden: z.boolean().optional(),
-  tutorSize: z.enum(["small", "medium", "large"]).optional(),
-  tutorPosition: z.enum(["left", "right"]).optional(),
-  voiceStyle: z
-    .enum(["mentor", "friendly", "energetic", "robotic", "commando", "playful"])
-    .optional(),
-  voice: z.string().max(500).optional(),
 });
 export function validatePreferences(value: unknown): Preferences {
   return preferencesSchema.parse(value);

@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-test("profile customization and companion preferences survive reload", async ({
+test("profile customization persists without companion UI", async ({
   page,
 }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Preferences", exact: true }).click();
   await page.getByLabel("Display name").fill("River");
   await page
-    .getByRole("combobox", { name: "Companion", exact: true })
+    .getByRole("combobox", { name: "Profile avatar style", exact: true })
     .selectOption("girl");
   await page
     .getByRole("combobox", { name: "Hair", exact: true })
@@ -15,30 +15,14 @@ test("profile customization and companion preferences survive reload", async ({
   await page.getByLabel("Clothing").selectOption("hoodie");
   await page.getByLabel("Glasses", { exact: true }).check();
   await page.getByLabel("Cap", { exact: true }).check();
-  await page
-    .getByRole("combobox", { name: "Size", exact: true })
-    .selectOption("large");
-  await page
-    .getByRole("combobox", { name: "Position", exact: true })
-    .selectOption("right");
-  await expect(page.locator(".companion")).toHaveAttribute(
-    "data-position",
-    "right",
-  );
-  await page.getByLabel("Show companion", { exact: true }).uncheck();
-  await expect(page.locator(".companion")).toHaveCount(0);
   await page.reload();
   await page.getByRole("button", { name: "Preferences", exact: true }).click();
   await expect(page.getByLabel("Display name")).toHaveValue("River");
   await expect(page.getByLabel("Glasses", { exact: true })).toBeChecked();
   await expect(page.getByLabel("Cap", { exact: true })).toBeChecked();
-  await page.getByLabel("Show companion", { exact: true }).check();
-  await page.getByRole("button", { name: "Greet Mira, Coding Pet" }).click();
-  await expect(
-    page.getByRole("region", { name: "Coding Pet", exact: true }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Minimize pet" }).click();
-  await expect(page.getByRole("region", {name:"Coding Pet",exact:true})).toBeHidden();
+  await expect(page.getByRole("combobox", { name: "Profile avatar style" })).toHaveValue("girl");
+  await expect(page.locator(".companion")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Coding Pet" })).toHaveCount(0);
   const audit = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
     .analyze();

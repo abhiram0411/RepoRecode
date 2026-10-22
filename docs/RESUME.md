@@ -4,13 +4,15 @@ Updated 16 October 2026. Continue the existing project; preserve uncommitted wor
 
 ## Active work
 
+Draft PR #1 (`codex/remove-companion-20261016`) includes companion removal, cycle-safe roadmaps, ZIP integrity checks, graph failure diagnostics, offline system fonts, retired admin UI counters and server-side tutor-budget cleanup through commit `2869992f3519bb9832d9a264a4d76ab72cdf6c64`. GitHub Actions runs 39306843432 and 39443097932 passed unit and Chromium browser tests, build and security checks on the respective commits. Documentation updates are prepared for review on this branch. PR #1 remains draft, unmerged and undeployed; intermittent graph visibility and live-provider acceptance are still open.
+
 CSS Modules local acceptance: 273 tests in 34 files passed; production build passed; all 30 local Edge browser journeys passed (88.76 seconds). Source scan: 173 files with no heuristic findings. The new CSS Modules screenshot was inspected. Publication and public/GitHub verification are pending.
 
 Current local source: 265 tests in 33 files passed; production build passed. Latest completed local browser run: 29 passed, 0 failed (98.99 seconds). Source scan: 171 files, no heuristic findings. No dependencies changed; large compiler/editor/VM bundles remain a limitation.
 
 ## Owner decisions
 
-Strict zero spend: no paid services, billing, overages, payment methods or top-ups. MIT/public publication approved. Coding Pet is silent and reactions-only; no tutor/chat/voice. Core learning requires no account or model. The old 5% reserve is revoked. The latest user instruction is to continue in this chat, use available capacity and not hand over. Keep this file current for recovery.
+Strict zero spend: no paid services, billing, overages, payment methods or top-ups. MIT/public publication approved. Coding Pet/companion is retired in the separate review branch; the independent profile avatar remains. No tutor/chat/voice. Core learning requires no account or model. The old 5% reserve is revoked. The latest user instruction is to continue in this chat, use available capacity and not hand over. Keep this file current for recovery.
 
 ## Latest release
 
@@ -24,7 +26,7 @@ Receipts: artifacts/deployment.json, source-download.json, public-browser-result
 
 State diagrams trace two const-initializer steps with source links and readable numbered arrows. Local CSS supports explicit & nesting and media declarations to four combined block levels, with unchanged resource restrictions. Small inherited-interface practice preserves readonly/optional fields, named imports and finite input coverage; ambiguous inheritance remains unsupported. Analysis version 7 enables index refresh.
 
-Practice retains two object levels, three scalar leaves, 16 object samples and 64 probes. Inheritance resolution rejects conflicting/duplicate fields, cycles, merged/generic/qualified/non-interface bases and excessive expansion. Existing imports, learning, practice, progress transfer, 15 themes, silent pet, isolated previews and cloud/gateway code are retained.
+Practice retains two object levels, three scalar leaves, 16 object samples and 64 probes. Inheritance resolution rejects conflicting/duplicate fields, cycles, merged/generic/qualified/non-interface bases and excessive expansion. Existing imports, learning, practice, progress transfer, 15 themes, independent profile avatar, isolated previews and cloud/gateway code are retained.
 
 Public feedback offers reviewed GitHub drafts and full-text copy fallback. Anonymous local feedback remains supported with a configured gateway; anonymous hosted delivery is unconfigured. No automatic GitHub issue submission or paid infrastructure was added.
 

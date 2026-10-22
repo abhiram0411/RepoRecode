@@ -1,14 +1,6 @@
 import type { Preferences } from "../core/types";
-export default function Avatar({
-  prefs,
-  companion = false,
-  happy = false,
-}: {
-  prefs: Preferences;
-  companion?: boolean;
-  happy?: boolean;
-}) {
-  if (prefs.picture && !companion)
+export default function Avatar({ prefs }: { prefs: Preferences }) {
+  if (prefs.picture)
     return <img src={prefs.picture} alt="" className="profile-image" />;
   const robot = prefs.tutor === "robot",
     girl = prefs.tutor === "girl";
@@ -27,14 +19,12 @@ export default function Avatar({
       data-character={prefs.tutor}
       data-outfit={outfit}
     >
-      {!companion && (
-        <rect
-          width="100"
-          height="120"
-          rx="16"
-          fill={prefs.background ?? "#26362b"}
-        />
-      )}
+      <rect
+        width="100"
+        height="120"
+        rx="16"
+        fill={prefs.background ?? "#26362b"}
+      />
       <ellipse cx="50" cy="113" rx="28" ry="4" fill="#000000" opacity=".15" />
       <path
         d="M36 88v19m28-19v19"
@@ -91,7 +81,7 @@ export default function Avatar({
           fill="none"
         />
       )}
-      <g className="character-arm">
+      <g>
         <path
           d="M30 66L18 82"
           stroke={prefs.color}
@@ -159,9 +149,9 @@ export default function Avatar({
         strokeWidth="2.5"
         strokeLinecap="round"
       >
-        <path d={happy ? "M36 37q4-6 8 0m12 0q4-6 8 0" : "M40 35v5m20-5v5"} />
+        <path d="M40 35v5m20-5v5" />
         <path
-          d={happy ? "M43 46q7 8 14 0" : girl ? "M45 47q5 4 10 0" : "M45 47h10"}
+          d={girl ? "M45 47q5 4 10 0" : "M45 47h10"}
         />
       </g>
       {glasses && (

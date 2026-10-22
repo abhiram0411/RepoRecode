@@ -39,9 +39,9 @@ npm run preview
 - Static state relationships connect resolved state bindings to reads, updater calls, initializers and JSX props, including up to two const-initializer steps in the same function. Numbered diagram arrows, a relationship picker and intermediate source links keep the evidence readable and distinct from runtime observations.
 - Imported plain CSS renders through an allowlist in isolated previews, including bounded variables, layout and media queries. Omitted rules are disclosed. Optional device-theme following updates the workspace and editor without changing imported app colors.
 - Local projects, backups, revalidated restoration, duplicate-snapshot recognition, progress, XP, achievements, mastery ranks and mission unlocks.
-- Fifteen complete workspace palettes with matching Monaco and graphs, original distinct Boy/Girl/Robot artwork, independent cap/glasses, hair/clothes/body customization and reduced-motion-aware animation.
+- Fifteen complete workspace palettes with matching Monaco and graphs, an independent customizable profile avatar, and reduced-motion-aware UI.
 - Optional Supabase sign-in, identity linking, recovery, TOTP MFA, session sign-out controls, account deletion, project and preference sync.
-- Silent Coding Pet reacts to practice and verified results. Source explanations, including bounded arithmetic/condition descriptions, remain in the main learning UI.
+- Source-grounded deterministic explanations, including bounded arithmetic/condition descriptions, remain in the main learning UI. No companion, tutor, voice or paid AI dependency is required.
 - Versioned learning-only progress export/import, exact-revision validation and duplicate-safe merges that preserve drafts and notes. Full-source backups remain separately labeled.
 - Optional local feedback gateway, anonymous submissions, protected admin counts, and strictly opt-in anonymous activity with revocation. Without a gateway, visitors can review a public GitHub issue draft or copy their full feedback. GitHub requires an account; anonymous hosted delivery still needs a free backend. Unavailable counts are never invented.
 - Protected administration, usage accounting, request history, deduplicated email/Telegram alerts and an independent uptime monitor.
