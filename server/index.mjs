@@ -8,6 +8,26 @@ import { createGithubIntegration } from "./github.mjs";
 import { createGithubStore } from "./githubStore.mjs";
 import { createCommunity } from "./community.mjs";
 
+// Parse bounded JSON bytes without corrupting split UTF-8 code points.
+export async function readJsonBody(req, maxBytes) {
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of req) {
+    const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += bytes.length;
+    if (size > maxBytes) return { status: 413 };
+    chunks.push(bytes);
+  }
+  try {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(
+      Buffer.concat(chunks, size),
+    );
+    return { value: JSON.parse(text) };
+  } catch {
+    return { status: 400 };
+  }
+}
+
 export function createGateway({
   env = process.env,
   fetcher = fetch,
@@ -165,19 +185,11 @@ export function createGateway({
           await github.disconnect(user.id);
           return send(200, { disconnected: true });
         }
-        let raw = "",
-          size = 0;
-        for await (const chunk of req) {
-          size += chunk.length;
-          if (size > 1000) return send(413, { error: "Request too large" });
-          raw += chunk;
-        }
+        const parsed = await readJsonBody(req, 1000);
+        if (parsed.status) return send(parsed.status, { error: parsed.status === 413 ? "Request too large" : "Invalid repository selection" });
         let body;
         try {
-          body = z
-            .object({ repository: z.string().max(200) })
-            .strict()
-            .parse(JSON.parse(raw));
+          body = z.object({ repository: z.string().max(200) }).strict().parse(parsed.value);
         } catch {
           return send(400, { error: "Invalid repository selection" });
         }
@@ -235,21 +247,12 @@ export function createGateway({
           return send(503, {
             error: "Account administration is not configured",
           });
-        let text = "",
-          bytes = 0;
-        for await (const chunk of req) {
-          bytes += chunk.length;
-          if (bytes > 1000) return send(413, { error: "Request too large" });
-          text += chunk;
-        }
+        const parsed = await readJsonBody(req, 1000);
+        if (parsed.status) return send(parsed.status, { error: parsed.status === 413 ? "Request too large" : "Explicit deletion confirmation required" });
         try {
-          z.object({ confirmation: z.literal("DELETE") })
-            .strict()
-            .parse(JSON.parse(text));
+          z.object({ confirmation: z.literal("DELETE") }).strict().parse(parsed.value);
         } catch {
-          return send(400, {
-            error: "Explicit deletion confirmation required",
-          });
+          return send(400, { error: "Explicit deletion confirmation required" });
         }
         // The target is always the authenticated user, never an ID from the request body.
         if (deleteAccount) await deleteAccount(user.id);
