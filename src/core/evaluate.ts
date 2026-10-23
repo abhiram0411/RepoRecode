@@ -55,6 +55,9 @@ function compile(code: string, name: string, context = "") {
   const baseLib = `interface Array<T> { length: number; [n: number]: T; map<U>(fn:(v:T,i:number,a:T[])=>U):U[]; filter(fn:(v:T,i:number,a:T[])=>boolean):T[]; reduce(fn:(a:T,b:T)=>T,initial:T):T; join(s?:string):string; slice(a?:number,b?:number):T[]; includes(v:T):boolean; } interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {length:number;[n:number]:string;toUpperCase():string;toLowerCase():string;trim():string;includes(v:string):boolean;slice(a?:number,b?:number):string;split(s:string):string[];} declare const Math: {abs(n:number):number;max(...n:number[]):number;min(...n:number[]):number;floor(n:number):number;ceil(n:number):number;round(n:number):number;pow(a:number,b:number):number;sqrt(n:number):number;}; declare const JSON:{stringify(v:unknown):string;parse(v:string):any}; declare function Number(v:unknown):number;declare function String(v:unknown):string;declare function Boolean(v:unknown):boolean;declare function parseInt(v:string,r?:number):number;declare function parseFloat(v:string):number;declare function isNaN(v:number):boolean;declare function isFinite(v:number):boolean;declare const NaN:number;declare const Infinity:number;`;
   const lib =
     baseLib +
+    `interface PromiseLike<T> { then<U=T,V=never>(fulfilled?:((value:T)=>U|PromiseLike<U>)|null,rejected?:((reason:any)=>V|PromiseLike<V>)|null):PromiseLike<U|V>; }
+interface Promise<T> { then<U=T,V=never>(fulfilled?:((value:T)=>U|PromiseLike<U>)|null,rejected?:((reason:any)=>V|PromiseLike<V>)|null):Promise<U|V>; catch<U=never>(rejected?:((reason:any)=>U|PromiseLike<U>)|null):Promise<T|U>; }
+declare const Promise:{resolve():Promise<void>;resolve<T>(value:T|PromiseLike<T>):Promise<T>;reject<T=never>(reason?:unknown):Promise<T>;all<T>(values:readonly (T|PromiseLike<T>)[]):Promise<T[]>;};` +
     `interface ReadonlyArray<T> { readonly length: number; readonly [n:number]: T; map<U>(fn:(v:T,i:number,a:readonly T[])=>U):U[]; filter(fn:(v:T,i:number,a:readonly T[])=>boolean):T[]; reduce(fn:(a:T,b:T)=>T,initial:T):T; join(s?:string):string; slice(a?:number,b?:number):T[]; includes(v:T):boolean; }`;
   // Strip only declaration modifiers, never text inside string literals or comments.
   let source = normalized;
@@ -185,16 +188,63 @@ export async function evaluate(
     runtime.setInterruptHandler(() => Date.now() > deadline);
     const vm = runtime.newContext();
     try {
-      const result = vm.evalCode(
-        `'use strict';\n${outputCodec}\nconst __rrSubject = (function(){${js}\nreturn ${s.name};})();\nconst __result = __rrSubject(...${inputExpression(args)});\n__rrEncodeOutput(__result);`,
+      const encoder = vm.unwrapResult(
+        vm.evalCode(`${outputCodec}\n__rrEncodeOutput;`),
       );
-      if (result.error) {
-        const error = vm.dump(result.error);
-        result.error.dispose();
-        throw Error(error.message ?? "Runtime error");
+      let value: unknown;
+      try {
+        const result = vm.evalCode(
+          `'use strict';\nconst __rrSubject = (function(){${js}\nreturn ${s.name};})();\n__rrSubject(...${inputExpression(args)});`,
+        );
+        if (result.error) {
+          const error = vm.dump(result.error);
+          result.error.dispose();
+          throw Error(error?.message ?? "Runtime error");
+        }
+        try {
+          let state = vm.getPromiseState(result.value);
+          for (
+            let jobs = 0;
+            state.type === "pending" && jobs < 1000 && Date.now() <= deadline;
+            jobs++
+          ) {
+            const step = runtime.executePendingJobs(1);
+            if (step.error) {
+              const error = vm.dump(step.error);
+              step.error.dispose();
+              throw Error(error?.message ?? "Async runtime error");
+            }
+            if (!step.value) break;
+            state = vm.getPromiseState(result.value);
+          }
+          if (state.type === "pending")
+            throw Error(
+              "Unsupported output: promise did not settle within the 1,000-job / 75 ms limit. Timers and external work are unavailable.",
+            );
+          if (state.type === "rejected") {
+            const error = vm.dump(state.error);
+            state.error.dispose();
+            throw Error(error?.message ?? "Promise rejected");
+          }
+          try {
+            const encoded = vm.callFunction(encoder, vm.undefined, state.value);
+            if (encoded.error) {
+              const error = vm.dump(encoded.error);
+              encoded.error.dispose();
+              throw Error(error?.message ?? "Output encoding failed");
+            }
+            value = vm.dump(encoded.value);
+            encoded.value.dispose();
+          } finally {
+            // Non-promises borrow result.value; fulfilled promises return a new handle.
+            if (!state.notAPromise) state.value.dispose();
+          }
+        } finally {
+          result.value.dispose();
+        }
+      } finally {
+        encoder.dispose();
       }
-      const value = vm.dump(result.value);
-      result.value.dispose();
       if (typeof value !== "string" || value.length > 16000)
         throw Error("Output limit exceeded.");
       const parsed = JSON.parse(value);

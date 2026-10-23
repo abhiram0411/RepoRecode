@@ -20,6 +20,7 @@ describe("incremental source parsing", () => {
       parsedFiles: 1,
       reusedFiles: 199,
       removedFiles: 0,
+      reusedSemanticFiles: 199,
     });
     expect(result.analysis).toEqual(analyze(files));
   });

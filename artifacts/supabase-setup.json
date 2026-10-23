@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-23",
+  "projectRef": "oppotpgwkhyzgidjuonc",
+  "projectName": "RepoRecode",
+  "planObserved": "Free",
+  "method": "Supabase dashboard SQL editor; one transaction; success observed",
+  "migrations": [
+    {
+      "file": "001_initial.sql",
+      "sha256": "8546265678af39427d1c9bae976e684e90848c42d97e1b3a03a8324b44ff3ab0"
+    },
+    {
+      "file": "002_github_connections.sql",
+      "sha256": "819ab9685bbf0fb075909beb7b7030acac38bd179d992fa2bc6f201d7f8ce5ed"
+    },
+    {
+      "file": "003_usage_quotas.sql",
+      "sha256": "4b1dc2dff433e8c7b68bfb448e05061bb9259ebf7697bfe385d1b8e51c2d9b8f"
+    },
+    {
+      "file": "004_preferences.sql",
+      "sha256": "13c6acaac239cc1cc5f8a7dcffad0b95c6c243cce0380c460cf3c92fc584c96e"
+    },
+    {
+      "file": "005_admin_metrics.sql",
+      "sha256": "399b0c33abb5c5687eb61322406370d8d64dddb41272583db6037456c6c9eb17"
+    },
+    {
+      "file": "006_github_lifecycle.sql",
+      "sha256": "6bddc58219e4de21181b34ec72848684e5c086fd16ceecd4bb79bfef92b7ecdf"
+    }
+  ],
+  "tableChecks": {
+    "tables": 6,
+    "allRlsEnabled": true,
+    "anonymousSelectDeniedOnAll": true,
+    "authenticatedSelectTables": [
+      "ai_usage",
+      "preferences",
+      "projects"
+    ],
+    "ownerPolicies": 9,
+    "ownerPolicyExpressionsReviewed": true
+  },
+  "functionChecks": {
+    "functions": 9,
+    "anonymousExecuteDeniedOnAll": true,
+    "authenticatedExecuteDeniedOnAll": true,
+    "serviceRoleExecuteGrantedOnAll": true
+  },
+  "limitations": [
+    "No Supabase CLI migration history was registered",
+    "No two-account REST or Auth acceptance",
+    "No application public settings, Auth URLs or OAuth provider configured",
+    "No Vercel deployment"
+  ],
+  "evidence": [
+    "supabase-schema-verified.png",
+    "supabase-functions-verified.png"
+  ]
+}

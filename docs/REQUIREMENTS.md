@@ -34,7 +34,7 @@ This audit preserves unfinished requirements instead of treating the existence o
 
 ## Required external decisions or capabilities
 
-The owner must create/configure the Supabase project, OAuth clients, GitHub App, AI provider, operator alert destinations and support contacts using their own accounts. These actions involve credentials, provider terms or owner permissions. No password or secret should be sent in chat. Docker verification requires a running engine. Production claims require live acceptance and security/legal review.
+The owner must create/configure the free Supabase project, OAuth clients, GitHub App, operator alert destinations and support contacts using their own accounts. External AI providers and paid infrastructure are excluded. Optional local Ollama is not required for core learning. These setup actions involve credentials, provider terms or owner permissions. No password or secret should be sent in chat. Docker verification requires a running engine. Production claims require live acceptance and security/legal review.
 
 ## Next engineering work after this checkpoint
 

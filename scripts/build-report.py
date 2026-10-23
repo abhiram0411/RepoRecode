@@ -47,7 +47,7 @@ doc.core_properties.author = 'RepoRecode'
 doc.core_properties.keywords = 'RepoRecode, development, verification'
 footer = sec.footer.paragraphs[0]
 footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-footer.add_run('RepoRecode  |  16 October 2026  |  ').font.size = Pt(8)
+footer.add_run('RepoRecode  |  23 October 2026  |  ').font.size = Pt(8)
 f = OxmlElement('w:fldSimple'); f.set(qn('w:instr'), 'PAGE'); footer._p.append(f)
 
 def p(text, style=None):

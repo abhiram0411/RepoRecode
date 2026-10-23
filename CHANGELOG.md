@@ -1,5 +1,27 @@
 # Changelog
 
+## Local follow-up 23 October 2026
+
+- Practice resolves bounded default generic arguments, including imported/inherited definitions and defaults referring to earlier parameters. Original readonly/default context remains visible. Invalid/cyclic/constrained or oversized definitions stay unsupported. Analysis version 9 refreshes existing indexes.
+
+
+## Local batch — API paths and responsive source navigation
+
+Added bounded fetch/Express method-path candidate lists and graphs, exact source excerpts for top-level declarations, graph fitting after panel/viewport resizing and mobile panels that expand with their content. These changes remain local with the generic/async practice, semantic reuse and keyboard improvements. Version 17 stays live; no deployment is part of this batch.
+
+## 16 October 2026 — Broader practice and incremental indexes (local batch)
+
+- Added concrete generic aliases/interfaces and instantiated bases while retaining input bounds and readonly checks.
+- Added bounded async/await and native promise result grading, including pending-job and time limits.
+- Reuse unaffected declaration/call indexes; invalidate through changed imports/reexports, with conservative global/truncation fallback.
+- Added real-browser generic async practice and unaffected-index reuse coverage; Firefox verification is in progress.
+
+## 16 October 2026 — Keyboard workspace access
+
+- Added keyboard navigation bypass, page-change focus, profile Escape focus restoration, active page/mode semantics and distinct source/practice editor labels.
+- Expanded automated accessibility coverage to the learning path, source study and practice editor, with keyboard-only navigation regressions.
+- Corrected the unsupported-practice explanation to distinguish ambiguous inheritance from supported small inherited interfaces.
+
 ## 16 October 2026 — CSS Modules preview
 
 - Default local .module.css imports now expose bounded scoped class/ID names, including explicit nested selectors and interactive state updates.

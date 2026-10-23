@@ -80,6 +80,7 @@ export default function CodeEditor({
       onChange={(v) => onChange?.(v ?? "")}
       options={{
         readOnly,
+        ariaLabel: readOnly ? "Source code (read only)" : "Practice code",
         fontSize: 13,
         fontFamily: "Consolas, monospace",
         minimap: { enabled: false },

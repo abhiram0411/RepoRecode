@@ -1,11 +1,14 @@
 import { useState } from "react";
+import ApiRelationships from "./ApiRelationships";
 import type { Project, SymbolInfo } from "../core/types";
 export default function ArchitectureFacts({
   project,
   onSelect,
+  onSource,
 }: {
   project: Project;
   onSelect: (s: SymbolInfo) => void;
+  onSource: (file: string, line: number) => void;
 }) {
   const [kind, setKind] = useState("");
   const facts = project.analysis.facts ?? [];
@@ -31,24 +34,17 @@ export default function ArchitectureFacts({
         {facts
           .filter((f) => !kind || f.kind === kind)
           .map((f, i) => {
-            const s =
-              project.analysis.symbols.find(
-                (s) =>
-                  s.file === f.file && s.line <= f.line && s.endLine >= f.line,
-              ) ?? project.analysis.symbols.find((s) => s.file === f.file);
+            const s = select(f.file, f.line);
             return (
               <article key={i}>
                 <b>{f.kind}</b>
                 <p>{f.detail}</p>
-                {s ? (
-                  <button className="text-button" onClick={() => onSelect(s)}>
-                    {f.file}:{f.line}
-                  </button>
-                ) : (
-                  <code>
-                    {f.file}:{f.line}
-                  </code>
-                )}
+                <button
+                  className="text-button"
+                  onClick={() => (s ? onSelect(s) : onSource(f.file, f.line))}
+                >
+                  {f.file}:{f.line}
+                </button>
               </article>
             );
           })}
@@ -130,6 +126,11 @@ export default function ArchitectureFacts({
           )}
         </>
       )}
+      <ApiRelationships
+        project={project}
+        onSelect={onSelect}
+        onSource={onSource}
+      />
       <h3>Declared dependencies</h3>
       <dl>
         {Object.entries(project.analysis.dependencies).map(

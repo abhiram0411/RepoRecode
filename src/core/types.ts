@@ -15,6 +15,7 @@ export type SymbolInfo = {
   calls: string[];
   concepts: string[];
   standalone: boolean;
+  async?: boolean;
   reason?: string;
   exported: boolean;
   steps?: { line: number; text: string }[];
@@ -34,6 +35,19 @@ export type Analysis = {
   files: number;
   facts?: { file: string; line: number; kind: string; detail: string }[];
   stateFlow?: { relations: StateRelation[]; omitted: number };
+  apiFlow?: ApiFlow;
+};
+export type ApiSite = {
+  file: string;
+  line: number;
+  method: string;
+  path: string;
+};
+export type ApiFlow = {
+  requests: ApiSite[];
+  routes: ApiSite[];
+  links: { request: number; route: number; evidence: "candidate" }[];
+  omitted: number;
 };
 export type StateRelation = {
   state: {

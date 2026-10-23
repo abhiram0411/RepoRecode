@@ -17,6 +17,7 @@ test("changed reimports reuse unchanged source and keep both snapshots; identica
       "revision/src/App.tsx": strToU8(
         'import {double} from "./math"; export function App(){return <p>{double(2)}</p>;}',
       ),
+      "revision/src/unrelated.ts": strToU8("export function unrelated(x:boolean){return !x}"),
     });
     await page.locator('input[type=file][accept=".zip"]').setInputFiles({
       name: "revision.zip",
@@ -29,12 +30,13 @@ test("changed reimports reuse unchanged source and keep both snapshots; identica
   }
   await upload(2);
   await expect(
-    page.getByText(/Read 2 new or changed files; reused 0 unchanged files/),
+    page.getByText(/Read 3 new or changed files; reused 0 unchanged files/),
   ).toBeVisible();
   await upload(3);
   await expect(
-    page.getByText(/Read 1 new or changed files; reused 1 unchanged files/),
+    page.getByText(/Read 1 new or changed files; reused 2 unchanged files/),
   ).toBeVisible();
+  await expect(page.getByText(/Reused declaration and call indexes for 1 unaffected files/)).toBeVisible();
   await page.getByRole("button", { name: /Understand double/ }).click();
   await page
     .getByRole("button", { name: "Source context", exact: true })

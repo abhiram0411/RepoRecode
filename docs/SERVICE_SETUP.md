@@ -28,6 +28,8 @@ This adds no server, service key, paid plan or automated issue submission. Anony
 
 ## Optional Supabase identity and cloud copies
 
+For the prepared Vercel frontend and Supabase account sequence, follow [VERCEL_SUPABASE_SETUP.md](VERCEL_SUPABASE_SETUP.md). Both accounts are uncreated as of 23 October 2026. The browser supports a modern publishable key or the legacy anon key, with build-time configuration checks.
+
 Only use a free project with no paid upgrade/overage path. Apply migrations 001–006 in order to a staging project, then set the browser URL/anonymous key and server-only service role as described in `.env.example`. Configure Google/GitHub OAuth callbacks for your exact origin. Keep secrets out of `VITE_` variables except the intentionally public anonymous key. Cloud upload is explicit and includes source code.
 
 Live acceptance is pending: use two accounts to verify owner isolation, TOTP, recovery, linking, sign-out, deletion and restore. Restore merges identical snapshots without replacing local drafts/notes; changed-source conflicts become separate copies. All incoming records are validated before an atomic storage commit that rejects concurrent local changes. Local progress portability is available without Supabase. Do not claim mocked tests prove deployed RLS.

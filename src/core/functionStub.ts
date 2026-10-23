@@ -8,5 +8,5 @@ export function parameterText(s: SymbolInfo) {
     .join(", ");
 }
 export function functionStub(s: SymbolInfo, comment: string) {
-  return `function ${s.name}(${parameterText(s)}) {\n  // ${comment}\n\n}`;
+  return `${s.async ? "async " : ""}function ${s.name}(${parameterText(s)}) {\n  // ${comment}\n\n}`;
 }

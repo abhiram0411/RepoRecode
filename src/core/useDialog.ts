@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 export function useDialog(open: boolean, onClose: () => void, locked = false) {
   const ref = useRef<HTMLElement>(null),
+    opener = useRef<HTMLElement | null>(null),
     close = useRef(onClose),
     disabled = useRef(locked);
   close.current = onClose;
@@ -8,10 +9,14 @@ export function useDialog(open: boolean, onClose: () => void, locked = false) {
   useEffect(() => {
     const dialog = ref.current;
     if (!open || !dialog) return;
-    const previous =
+    const active =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
+    // Development StrictMode replays the effect after focus is already inside
+    // the dialog. Preserve the real opener through that replay.
+    if (active && !dialog.contains(active)) opener.current = active;
+    const previous = opener.current;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const backgrounds = [
@@ -67,9 +72,14 @@ export function useDialog(open: boolean, onClose: () => void, locked = false) {
       backgrounds.forEach((e, i) => (e.inert = states[i]));
       document.body.style.overflow = overflow;
       // React and the browser finish removing the dialog before restoring its opener.
-      if (previous?.isConnected) requestAnimationFrame(() => {
-        if (previous.isConnected && !document.querySelector('[aria-modal="true"]')) previous.focus();
-      });
+      if (previous?.isConnected)
+        requestAnimationFrame(() => {
+          if (
+            previous.isConnected &&
+            !document.querySelector('[aria-modal="true"]')
+          )
+            previous.focus();
+        });
     };
   }, [open]);
   return ref;

@@ -1,6 +1,6 @@
 # RepoRecode Engineering Report
 
-Prepared for Abhiram on 16 October 2026
+Prepared for Abhiram on 23 October 2026
 
 RepoRecode is a usable development release for learning from real JavaScript and TypeScript source. Its local learning workflow requires no account, database, model or payment method. This report describes implemented behavior, the recorded checks and the work still required by the master specification. It is not a claim of full product completion or an independent security assessment.
 
@@ -12,7 +12,7 @@ The owner approved MIT licensing and public publication. All spending remains pr
 | Local production browser journeys | {{BROWSER_TESTS}} passed; {{BROWSER_FAILURES}} failed |
 | Latest confirmed public release | Version {{PUBLIC_VERSION}} |
 | Source download | {{DOWNLOAD_STATUS}} |
-| Dependency audit | {{VULNERABILITIES}} known vulnerabilities reported |
+| Last recorded dependency audit | {{VULNERABILITIES}} known vulnerabilities reported |
 | External services | Supabase and GitHub App not configured or live verified |
 
 Public website: https://reporecode-learning-lab.milkyibex8.chatgpt.site
@@ -29,7 +29,9 @@ Read docs/RESUME.md, docs/MASTER_SPEC.md, docs/FEATURES.md and docs/SERVICE_SETU
 
 React and Vite provide the browser interface. Monaco supplies source editing and React Flow displays source-linked relationships. The TypeScript compiler indexes local imports, declarations, calls and JSX relationships. IndexedDB holds imported snapshots, drafts, preferences and learning records on the user's device. A validated localStorage preference copy protects changes made immediately before reload.
 
-Workers keep parsing and evaluation off the UI thread. Source analysis reuses unchanged parsed files from its latest snapshot; semantic relationships are rebuilt. Evaluation remains disposable. QuickJS runs imported code with memory limits and deadlines, without a bridge to host files or networking. Initial preview uses React server rendering. Interactive preview keeps a React reconciler alive inside QuickJS. Both display sanitized HTML in a script-disabled iframe.
+Workers keep parsing and evaluation off the UI thread. Source analysis reuses unchanged parsed files and dependency-unaffected declaration/call indexes from its latest snapshot. Compiler binding and state/API relationships are rebuilt; globals and truncated facts conservatively force full reanalysis. Evaluation remains disposable. QuickJS runs imported code with memory limits and deadlines, without a bridge to host files or networking. Initial preview uses React server rendering. Interactive preview keeps a React reconciler alive inside QuickJS. Both display sanitized HTML in a script-disabled iframe.
+
+Local development preserves QuickJS binary URLs and prepares worker-only parsers before the first preview. Separate browser checks cover development-mode grading and interactive rendering. Source graph nodes keep their measurements across draft and result updates, and diagrams refit after panel or viewport resizing.
 
 The optional Node gateway handles GitHub App access, protected administration and local feedback. Supabase can provide optional identity and owner-scoped cloud copies after owner setup and live acceptance. The public Sites deployment currently serves static frontend assets and does not run this gateway.
 
@@ -52,9 +54,15 @@ Roadmaps use learner preferences and actual dependency evidence. Walkthroughs ex
 | Prediction and concept checks | Finite reference outputs and source-grounded questions |
 | Interview reflection | Saved learner text without automatic grading claims |
 
-Function probes vary every supported parameter before filling the remaining combination budget. Object fields compare independently of insertion order. Missing fields, undefined, null and nonfinite numbers remain distinguishable. Callable, cyclic and other unsupported outputs cannot earn a false success through lossy JSON conversion. Excluded reference inputs are reported; exception behavior is not graded. Passing a finite sample does not establish general equivalence.
+Function probes independently vary supported parameters within 64 finite samples. Object key order does not matter; missing fields, undefined, null and nonfinite numbers remain distinct. Unsupported outputs cannot pass through lossy JSON conversion. Exceptions are excluded and counted. Passing samples does not establish general equivalence.
 
-Function contracts support up to three explicitly typed scalar, literal-union, nullable, optional/default, scalar-array, small fixed-tuple or small object parameters. Objects allow two levels, three total scalar leaves, four base choices per leaf and 16 samples. Independent variations must fit the sample cap; deeper shapes and wider unions remain unsupported. Generated inputs preserve omitted/undefined/null distinctions; prediction comparison also preserves types. Saved indexes refresh without replacing concurrent learning work. Component checks do not grade event handlers, later state, stylesheet appearance or full TypeScript correctness. Simple named aliases and interfaces with unambiguous inherited fields resolve through relative imports and reexports. Original type names remain in exercises, with read-only definitions available in the editor. Resolution is bounded; recursive, generic, ambiguous-inherited, merged and namespace-qualified types remain unsupported. Analysis version 7 refreshes existing indexes. Broader contracts remain unfinished.
+Contracts allow up to three typed scalar, literal-union, nullable, optional/default, scalar-array, small-tuple or small-object parameters. Objects allow two levels, three scalar leaves and 16 samples, including independent variations. Named aliases, interfaces and unambiguous inherited fields resolve through local imports and reexports. Read-only definitions retain original type names and readonly fields.
+
+Generic aliases and interfaces allow up to three unconstrained parameters, using explicit arguments or bounded defaults. Defaults may refer to earlier parameters; imported defaults are expanded into the local type context. Generic functions, constraints, conditional/mapped types, recursive or ambiguous declarations and shapes exceeding the limits remain unsupported. Analysis version 9 refreshes stored indexes. Component checks cover initial DOM across six primitive-prop samples, without full type checking, event, later-state or visual grading.
+
+Async grading settles native QuickJS promises with at most 1,000 microtask jobs and 75 ms, 8 MiB and stack limits per probe. Promise chains and homogeneous Promise.all work in the limited type environment. Timers, network and external dependencies remain unavailable. Pending reference promises are unsupported; rejected inputs count as excluded exception coverage. Checks compare settled values, not event-loop ordering.
+
+The API index matches literal root-relative fetch requests with declaration-resolved Express routes by exact method and path. Links are candidates, without origin, mount, middleware or runtime-delivery proof. Ambiguous methods and shadowed/fake imports are excluded. Limits are 200 sites, 200 links and 60 graph nodes. Source links open a declaration or highlighted excerpt. Imported requests are never sent.
 
 ## Interactive preview and interface
 
@@ -107,6 +115,8 @@ Before production-readiness claims, complete independent security and upload rev
 
 ## Verification and release procedure
 
+The current local feature batch passed 34 Edge and 34 Firefox 157 journeys, including API candidate source navigation, mobile graph fitting and the generic async practice flow. The production build, 323 unit/integration checks and five development-mode journeys passed. This includes default generic contracts and dependent/imported defaults. These changes are not yet deployed; version 17 remains the public release.
+
 Nested-object checks cover optional containers, missing versus undefined leaves, readonly named contracts and rejection of oversized domains. Support links now open the public repository and issues.
 
 Local evidence currently records {{UNIT_TESTS}} passing unit and integration tests and {{BROWSER_TESTS}} passing production-browser journeys. Coverage includes imports, practice corrections, component reconstruction, persisted progress transfer, themes, keyboard dialogs, state/form interaction, source navigation, restore transactions and local feedback privacy.
@@ -123,11 +133,13 @@ Two GitHub runs on 15 October found preference loss when reloading immediately a
 - Set TEST_URL to http://127.0.0.1:5181 and LOCAL_COMMUNITY_E2E to true, then run npx playwright test.
 - The community journey creates disposable local data on port 8788 and refuses public targets. Do not send test feedback to production.
 
-Windows tests use Edge; GitHub uses Chromium. GitHub commit 7c14b19ac3115408bae95dbb51c0736930485c18 passed run 38828699771: https://github.com/abhiram0411/RepoRecode/actions/runs/38828699771. Full public run: 28 passed, 1 intentionally skipped, 0 failed (167.54 seconds).
+Windows tests use Edge; GitHub uses Chromium. GitHub commit 6f49133e23b837bcfbf5630c550a4070d05f8995 passed run 38863042315: https://github.com/abhiram0411/RepoRecode/actions/runs/38863042315. Full public run: 29 passed, 1 intentionally skipped, 0 failed (174.58 seconds).
 
 The dependency audit reports known published issues, not a complete security assessment. Source scanning remains heuristic. Earlier failures and retries remain in the journal with separate receipts.
 
-Release through the existing public Sites project. Push the exact source, package the matching build, save its version and deploy that returned version. Verify deployment status and compare the public source ZIP hash with the local package. Preserve host receipts. The public MIT repository is https://github.com/abhiram0411/RepoRecode. Its separate release checkout is tmp/github-v10; preserve its history independently of Sites.
+Batch changes locally as requested by the owner. For a planned Sites release, push the reviewed source, package the matching build, save its version and deploy that returned version. Verify deployment status and compare the public source ZIP hash with the local package. Preserve host receipts. The public MIT repository is https://github.com/abhiram0411/RepoRecode. Its separate release checkout is tmp/github-v10; preserve its history independently of Sites. No Vercel deployment or provider setup is part of this local batch.
+
+The workspace provides a keyboard skip link, focus movement after page changes, active page and mode labels, named source/practice editors and focus restoration when profile options close. Automated accessibility checks cover the roadmap, source study and practice editor, alongside keyboard regressions. Full manual screen-reader acceptance remains pending.
 
 ## Operating costs and next work
 
@@ -140,8 +152,8 @@ Local feedback requires only the optional local Node gateway and a private data 
 - Provide a genuinely free, durable anonymous feedback backend with a hard spending stop; the public GitHub issue flow remains available separately.
 - Complete owner-configured Supabase, OAuth and GitHub App acceptance with real accounts and selected private repositories.
 - Keep subsequent source releases synchronized to GitHub and verify their CI. The initial public source and hosted CI are complete.
-- Expand practice contracts, incremental semantic indexing, state and data relationships, preview dependencies and framework support while preserving limits and evidence labels.
-- Verify Docker execution, low-end performance, additional browsers, manual accessibility, independent security and operator response procedures.
+- Broaden remaining practice shapes and generic functions, persistent indexing, indirect state/data relationships and preview dependencies/frameworks while preserving limits and evidence labels. Concrete generic contracts, local async settling, dependency-aware semantic reuse and literal API candidates are implemented.
+- Verify Docker execution, low-end performance, WebKit, manual accessibility, independent security and operator response procedures.
 
 Optional local Ollama may improve explanations in the learning workspace. It remains unimplemented, is not required for core learning and must not turn the Coding Pet into a tutor. Device-theme following is implemented.
 

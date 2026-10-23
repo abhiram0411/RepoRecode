@@ -18,3 +18,4 @@ artifacts/deployment.json
 artifacts/source-download.json
 tmp/
 data/
+.vercel/

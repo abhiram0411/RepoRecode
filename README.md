@@ -27,6 +27,8 @@ npm run preview
 
 ## Learning features
 
+Local development and production builds both load the isolated runtime from its bundled WebAssembly asset. CI separately checks development-mode practice and interactive previews as well as the full production journey suite.
+
 - Commit-pinned public GitHub import; bounded folder and ZIP import; optional GitHub App repository picker.
 - TypeScript AST index with exact source locations, functions, components, methods, classes, interfaces, types, variables and architecture signals.
 - Import, resolved call and JSX component graphs. Candidate database/auth/router signals are labelled as candidates.
@@ -48,7 +50,11 @@ npm run preview
 
 ## Supported boundaries
 
-Analyze JS/TS/JSX/TSX and simple React source. Function practice requires a standalone synchronous function with up to three explicitly typed parameters: number/string/boolean, bounded scalar literal unions (including null/undefined), scalar arrays (including readonly arrays), fixed tuples of up to three scalar entries, or inline objects of up to three scalar properties. Optional/default parameters include omitted and explicit undefined probes. Object properties retain missing versus explicit undefined and support readonly/optional fields. Each object gets up to 16 probes; primitive number/string fields use four samples, and literal-union fields must fit four choices. Nested objects, arrays inside objects, wider property unions, named aliases, rest parameters, nested arrays and optional/rest tuples remain unsupported. Component reconstruction supports exported components with no props or up to five inline/same-file primitive typed props. The type environment covers a deliberate subset of the standard library; component rendering does not perform full type checking. At most 64 finite probes check sampled inputs, not general equivalence. Progress is motivational and client-authored, not a certificate.
+Analyze JS/TS/JSX/TSX and simple React source. Function practice accepts supported standalone synchronous functions and locally settled async functions with up to three explicitly typed parameters: scalars, bounded scalar literal unions (including null/undefined), scalar arrays, small fixed tuples and small nested objects. Named aliases, interfaces and concrete generic instantiations resolve through local imports and reexports. Objects allow two object levels, three scalar leaves and 16 samples, with independent variation required. Optional/default parameters and fields retain omitted/undefined/null distinctions. Deeper shapes, object array fields, wide unions, generic functions, constrained generic declarations, recursive or ambiguous types, rest parameters and nested arrays remain unsupported. Component reconstruction supports initial isolated renders for up to six primitive-prop samples, without full type checking or interaction grading. At most 64 finite function probes check sampled inputs, not general equivalence. Progress is motivational and client-authored, not a certificate.
+
+Concrete generic practice supports aliases and interfaces with up to three unconstrained type parameters with explicit arguments or bounded defaults, including instantiated interface bases. Type arguments must expand into existing bounded input shapes. Generic functions, constrained type parameters, conditional/mapped types and recursive expansion remain unsupported. Read-only input type context preserves generic names and readonly fields.
+
+Function grading settles native QuickJS promises and async/await results, with at most 1,000 microtask jobs and the existing 75 ms, 8 MiB and stack limits per probe. Promise chains, resolve/reject/catch and homogeneous Promise.all inputs work in the limited type environment. Timers, network and external dependencies remain unavailable. Pending reference promises make grading unsupported; rejected reference inputs are counted as excluded exception coverage. Grading compares settled outputs, not event-loop ordering or promise identity.
 
 Older saved projects can refresh source analysis from Learning path without losing source, drafts, notes or progress. Identical reimports also refresh stale indexes. Prediction answers use typed comparison: object field order does not matter, while array order and value types do. Enter JSON or a top-level undefined, NaN, Infinity or -Infinity; compound outputs JSON cannot represent are not offered as prediction challenges.
 
@@ -60,7 +66,9 @@ Function probes vary every supported parameter before filling their 64-case budg
 
 Imports allow 200 source files, 128 KiB per file, 2 MiB total source and 5 MiB compressed ZIP. The browser holds at most 25 projects. Imported projects are never installed, modified or pushed back to their originals.
 
-Consecutive imports reuse unchanged parsed files in memory while checking every source relationship again. Identical snapshots resume saved work; changed snapshots remain separate projects. The cache holds only the most recent import and is cleared on reload, project deletion or worker failure. This is incremental parsing within the existing limits, not a persistent index or automatic source watcher.
+Consecutive imports reuse unchanged parsed files and declaration/call indexes for files unaffected by dependency changes. Old and new dependency graphs invalidate changed dependents; global declarations and truncated fact lists force a full rebuild. Compiler binding, state relationships and API candidates are recomputed. The cache holds only the most recent import and clears on reload, project deletion or worker failure. Identical snapshots resume saved work; changed snapshots remain separate projects. No persistent compiler cache or automatic source watcher is provided.
+
+The API path index connects literal root-relative fetch requests to declaration-resolved Express app/Router routes when method and path match exactly. Every connection is labelled a candidate: origins, router mounts, middleware, dynamic paths and actual delivery are not inferred. Shadowed fetch names, type-only/fake Express imports and ambiguous request methods are excluded. Limits are 200 combined sites, 200 candidate links and 60 diagram nodes. The source list and graph open the containing declaration, or a highlighted read-only source excerpt for top-level sites. Imported requests are never sent by this index.
 
 ![Actual React source inspection](artifacts/react-preview.png)
 
@@ -97,3 +105,7 @@ React and Vite keep the core portable without requiring a server. Monaco, React 
 - [Security](SECURITY.md), [contributing](CONTRIBUTING.md), [roadmap](ROADMAP.md)
 
 The owner approved the MIT license. See LICENSE and THIRD_PARTY_NOTICES.md. No paid subscriptions or live AI calls were made during development. The public MIT source is available at https://github.com/abhiram0411/RepoRecode; its first GitHub-hosted CI run passed. Publication status and any verified website address are recorded in the verification document.
+
+Keyboard access includes a skip-to-content link, focus movement after navigation, active page and mode announcements, and named source/practice editors. Profile options return focus to their trigger on Escape.
+
+Default generic arguments resolve in declaration scope, including defaults referring to earlier parameters and defaults on inherited/imported interfaces. The read-only type context preserves defaults with imported type names expanded locally. Missing required arguments, forward/self references, invalid required-after-default ordering, constraints and shapes outside the existing bounds remain unsupported.

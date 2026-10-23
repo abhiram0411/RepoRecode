@@ -14,7 +14,7 @@ Copy .env.example to .env and follow SERVICE_SETUP.md. VITE_ variables are inclu
 node --env-file=.env server/index.mjs
 ~~~
 
-Vite forwards /api to port 8788 in development. Production requires a reverse proxy routing /api to the gateway on the same origin. The default static Nginx template returns 503 for /api, so it cannot silently expose an unconfigured service. Edit the reviewed deployment configuration before enabling it. Add the exact Supabase HTTPS/WSS domains to connect-src. The default microphone policy disables dictation; operators enabling it can allow microphone for self after reviewing browser speech privacy.
+Vite forwards /api to port 8788 in development. Production requires a reverse proxy routing /api to the gateway on the same origin. The default static Nginx template returns 503 for /api, so it cannot silently expose an unconfigured service. Edit the reviewed deployment configuration before enabling it. Add the exact Supabase HTTPS/WSS domains to connect-src. Keep microphone access disabled. Tutor, voice and dictation features are retired.
 
 ## Containers
 
@@ -34,15 +34,18 @@ npm run preview -- --port 5180
 
 In a second terminal, set TEST_URL to http://127.0.0.1:5180 and run npx playwright test. The default browser channel is installed Microsoft Edge. For Linux use the Chromium channel and install Playwright Chromium. Unit and browser evidence is stored under artifacts.
 
+For an automatically managed local server, leave TEST_URL unset. Set PLAYWRIGHT_DEV=true to check the development server instead of the production preview. The development regression command is `npx playwright test e2e/inherited-inputs.spec.ts e2e/generic-async-practice.spec.ts e2e/preview.spec.ts`. Set PLAYWRIGHT_BROWSER=firefox for Firefox, and keep its JSON results separate from Edge. Only install the browsers you intend to test.
+
 ## Troubleshooting
 
 - No declarations: choose JS/TS/JSX/TSX source rather than compiled output or unsupported languages.
 - Import too large: select a source subfolder. Environment files, dependencies and generated output are intentionally excluded.
 - GitHub 403: public API quota may be exhausted. Use ZIP/folder or a configured App.
-- Practice unavailable: dependencies, async work, unsupported parameter types or standard-library APIs may need a full project harness.
+- Practice unavailable: external dependencies, timers/network, unsupported parameter types or standard-library APIs may need a full project harness. Locally settled promises and async/await are supported within the documented limits.
+- WebAssembly magic-word error in development: use the checked-in Vite configuration, which excludes QuickJS and its binary variants from dependency prebundling. A relocated module can otherwise request a missing binary and receive an HTML page. Restart the development server after configuration changes.
 - Feature mission unavailable: the reference must produce finite numeric outputs and a distinguishable transformed result.
 - Preview errors: select an exported React component and supply required props as JSON. Initial mode skips effects/events. Interactive mode supports synchronous state/effects/forms; disable source inspection to use controls. Avoid unsupported packages, timers, DOM APIs and network. Errors preserve the last valid snapshot; render again to start a fresh session.
 - Missing progress: different domains, ports and browser profiles have separate storage. Export before clearing site data or moving devices.
-- Cloud sync fails: apply all migrations, check keys, owner RLS and exact OAuth URLs. Restore is explicit and can replace the same local snapshot.
-- AI unavailable: configure the server, sign in and consent to sharing the selected source. Static lessons still work.
+- Cloud sync fails: apply all migrations, check keys, owner RLS and exact OAuth URLs. Explicit restore merges identical snapshots, preserves drafts/notes and keeps changed-source conflicts separately. Live provider acceptance is still pending.
+- Explanations: source walkthroughs run locally without an AI provider. The Coding Pet has no tutor/chat/voice mode. Optional local Ollama is not implemented.
 - TOTP/admin denied: use trusted app metadata, a valid session and an MFA-verified token.

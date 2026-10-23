@@ -4,6 +4,8 @@ import { reactStateHook } from "./hookSites";
 import { parameterValues } from "./practiceInputs";
 import { practiceTypeContext } from "./practiceTypes";
 import { stateRelations } from "./stateRelations";
+import { apiRelations } from "./apiRelations";
+import { reusableSemanticFiles, resolveSource } from "./analysisInvalidation";
 import type {
   Analysis,
   SourceFile,
@@ -20,6 +22,7 @@ const libs = new Set([
   "Boolean",
   "Array",
   "Object",
+  "Promise",
   "undefined",
   "NaN",
   "Infinity",
@@ -33,13 +36,24 @@ export type AnalysisUpdate = {
   parsedFiles: number;
   reusedFiles: number;
   removedFiles: number;
+  reusedSemanticFiles: number;
+};
+
+type FileAnalysis = {
+  symbols: SymbolInfo[];
+  imports: Analysis["edges"];
+  facts: NonNullable<Analysis["facts"]>;
+  diagnostics: string[];
+  references: Analysis["edges"];
 };
 
 // Keep only the most recent snapshot in this worker. Exact content comparisons
-// avoid hash collisions. Semantic results are always recomputed because even an
-// unchanged importer can resolve differently after another file changes.
+// avoid hash collisions. Semantic reuse follows both old/new import graphs;
+// global scripts and augmentations conservatively invalidate the full snapshot.
 export function createAnalyzer() {
   let previous = new Map<string, ts.SourceFile>();
+  let previousSemantics = new Map<string, FileAnalysis>();
+  let previousFactsTruncated = false;
   return (files: SourceFile[]): AnalysisUpdate => {
     const sources = new Map<string, ts.SourceFile>();
     let parsedFiles = 0,
@@ -66,9 +80,27 @@ export function createAnalyzer() {
     const removedFiles = [...previous.keys()].filter(
       (path) => !sources.has(path),
     ).length;
-    const analysis = analyzeSources(files, sources);
+    const reuse = reusableSemanticFiles(sources, previous);
+    // Truncated global facts depend on preceding files and their order. Rebuild
+    // rather than caching up to 1,000 facts for each of 200 imported files.
+    if (previousFactsTruncated) reuse.clear();
+    const next = new Map<string, FileAnalysis>();
+    const analysis = analyzeSources(files, sources, {
+      previous: previousSemantics,
+      reuse,
+      next,
+    });
+    // Callers must not be able to corrupt a subsequent index by editing results.
+    previousSemantics = structuredClone(next);
+    previousFactsTruncated = (analysis.facts?.length ?? 0) >= 1000;
     previous = sources;
-    return { analysis, parsedFiles, reusedFiles, removedFiles };
+    return {
+      analysis,
+      parsedFiles,
+      reusedFiles,
+      removedFiles,
+      reusedSemanticFiles: reuse.size,
+    };
   };
 }
 
@@ -79,6 +111,11 @@ export function analyze(files: SourceFile[]): Analysis {
 function analyzeSources(
   files: SourceFile[],
   sources: Map<string, ts.SourceFile>,
+  cache: {
+    previous: Map<string, FileAnalysis>;
+    reuse: Set<string>;
+    next: Map<string, FileAnalysis>;
+  },
 ): Analysis {
   const host: ts.CompilerHost = {
     getSourceFile: (n) => sources.get(n),
@@ -119,36 +156,30 @@ function analyzeSources(
     facts: NonNullable<Analysis["facts"]> = [],
     diagnostics: string[] = [];
   function resolve(from: string, spec: string) {
-    if (!spec.startsWith(".")) return;
-    const parts = from.split("/").slice(0, -1);
-    for (const p of spec.split("/")) {
-      if (p === "..") parts.pop();
-      else if (p !== ".") parts.push(p);
-    }
-    const root = parts.join("/");
-    return [
-      root,
-      ...[
-        ".ts",
-        ".tsx",
-        ".js",
-        ".jsx",
-        "/index.ts",
-        "/index.tsx",
-        "/index.js",
-        "/index.jsx",
-      ].map((e) => root + e),
-    ].find((p) => sources.has(p));
+    return resolveSource(sources, from, spec);
   }
   for (const [path, sf] of sources) {
+    const cached = cache.reuse.has(path) && cache.previous.get(path);
+    if (cached) {
+      symbols.push(...cached.symbols);
+      edges.push(...cached.imports);
+      facts.push(...cached.facts.slice(0, 1000 - facts.length));
+      diagnostics.push(...cached.diagnostics);
+      cache.next.set(path, cached);
+      continue;
+    }
+    const symbolStart = symbols.length,
+      edgeStart = edges.length,
+      diagnosticStart = diagnostics.length;
+    const fileFacts: NonNullable<Analysis["facts"]> = [];
     for (const d of program.getSyntacticDiagnostics(sf).slice(0, 15))
       diagnostics.push(
         `${path}:${sf.getLineAndCharacterOfPosition(d.start ?? 0).line + 1}: ${ts.flattenDiagnosticMessageText(d.messageText, " ")}`,
       );
     const visit = (node: ts.Node) => {
       const fact = (kind: string, detail: string) => {
-        if (facts.length < 1000)
-          facts.push({
+        if (facts.length + fileFacts.length < 1000)
+          fileFacts.push({
             file: path,
             line: sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1,
             kind,
@@ -279,7 +310,6 @@ function analyzeSources(
           }
           if (ts.isAwaitExpression(n)) {
             concepts.add("Async code");
-            unsupported = true;
           }
           if (n.kind === ts.SyntaxKind.ThisKeyword || ts.isNewExpression(n))
             unsupported = true;
@@ -319,7 +349,11 @@ function analyzeSources(
               (ts.isPropertySignature(n.parent) && n.parent.name === n);
             if (
               !property &&
-              !libs.has(n.text) &&
+              (!libs.has(n.text) ||
+                decl?.some(
+                  (d) =>
+                    d.getSourceFile() !== sf || d.pos < node.pos || d.end > end,
+                )) &&
               n.text !== name &&
               (!decl ||
                 decl.some(
@@ -373,8 +407,7 @@ function analyzeSources(
           simpleParams &&
           !jsx &&
           !unsupported &&
-          !external.size &&
-          !fn.modifiers?.some((m) => m.kind === ts.SyntaxKind.AsyncKeyword);
+          !external.size;
         const reason = standalone
           ? undefined
           : !fn
@@ -382,7 +415,7 @@ function analyzeSources(
             : jsx
               ? "Exported components can use separate initial-render checks when their props and dependencies are supported."
               : !simpleParams
-                ? "Behavioral probes support up to three scalar, literal-union, scalar-array, fixed-tuple or small object parameters, including simple resolved types. Objects allow two levels and three scalar leaves within 16 samples. Deeper shapes, generics, inherited interfaces and rest parameters need a custom harness."
+                ? "Behavioral probes support up to three scalar, literal-union, scalar-array, fixed-tuple or small object parameters, including resolved types, concrete generic instantiations with defaults and unambiguous interface inheritance. Objects allow two levels and three scalar leaves within 16 samples. Deeper shapes, generic functions, constrained generic types, ambiguous inheritance and rest parameters need a custom harness."
                 : external.size
                   ? `Requires external context: ${[...external].slice(0, 5).join(", ")}.`
                   : "This function requires a project runtime or unsupported syntax.";
@@ -401,6 +434,9 @@ function analyzeSources(
           calls: [...calls],
           concepts: [...concepts],
           standalone,
+          ...(fn?.modifiers?.some((m) => m.kind === ts.SyntaxKind.AsyncKeyword)
+            ? { async: true }
+            : {}),
           reason,
           steps: steps.slice(0, 30),
           exported:
@@ -414,6 +450,14 @@ function analyzeSources(
       ts.forEachChild(node, visit);
     };
     visit(sf);
+    facts.push(...fileFacts.slice(0, 1000 - facts.length));
+    cache.next.set(path, {
+      symbols: symbols.slice(symbolStart),
+      imports: edges.slice(edgeStart),
+      facts: fileFacts,
+      diagnostics: diagnostics.slice(diagnosticStart),
+      references: [],
+    });
   }
   // Traverse each file once for references, instead of once per declaration.
   // Preserve nested-declaration ownership and deterministic edge ordering.
@@ -424,6 +468,15 @@ function analyzeSources(
   const seen = new Map<string, Set<string>>();
   for (const [path, sf] of sources) {
     const owners = symbols.filter((s) => s.file === path);
+    const cached = cache.reuse.has(path) && cache.previous.get(path);
+    if (cached) {
+      for (const edge of cached.references) {
+        const links = references.get(edge.source) ?? [];
+        links.push(edge);
+        references.set(edge.source, links);
+      }
+      continue;
+    }
     const visit = (n: ts.Node) => {
       if (
         ts.isCallExpression(n) ||
@@ -464,6 +517,9 @@ function analyzeSources(
       ts.forEachChild(n, visit);
     };
     visit(sf);
+    cache.next.get(path)!.references = owners.flatMap(
+      (owner) => references.get(owner.id) ?? [],
+    );
   }
   for (const sym of symbols) edges.push(...(references.get(sym.id) ?? []));
   let dependencies: Record<string, string> = {};
@@ -490,5 +546,6 @@ function analyzeSources(
     files: sources.size,
     facts,
     stateFlow: stateRelations(sources, checker),
+    apiFlow: apiRelations(sources, checker),
   };
 }

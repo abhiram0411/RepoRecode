@@ -1,14 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Project, Preferences } from "./types";
 import { validatePreferences } from "./preferences";
-export const cloud =
-  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
-    ? createClient(
-        import.meta.env.VITE_SUPABASE_URL,
-        import.meta.env.VITE_SUPABASE_ANON_KEY,
-        { auth: { flowType: "pkce" } },
-      )
-    : null;
+import { cloudConfig } from "./cloudConfig";
+const config = cloudConfig(import.meta.env);
+export const cloud = config
+  ? createClient(config.url, config.key, { auth: { flowType: "pkce" } })
+  : null;
 export async function cloudSave(project: Project) {
   if (!cloud) throw Error("Cloud is not configured.");
   const {

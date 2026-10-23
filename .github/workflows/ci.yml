@@ -26,3 +26,8 @@ jobs:
       - run: npx playwright test
         env:
           LOCAL_COMMUNITY_E2E: 'true'
+      - name: Verify local development runtime
+        run: npx playwright test e2e/inherited-inputs.spec.ts e2e/generic-async-practice.spec.ts e2e/preview.spec.ts --reporter=list,json
+        env:
+          PLAYWRIGHT_DEV: 'true'
+          PLAYWRIGHT_JSON_OUTPUT_FILE: artifacts/dev-browser-results.json

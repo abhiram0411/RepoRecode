@@ -63,6 +63,7 @@ import Community from "./components/Community";
 import { applyPalette } from "./core/themes";
 import { useWorkspaceTheme } from "./core/useWorkspaceTheme";
 import ArchitectureFacts from "./components/ArchitectureFacts";
+import SourceLocation from "./components/SourceLocation";
 import InterviewPractice from "./components/InterviewPractice";
 import {
   SourceWalkthrough,
@@ -104,6 +105,21 @@ export default function App() {
     [filter, setFilter] = useState("");
   const [profileOpen, setProfileOpen] = useState(false),
     [split, setSplit] = useState(45);
+  const [sourceLocation, setSourceLocation] = useState<{
+    file: string;
+    line: number;
+  }>();
+  function inspectSource(file: string, line: number) {
+    if (Number.isInteger(line) && line > 0) setSourceLocation({ file, line });
+  }
+  const profileButton = useRef<HTMLButtonElement>(null);
+  const previousPage = useRef(page);
+  useEffect(() => {
+    if (previousPage.current !== page) {
+      previousPage.current = page;
+      document.getElementById("main")?.focus();
+    }
+  }, [page]);
   const activeTheme = useWorkspaceTheme(prefs.theme, prefs.followDeviceTheme);
   const [petEvent, setPetEvent] = useState<PetEvent>({ id: 0, state: "idle" });
   const importDialog = useDialog(modal, () => setModal(false), !!busy);
@@ -113,6 +129,9 @@ export default function App() {
       project?.analysis.symbols.find((s) => s.id === selected) ??
       project?.analysis.symbols[0];
   const file = project?.files.find((f) => f.path === symbol?.file);
+  const locatedFile = project?.files.find(
+    (f) => f.path === sourceLocation?.file,
+  );
   const evaluationKey = useRef("");
   const analysisSession = useRef<AnalysisSession | null>(null);
   useEffect(() => () => analysisSession.current?.dispose(), []);
@@ -208,7 +227,8 @@ export default function App() {
       return;
     }
     setBusy("Analyzing source in a separate worker…");
-    const { analysis, reusedFiles, parsedFiles } = await indexFiles(files);
+    const { analysis, reusedFiles, parsedFiles, reusedSemanticFiles } =
+      await indexFiles(files);
     const p: Project = {
       analysisVersion: ANALYSIS_VERSION,
       sourceHash: hash,
@@ -229,7 +249,7 @@ export default function App() {
     setModal(false);
     setPage("campaign");
     setNotice(
-      `Indexed ${analysis.files} source files and ${analysis.symbols.length} declarations. Read ${parsedFiles} new or changed files; reused ${reusedFiles} unchanged files. Checked all source relationships.`,
+      `Indexed ${analysis.files} source files and ${analysis.symbols.length} declarations. Read ${parsedFiles} new or changed files; reused ${reusedFiles} unchanged files. Reused declaration and call indexes for ${reusedSemanticFiles} unaffected files. Checked all source relationships.`,
     );
   }
   function indexFiles(files: Project["files"]) {
@@ -386,6 +406,16 @@ export default function App() {
   }
   return (
     <div className="app-shell">
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("main")?.focus();
+        }}
+      >
+        Skip to workspace content
+      </a>
       <aside className="sidebar">
         <a
           className="brand"
@@ -418,6 +448,7 @@ export default function App() {
             <button
               key={n.id}
               className={page === n.id ? "nav-item active" : "nav-item"}
+              aria-current={page === n.id ? "page" : undefined}
               onClick={() => setPage(n.id)}
             >
               <n.icon size={17} />
@@ -495,6 +526,7 @@ export default function App() {
             <span className="version">DEVELOPER PREVIEW 0.1</span>
             <button
               className="avatar"
+              ref={profileButton}
               aria-label="Account and profile settings"
               aria-expanded={profileOpen}
               onClick={() => setProfileOpen(!profileOpen)}
@@ -507,7 +539,10 @@ export default function App() {
                 className="profile-menu"
                 aria-label="Profile navigation"
                 onKeyDown={(e) => {
-                  if (e.key === "Escape") setProfileOpen(false);
+                  if (e.key === "Escape") {
+                    setProfileOpen(false);
+                    profileButton.current?.focus();
+                  }
                 }}
               >
                 <b>{prefs.name || "Explorer"}</b>
@@ -524,6 +559,8 @@ export default function App() {
                     onClick={() => {
                       setPage(item.page as Page);
                       setProfileOpen(false);
+                      if (page === item.page)
+                        document.getElementById("main")?.focus();
                     }}
                   >
                     {item.label}
@@ -547,7 +584,7 @@ export default function App() {
             )}
           </div>
         </header>
-        <main id="main" key={page} className="page-enter">
+        <main id="main" key={page} className="page-enter" tabIndex={-1}>
           {error && (
             <div className="alert error" role="alert">
               {error}
@@ -846,7 +883,11 @@ export default function App() {
                       </button>
                     </section>
                   )}
-                  <ArchitectureFacts project={project} onSelect={choose} />
+                  <ArchitectureFacts
+                    project={project}
+                    onSelect={choose}
+                    onSource={inspectSource}
+                  />
                   <div className="campaign-toolbar">
                     <h2>Your path to understanding</h2>
                     <input
@@ -979,6 +1020,7 @@ export default function App() {
                       <div className="pane-tabs">
                         <button
                           className={left === "flow" ? "active" : ""}
+                          aria-pressed={left === "flow"}
                           onClick={() => setLeft("flow")}
                         >
                           <GitBranch size={14} />
@@ -986,6 +1028,7 @@ export default function App() {
                         </button>
                         <button
                           className={left === "source" ? "active" : ""}
+                          aria-pressed={left === "source"}
                           onClick={() => setLeft("source")}
                         >
                           <FileCode2 size={14} />
@@ -993,6 +1036,7 @@ export default function App() {
                         </button>
                         <button
                           className={left === "preview" ? "active" : ""}
+                          aria-pressed={left === "preview"}
                           onClick={() => setLeft("preview")}
                         >
                           <Play size={14} />
@@ -1001,7 +1045,11 @@ export default function App() {
                       </div>
                       {left === "flow" ? (
                         <Suspense fallback={<p>Loading graph…</p>}>
-                          <Graph project={project} onSelect={setSelected} />
+                          <Graph
+                            project={project}
+                            onSelect={setSelected}
+                            onSource={inspectSource}
+                          />
                         </Suspense>
                       ) : left === "source" ? (
                         <div className="source-context">
@@ -1039,6 +1087,7 @@ export default function App() {
                       <div className="pane-tabs">
                         <button
                           className={!practice ? "active" : ""}
+                          aria-pressed={!practice}
                           onClick={() => {
                             setPractice(false);
                             setResult(undefined);
@@ -1048,6 +1097,7 @@ export default function App() {
                         </button>
                         <button
                           className={practice ? "active" : ""}
+                          aria-pressed={practice}
                           disabled={
                             !symbol.standalone &&
                             !(symbol.kind === "component" && symbol.exported)
@@ -2002,6 +2052,13 @@ export default function App() {
             </button>
           </section>
         </div>
+      )}
+      {sourceLocation && locatedFile && (
+        <SourceLocation
+          file={locatedFile}
+          line={sourceLocation.line}
+          onClose={() => setSourceLocation(undefined)}
+        />
       )}
       {legal && (
         <div className="modal-backdrop" onClick={() => setLegal("")}>
