@@ -4,7 +4,9 @@
 
 **Free-only development release 0.1.0.** Core learning needs no account, database or model. Optional accounts, private GitHub access and hosted operations need owner configuration and live acceptance. Paid model routes are removed. See [the current specification](docs/MASTER_SPEC.md) and [remaining work](docs/RESUME.md); the full specification is not yet complete.
 
-[Open the public development site](https://reporecode-learning-lab.milkyibex8.chatgpt.site) · [Source on GitHub](https://github.com/abhiram0411/RepoRecode) · [Download the source](https://reporecode-learning-lab.milkyibex8.chatgpt.site/downloads/reporecode-source.zip)
+[Open the public development site](https://repo-recode.vercel.app) · [Source on GitHub](https://github.com/abhiram0411/RepoRecode) · [Download the source](https://repo-recode.vercel.app/downloads/reporecode-source.zip)
+
+Vercel Hobby and Supabase Free are connected. GitHub sign-in and single-account cloud project/preferences acceptance passed. Google, two-account isolation and hosted gateway features remain pending; see [setup status](docs/OWNER_NEXT_STEPS.md). The older Sites release remains available, with separate device-local storage.
 
 ![RepoRecode workspace](artifacts/overview.png)
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 25 October 2026 — deployment acceptance and provider availability
+
+- GitHub batch d826327 passed CI and is live on Vercel Hobby. Supabase Free/GitHub login, callback, sign-out/relogin, sample cloud save/restore/delete and preferences passed focused live acceptance. Full master-spec and two-account acceptance remain incomplete.
+- The next frontend batch lists only enabled Supabase Auth providers, handles settings failures with retry, gates manual identity changes explicitly and accepts existing passwords without imposing the new-password length minimum. Tested locally against the real public provider settings; not yet redeployed.
+
+The older entries below describe status at the time of each change. Their reviewed feature batch was subsequently published in d826327.
+
 ## Local follow-up 23 October 2026
 
 - Practice resolves bounded default generic arguments, including imported/inherited definitions and defaults referring to earlier parameters. Original readonly/default context remains visible. Invalid/cyclic/constrained or oversized definitions stay unsupported. Analysis version 9 refreshes existing indexes.

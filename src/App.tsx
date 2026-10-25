@@ -48,6 +48,7 @@ import {
 } from "./core/storage";
 import { demoFiles } from "./core/demo";
 import { cloud, cloudSave, cloudLoad, cloudDelete } from "./core/cloud";
+import { useAuthAvailability } from "./core/useAuthAvailability";
 import Companion from "./components/Companion";
 import AccountPanel from "./components/AccountPanel";
 import AdminPanel from "./components/AdminPanel";
@@ -105,6 +106,7 @@ export default function App() {
     [filter, setFilter] = useState("");
   const [profileOpen, setProfileOpen] = useState(false),
     [split, setSplit] = useState(45);
+  const authAvailability = useAuthAvailability(page === "settings");
   const [sourceLocation, setSourceLocation] = useState<{
     file: string;
     line: number;
@@ -1481,7 +1483,7 @@ export default function App() {
                 </div>
               </div>
               <div className="settings-grid">
-                <AccountPanel />
+                <AccountPanel availability={authAvailability.settings} />
                 <ProfileSettings prefs={prefs} setPrefs={setPrefs} />
                 <section className="settings-card">
                   <h2>Learning profile</h2>
@@ -1604,28 +1606,53 @@ export default function App() {
                   </p>
                   {cloud && !user && (
                     <div className="button-row">
-                      {(["google", "github"] as const).map((provider) => (
-                        <button
-                          className="secondary"
-                          key={provider}
-                          onClick={() =>
-                            void guarded(async () => {
-                              const { error } =
-                                await cloud!.auth.signInWithOAuth({
-                                  provider,
-                                  options: {
-                                    redirectTo: window.location.origin,
-                                  },
-                                });
-                              if (error) throw error;
-                            })
-                          }
-                        >
-                          Continue with {provider}
-                        </button>
-                      ))}
+                      {(authAvailability.settings?.providers ?? []).map(
+                        (provider) => (
+                          <button
+                            className="secondary"
+                            key={provider}
+                            onClick={() =>
+                              void guarded(async () => {
+                                const { error } =
+                                  await cloud!.auth.signInWithOAuth({
+                                    provider,
+                                    options: {
+                                      redirectTo: window.location.origin,
+                                    },
+                                  });
+                                if (error) throw error;
+                              })
+                            }
+                          >
+                            Continue with {provider}
+                          </button>
+                        ),
+                      )}
                     </div>
                   )}
+                  {cloud && !authAvailability.settings && (
+                    <p role="status">
+                      {authAvailability.error ||
+                        "Checking available sign-in methods…"}
+                      {authAvailability.error && (
+                        <button
+                          className="text-button"
+                          onClick={authAvailability.retry}
+                        >
+                          Retry sign-in methods
+                        </button>
+                      )}
+                    </p>
+                  )}
+                  {cloud &&
+                    !user &&
+                    authAvailability.settings &&
+                    authAvailability.settings.providers.length === 0 && (
+                      <p className="muted">
+                        No social sign-in provider is enabled for this
+                        installation.
+                      </p>
+                    )}
                   {cloud && user && (
                     <>
                       <div className="button-row">

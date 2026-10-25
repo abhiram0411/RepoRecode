@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { cloud } from "../core/cloud";
+import type { AuthAvailability } from "../core/authAvailability";
 import MfaSettings from "./MfaSettings";
-export default function AccountPanel() {
+export default function AccountPanel({
+  availability,
+}: {
+  availability: AuthAvailability | null;
+}) {
   const [user, setUser] = useState<User | null>(null),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
@@ -43,12 +48,19 @@ export default function AccountPanel() {
     }
   }
   const redirectTo = window.location.origin;
+  const linkingEnabled = import.meta.env.VITE_AUTH_IDENTITY_LINKING === "true";
   return (
     <section className="settings-card">
       <h2>Account security</h2>
       <p role="status">{status}</p>
       {!user ? (
         <>
+          {!availability?.email && (
+            <p className="muted">
+              Email sign-in is unavailable until this installation confirms it
+              is enabled.
+            </p>
+          )}
           <label>
             Email
             <input
@@ -70,7 +82,7 @@ export default function AccountPanel() {
           <div className="button-row">
             <button
               className="secondary"
-              disabled={busy || !email || password.length < 12}
+              disabled={busy || !availability?.email || !email || !password}
               onClick={() =>
                 void action(async () => {
                   const { error } = await cloud!.auth.signInWithPassword({
@@ -85,7 +97,13 @@ export default function AccountPanel() {
             </button>
             <button
               className="secondary"
-              disabled={busy || !email || password.length < 12}
+              disabled={
+                busy ||
+                !availability?.email ||
+                !availability.signup ||
+                !email ||
+                password.length < 12
+              }
               onClick={() =>
                 void action(async () => {
                   const { error } = await cloud!.auth.signUp({
@@ -101,7 +119,7 @@ export default function AccountPanel() {
             </button>
             <button
               className="text-button"
-              disabled={busy || !email}
+              disabled={busy || !availability?.email || !email}
               onClick={() =>
                 void action(async () => {
                   const { error } = await cloud!.auth.resetPasswordForEmail(
@@ -126,7 +144,9 @@ export default function AccountPanel() {
               <span>{i.provider}</span>
               <button
                 className="text-button"
-                disabled={busy || (user.identities?.length ?? 0) < 2}
+                disabled={
+                  busy || !linkingEnabled || (user.identities?.length ?? 0) < 2
+                }
                 onClick={() =>
                   void action(async () => {
                     const { error } = await cloud!.auth.unlinkIdentity(i);
@@ -141,7 +161,7 @@ export default function AccountPanel() {
             </div>
           ))}
           <div className="button-row">
-            {(["google", "github"] as const)
+            {(linkingEnabled ? (availability?.providers ?? []) : [])
               .filter((p) => !user.identities?.some((i) => i.provider === p))
               .map((provider) => (
                 <button
@@ -162,6 +182,12 @@ export default function AccountPanel() {
                 </button>
               ))}
           </div>
+          {!linkingEnabled && (
+            <p className="muted">
+              Adding another sign-in identity is not enabled for this
+              installation.
+            </p>
+          )}
           <label>
             New password
             <input

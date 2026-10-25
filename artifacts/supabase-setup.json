@@ -50,9 +50,9 @@
   },
   "limitations": [
     "No Supabase CLI migration history was registered",
-    "No two-account REST or Auth acceptance",
-    "No application public settings, Auth URLs or OAuth provider configured",
-    "No Vercel deployment"
+    "No two-account REST acceptance; see vercel-live-acceptance.json for single-account checks",
+    "Email recovery, MFA, Google and identity linking remain unverified",
+    "Static Vercel does not host the Node gateway"
   ],
   "evidence": [
     "supabase-schema-verified.png",

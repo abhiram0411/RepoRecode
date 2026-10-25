@@ -1,0 +1,25 @@
+{
+  "testedOn": "2026-10-24",
+  "recordedOn": "2026-10-25",
+  "method": "Manual browser UI acceptance and public HTTP checks",
+  "origin": "https://repo-recode.vercel.app",
+  "commit": "d826327e4c9911ac944493c301d49d982fd905a6",
+  "checks": {
+    "sampleAnalysis": {"files": 3, "declarations": 5},
+    "practice": {"function": "nextMilestone", "passedProbes": 8, "xp": 100},
+    "interactivePreview": {"beforePercent": 0, "afterPercent": 20, "observedState": 1},
+    "githubSignIn": "passed; authorized read-only email scope",
+    "callbackExchange": "passed; returned to production and removed authorization code from URL",
+    "localSignOut": "passed; local sample/progress retained",
+    "repeatSignIn": "passed",
+    "sampleCloudUpload": "passed with explicit owner approval",
+    "sampleCloudRestore": {"added": 0, "merged": 1, "conflicts": 0},
+    "preferences": "saved default preferences; temporary local Hoodie reverted to Field jacket on restore",
+    "sampleCloudDelete": "passed with owner approval; subsequent restore added/merged zero projects",
+    "http": {"status": 200, "xFrameOptions": "DENY", "xContentTypeOptions": "nosniff", "referrerPolicy": "no-referrer", "permissionsPolicy": "camera=(), microphone=(), geolocation=()"},
+    "sourceDownload": "passed; see vercel-source-download.json"
+  },
+  "remainingData": "Local built-in sample/progress and default account preferences retained; test cloud project removed",
+  "limitations": ["Single account only; not cross-account isolation evidence", "No email delivery/recovery, MFA, linking or Google acceptance", "No hosted gateway/private-repository acceptance", "Mobile viewport override did not visibly apply; mobile check not counted", "No new deployment during acceptance"],
+  "evidence": ["vercel-ready.png", "supabase-auth-urls.png", "supabase-github-enabled.png", "vercel-github-signin.png", "vercel-practice-passed.png", "vercel-interactive-preview.png", "vercel-cloud-restore.png"]
+}
