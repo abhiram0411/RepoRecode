@@ -131,7 +131,25 @@ describe("gateway boundaries", () => {
       status: "ok",
       aiConfigured: false,
       authConfigured: false,
+      accountDeletionConfigured: false,
     });
+  });
+  it("advertises account deletion only with origin, authentication and deletion configured", async () => {
+    const authenticate = async () => ({ id: "owner" });
+    const deleteAccount = async () => {};
+    for (const options of [
+      { authenticate },
+      { deleteAccount },
+      { authenticate, deleteAccount, env: { NODE_ENV: "test" } },
+    ]) {
+      const r = await request("/api/health", undefined, options);
+      expect((await r.json()).accountDeletionConfigured).toBe(false);
+    }
+    const r = await request("/api/health", undefined, {
+      authenticate,
+      deleteAccount,
+    });
+    expect((await r.json()).accountDeletionConfigured).toBe(true);
   });
   it("rejects cross-origin requests", async () => {
     const r = await request("/api/tutor", {

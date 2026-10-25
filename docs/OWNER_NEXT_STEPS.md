@@ -16,7 +16,9 @@ Updated 25 October 2026. Free/Hobby only: no card, paid trial, credits, upgrade 
 
 ## Next setup work
 
-1. Verify isolation with two distinct test accounts: one must not list, fetch, overwrite or delete the other's project/preferences, including direct API requests. Only single-account acceptance has run.
+The newer provider-controls commit 605766f passed tests/build on GitHub but its run 40175856556 stopped on a Zod advisory. The local follow-up pins patched 4.6.6 (zero audit findings), checks account-deletion backend availability before offering deletion and rejects malformed success responses. Its 339 tests and build passed; all 35 Edge browser journeys passed; GitHub CI verification is next. It is not deployed. Earlier zero-audit results above are historical, not a statement about the currently deployed dependency after new advisories.
+
+1. Verify isolation with two distinct test accounts: one must not list, fetch, overwrite or delete the other's project/preferences, including direct API requests. Only single-account acceptance has run. The owner deferred this test because a second account is not available now.
 2. Complete email delivery/recovery, TOTP and identity-linking acceptance. Keep email confirmation enabled. Credential creation/changes and authenticator enrollment require the owner's participation; never send secrets in chat. Default email service restrictions have not been tested. Do not buy SMTP as a workaround.
 3. Google is still disabled. Its button currently appears in deployed d826327. A tested local follow-up now reads actual provider availability and omits disabled providers; publish it with the next reviewed batch. Manual identity linking is also disabled; its new UI flag defaults off. Do not enable that flag until the server setting is enabled and tested.
 4. The optional private-repository GitHub App is separate from both sign-in OAuth and Vercel's deployment integration. It still needs server configuration and live acceptance.

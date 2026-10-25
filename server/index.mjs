@@ -80,6 +80,11 @@ export function createGateway({
         status: "ok",
         aiConfigured: false,
         authConfigured: !!auth,
+        accountDeletionConfigured: !!(
+          env.APP_ORIGIN &&
+          (auth || authenticate) &&
+          (admin || deleteAccount)
+        ),
       });
     const route = req.url?.split("?")[0];
     if (route === "/api/github/callback" && req.method === "GET") {

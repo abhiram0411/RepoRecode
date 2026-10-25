@@ -2,6 +2,8 @@
 
 ## 25 October 2026 — deployment acceptance and provider availability
 
+- Patched Zod to exactly 4.6.6 after GitHub's audit detected GHSA-mrhx-c7xc-m3w5. Security gate remains unchanged; local audit is clear.
+- Account deletion stays disabled until a same-origin gateway advertises configured deletion support. Missing APIs, expired sessions and malformed success responses produce clear failures; no automatic deletion or retry occurs. This does not provide a hosted deletion backend.
 - GitHub batch d826327 passed CI and is live on Vercel Hobby. Supabase Free/GitHub login, callback, sign-out/relogin, sample cloud save/restore/delete and preferences passed focused live acceptance. Full master-spec and two-account acceptance remain incomplete.
 - The next frontend batch lists only enabled Supabase Auth providers, handles settings failures with retry, gates manual identity changes explicitly and accepts existing passwords without imposing the new-password length minimum. Tested locally against the real public provider settings; not yet redeployed.
 

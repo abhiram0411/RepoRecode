@@ -3,6 +3,8 @@ import type { User } from "@supabase/supabase-js";
 import { cloud } from "../core/cloud";
 import type { AuthAvailability } from "../core/authAvailability";
 import MfaSettings from "./MfaSettings";
+import { useAccountDeletion } from "../core/useAccountDeletion";
+import { deleteCloudAccount } from "../core/accountService";
 export default function AccountPanel({
   availability,
 }: {
@@ -13,6 +15,7 @@ export default function AccountPanel({
     [password, setPassword] = useState(""),
     [status, setStatus] = useState(""),
     [busy, setBusy] = useState(false);
+  const deletion = useAccountDeletion(!!user);
   useEffect(() => {
     if (!cloud) return;
     cloud.auth.getUser().then(({ data }) => setUser(data.user));
@@ -243,11 +246,26 @@ export default function AccountPanel({
           </div>
           <p className="muted">
             Private GitHub repository permission is separate from sign-in.
-            Account deletion requires the configured backend.
           </p>
+          {!deletion.available && (
+            <p role="status" className="muted">
+              {deletion.checking
+                ? "Checking cloud account deletion availability…"
+                : "Cloud account deletion is unavailable on this installation. Your account has not been deleted."}
+              {!deletion.checking && (
+                <button
+                  className="text-button"
+                  disabled={busy}
+                  onClick={deletion.retry}
+                >
+                  Check deletion availability again
+                </button>
+              )}
+            </p>
+          )}
           <button
             className="secondary danger"
-            disabled={busy}
+            disabled={busy || !deletion.available || deletion.checking}
             onClick={() => {
               if (
                 window.prompt(
@@ -259,18 +277,7 @@ export default function AccountPanel({
                 const {
                   data: { session },
                 } = await cloud!.auth.getSession();
-                const r = await fetch("/api/account", {
-                  method: "DELETE",
-                  headers: {
-                    Authorization: `Bearer ${session?.access_token}`,
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ confirmation: "DELETE" }),
-                });
-                if (!r.ok) {
-                  const data = await r.json();
-                  throw Error(data.error ?? "Account deletion failed.");
-                }
+                await deleteCloudAccount(session?.access_token);
                 await cloud!.auth.signOut({ scope: "local" });
               }, "Cloud account deleted. Local device data remains until you delete it in Your data.");
             }}

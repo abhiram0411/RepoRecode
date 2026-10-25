@@ -1,0 +1,20 @@
+{
+  "observedDate": "2026-10-25",
+  "commit": "605766f29d9921ccd4865a56e59ddb9817c58e9c",
+  "runUrl": "https://github.com/abhiram0411/RepoRecode/actions/runs/40175856556",
+  "jobId": 121116265290,
+  "conclusion": "failure",
+  "tests": { "passed": 333, "filesPassed": 40 },
+  "build": "success",
+  "audit": {
+    "conclusion": "failure",
+    "package": "zod",
+    "installedVersion": "4.6.5",
+    "patchedVersion": "4.6.6",
+    "advisory": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+    "severity": "high"
+  },
+  "sourceScan": "skipped",
+  "browserAcceptance": "skipped",
+  "deployment": "Not deployed; Vercel remains on d826327"
+}
