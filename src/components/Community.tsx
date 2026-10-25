@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { feedbackDraft, type FeedbackCategory } from "../core/feedbackDraft";
 export type CommunitySnapshot = {
   feedbackCount: number;
@@ -21,10 +21,20 @@ export type CommunitySnapshot = {
   releaseDownloads: number | null;
   note: string;
 };
-async function api(path: string, method: string, value: unknown) {
+async function api(
+  path: string,
+  method: string,
+  value: unknown,
+  submissionId?: string,
+) {
   const r = await fetch(path, {
     method,
-    headers: { "Content-Type": "application/json" },
+    redirect: "error",
+    credentials: "omit",
+    headers: {
+      "Content-Type": "application/json",
+      ...(submissionId ? { "Idempotency-Key": submissionId } : {}),
+    },
     body: JSON.stringify(value),
     signal: AbortSignal.timeout(8000),
   });
@@ -32,6 +42,16 @@ async function api(path: string, method: string, value: unknown) {
     throw Error("Feedback service is unavailable on this installation.");
   const data = await r.json();
   if (!r.ok) throw Error(data.error ?? "Request failed");
+  const confirmed =
+    path === "/api/feedback"
+      ? data?.received
+      : method === "DELETE"
+        ? data?.deleted
+        : data?.recorded;
+  if (confirmed !== true)
+    throw Error(
+      "The service did not confirm this request. Your form has been kept so you can retry.",
+    );
   return data;
 }
 const consentKey = "reporecode.activity-consent",
@@ -39,6 +59,10 @@ const consentKey = "reporecode.activity-consent",
   deleteKey = "reporecode.activity-delete",
   dayKey = "reporecode.activity-day";
 export default function Community() {
+  const submission = useRef<{ payload: string; id: string } | null>(null);
+  const [feedbackRetention, setFeedbackRetention] = useState<number | null>(
+    null,
+  );
   const [category, setCategory] = useState<FeedbackCategory>("feature"),
     [message, setMessage] = useState(""),
     [contact, setContact] = useState(""),
@@ -70,6 +94,7 @@ export default function Community() {
         const data = await r.json();
         setEnabled(data.feedbackEnabled === true);
         setActivityEnabled(data.telemetryEnabled === true);
+        setFeedbackRetention(data.feedbackRetentionDays === 90 ? 90 : null);
         if (data.telemetryEnabled !== true) return;
         const pending = localStorage.getItem(deleteKey);
         if (pending) {
@@ -166,6 +191,12 @@ export default function Community() {
           ? "Send only what you write below. No source code or learning progress is attached. Contact and rating are optional; you can submit anonymously."
           : "Share a bug report or an idea through the project's GitHub issues. Only the feedback you enter is included; no source code or learning progress is attached."}
       </p>
+      {enabled && feedbackRetention && (
+        <p className="muted">
+          Feedback older than {feedbackRetention} days is removed when the
+          service next stores or reviews data.
+        </p>
+      )}
       {loading ? (
         <p role="status">Checking feedback availability…</p>
       ) : (
@@ -185,14 +216,19 @@ export default function Community() {
           if (!enabled || busy) return;
           setBusy(true);
           setStatus("");
-          void api("/api/feedback", "POST", {
+          const value = {
             category,
             message,
             ...(contact ? { contact } : {}),
             ...(rating ? { rating: Number(rating) } : {}),
             website,
-          })
+          };
+          const payload = JSON.stringify(value);
+          if (submission.current?.payload !== payload)
+            submission.current = { payload, id: crypto.randomUUID() };
+          void api("/api/feedback", "POST", value, submission.current.id)
             .then(() => {
+              submission.current = null;
               setStatus(
                 "Feedback received. Thank you for helping improve RepoRecode.",
               );

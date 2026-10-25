@@ -1,8 +1,10 @@
--- Read-only verification after migrations 001-006. Run each SELECT separately.
+-- Read-only verification of applied migrations. Run each SELECT separately.
+-- Migration 007 is not applied to production yet; do not assume its tables exist.
 -- Catalog checks do not replace two-account REST/Auth acceptance.
 select c.relname as table_name, c.relrowsecurity as rls,
   has_table_privilege('anon', c.oid, 'SELECT') as anon_read,
   has_table_privilege('authenticated', c.oid, 'SELECT') as member_read,
+  has_table_privilege('service_role', c.oid, 'SELECT') as server_read,
   (select count(*) from pg_policies p
     where p.schemaname = 'public' and p.tablename = c.relname) as policies
 from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -15,7 +17,8 @@ select p.proname as function_name,
   has_function_privilege('service_role', p.oid, 'EXECUTE') as server_execute
 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
 where n.nspname = 'public'
-  and (p.proname like 'github_%' or p.proname in ('admin_snapshot', 'reserve_tutor_request'))
+  and (p.proname like 'github_%' or p.proname like 'community_%'
+    or p.proname like 'gateway_%' or p.proname in ('admin_snapshot', 'reserve_tutor_request'))
 order by p.proname;
 
 select tablename, policyname, roles, cmd, qual, with_check

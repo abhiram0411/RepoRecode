@@ -2,23 +2,12 @@ import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { randomUUID, createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-
-const feedbackSchema = z
-  .object({
-    category: z.enum(["feature", "bug", "general"]),
-    message: z.string().trim().min(10).max(3000),
-    rating: z.number().int().min(1).max(5).optional(),
-    contact: z.string().email().max(254).optional(),
-    website: z.literal("").optional(),
-  })
-  .strict();
-const activitySchema = z
-  .object({
-    installationId: z.string().uuid(),
-    event: z.enum(["installation", "active"]),
-  })
-  .strict();
-const deletionSchema = z.object({ installationId: z.string().uuid() }).strict();
+import {
+  feedbackSchema,
+  activitySchema,
+  deletionSchema,
+} from "./communitySchemas.mjs";
+import { readJsonBody } from "./requestBody.mjs";
 export function createCommunity(env) {
   const path = env.COMMUNITY_STORAGE_PATH
     ? resolve(env.COMMUNITY_STORAGE_PATH)
@@ -65,16 +54,6 @@ export function createCommunity(env) {
     limits.set(ip, row);
     return row.count <= 10;
   }
-  async function body(req) {
-    let text = "",
-      size = 0;
-    for await (const chunk of req) {
-      size += chunk.length;
-      if (size > 16000) throw Error("Request too large");
-      text += chunk;
-    }
-    return JSON.parse(text);
-  }
   async function handle(route, req, send) {
     if (!enabled)
       return send(503, {
@@ -89,7 +68,7 @@ export function createCommunity(env) {
         error: "Submission limit reached. Try again in an hour.",
       });
     try {
-      const raw = await body(req);
+      const raw = await readJsonBody(req, 16000);
       if (route === "/api/feedback") {
         const value = feedbackSchema.parse(raw);
         const id = await mutate((data) => {

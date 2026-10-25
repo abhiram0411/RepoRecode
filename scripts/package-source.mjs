@@ -4,6 +4,7 @@ import { zipSync } from "fflate";
 const root = resolve("."),
   entries = {};
 const directories = [
+  "api",
   "src",
   "server",
   "scripts",

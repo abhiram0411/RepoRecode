@@ -7,26 +7,46 @@ import { persistentAlerts } from "./alerts.mjs";
 import { createGithubIntegration } from "./github.mjs";
 import { createGithubStore } from "./githubStore.mjs";
 import { createCommunity } from "./community.mjs";
+import { readJsonBody } from "./requestBody.mjs";
 
-export function createGateway({
+export function createGatewayHandler({
   env = process.env,
   fetcher = fetch,
   authenticate,
   deleteAccount,
+  communityAdapter,
+  adminClient,
+  admitRequest,
+  backendReady = async () => true,
+  hosted = false,
 } = {}) {
-  const community = createCommunity(env);
+  const community = communityAdapter ?? createCommunity(env);
+  const publicKey = env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY;
+  const providerFetch = (input, init = {}) =>
+    fetcher(input, {
+      ...init,
+      redirect: "error",
+      signal: AbortSignal.any([
+        AbortSignal.timeout(20000),
+        ...(init.signal ? [init.signal] : []),
+      ]),
+    });
   const auth =
-    env.SUPABASE_URL && env.SUPABASE_ANON_KEY
-      ? createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    env.SUPABASE_URL && publicKey
+      ? createClient(env.SUPABASE_URL, publicKey, {
           auth: { persistSession: false, autoRefreshToken: false },
+          global: { fetch: providerFetch },
         })
       : null;
+  const serverKey = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
   const admin =
-    env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
-      ? createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+    adminClient ??
+    (env.SUPABASE_URL && serverKey
+      ? createClient(env.SUPABASE_URL, serverKey, {
           auth: { persistSession: false, autoRefreshToken: false },
+          global: { fetch: providerFetch },
         })
-      : null;
+      : null);
   const github = admin
     ? createGithubIntegration({
         env,
@@ -40,7 +60,7 @@ export function createGateway({
     totalToday = 0,
     day = "";
   const boot = Date.now();
-  const server = http.createServer(async (req, res) => {
+  const handler = async (req, res) => {
     const currentDay = new Date().toISOString().slice(0, 10);
     if (currentDay !== day) {
       day = currentDay;
@@ -70,11 +90,15 @@ export function createGateway({
       if (requests.length > 1000) requests.shift();
       if (env.NODE_ENV !== "test") console.log(JSON.stringify(record));
     });
-    if (req.method === "GET" && req.url === "/api/community/status")
+    if (req.method === "GET" && req.url === "/api/community/status") {
+      const ready =
+        community.enabled && (!community.ready || (await community.ready()));
       return send(200, {
-        feedbackEnabled: community.enabled,
-        telemetryEnabled: community.enabled,
+        feedbackEnabled: ready,
+        telemetryEnabled: ready,
+        ...(hosted ? { feedbackRetentionDays: 90 } : {}),
       });
+    }
     if (req.method === "GET" && req.url === "/api/health")
       return send(200, {
         status: "ok",
@@ -83,13 +107,20 @@ export function createGateway({
         accountDeletionConfigured: !!(
           env.APP_ORIGIN &&
           (auth || authenticate) &&
-          (admin || deleteAccount)
+          (admin || deleteAccount) &&
+          (await backendReady())
         ),
       });
     const route = req.url?.split("?")[0];
+    if (hosted && route === "/api/local-admin")
+      return send(404, { error: "Not found" });
     if (route === "/api/github/callback" && req.method === "GET") {
       if (!github) return send(503, { error: "GitHub App not configured" });
       try {
+        if (admitRequest && !(await admitRequest("github")))
+          return send(429, {
+            error: "Service limit reached. Please try later.",
+          });
         const url = new URL(req.url, "http://localhost");
         const destination = await github.callback(
           url.searchParams.get("code"),
@@ -163,6 +194,13 @@ export function createGateway({
       return send(429, { error: "Service busy. Try again shortly." });
     active++;
     try {
+      const scope = route.startsWith("/api/github/")
+        ? "github"
+        : route === "/api/account"
+          ? "account"
+          : "admin";
+      if (admitRequest && !(await admitRequest(scope)))
+        return send(429, { error: "Service limit reached. Please try later." });
       const user = authenticate
         ? await authenticate(token)
         : (await auth.auth.getUser(token)).data.user;
@@ -179,20 +217,15 @@ export function createGateway({
           await github.disconnect(user.id);
           return send(200, { disconnected: true });
         }
-        let raw = "",
-          size = 0;
-        for await (const chunk of req) {
-          size += chunk.length;
-          if (size > 1000) return send(413, { error: "Request too large" });
-          raw += chunk;
-        }
         let body;
         try {
           body = z
             .object({ repository: z.string().max(200) })
             .strict()
-            .parse(JSON.parse(raw));
-        } catch {
+            .parse(await readJsonBody(req, 1000));
+        } catch (error) {
+          if (error.message === "Request too large")
+            return send(413, { error: "Request too large" });
           return send(400, { error: "Invalid repository selection" });
         }
         return send(200, await github.import(user.id, body.repository));
@@ -218,6 +251,7 @@ export function createGateway({
         return send(200, {
           community: await community.snapshot(),
           databaseMetrics,
+          metricsScope: hosted ? "function-instance" : "process",
           traffic: Array.from({ length: 15 }, (_, i) => {
             const start = Date.now() - (15 - i) * 60000;
             const sample = recent.filter(
@@ -251,18 +285,13 @@ export function createGateway({
           return send(503, {
             error: "Account administration is not configured",
           });
-        let text = "",
-          bytes = 0;
-        for await (const chunk of req) {
-          bytes += chunk.length;
-          if (bytes > 1000) return send(413, { error: "Request too large" });
-          text += chunk;
-        }
         try {
           z.object({ confirmation: z.literal("DELETE") })
             .strict()
-            .parse(JSON.parse(text));
-        } catch {
+            .parse(await readJsonBody(req, 1000));
+        } catch (error) {
+          if (error.message === "Request too large")
+            return send(413, { error: "Request too large" });
           return send(400, {
             error: "Explicit deletion confirmation required",
           });
@@ -286,10 +315,9 @@ export function createGateway({
     } finally {
       active--;
     }
-  });
-  server.requestTimeout = 25000;
-  server.headersTimeout = 10000;
-  if (env.ALERTS_ENABLED === "true") {
+  };
+  handler.close = () => {};
+  if (!hosted && env.ALERTS_ENABLED === "true") {
     let checking = false;
     const manager = persistentAlerts(env, fetcher).catch(() => null);
     const timer = setInterval(async () => {
@@ -328,8 +356,16 @@ export function createGateway({
       }
     }, 60000);
     timer.unref();
-    server.on("close", () => clearInterval(timer));
+    handler.close = () => clearInterval(timer);
   }
+  return handler;
+}
+export function createGateway(options = {}) {
+  const handler = createGatewayHandler(options);
+  const server = http.createServer(handler);
+  server.requestTimeout = 25000;
+  server.headersTimeout = 10000;
+  server.on("close", handler.close);
   return server;
 }
 if (

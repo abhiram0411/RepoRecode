@@ -17,7 +17,20 @@ References checked on 23 October 2026: [Vercel Hobby](https://vercel.com/docs/pl
 
 This is a static frontend deployment. It does not run the Node gateway. Supabase sign-in and explicit cloud project/preferences copies use the browser client once configured. Account deletion, private GitHub App access, anonymous hosted feedback and gateway administration need an independently verified same-origin backend. Do not mount the existing single-process file store in a serverless function: its files, in-memory quotas and process metrics do not provide durable or distributed operation.
 
-The app currently navigates within `/`, so no catch-all rewrite is configured. Missing API paths must not be rewritten to the HTML application.
+The app navigates within `/`. The next backend batch adds only an `/api/:path*` rewrite to its shared function; unknown API endpoints return JSON 404, never the HTML application.
+
+## Enable the prepared hosted backend (not yet performed)
+
+As of 26 October, the backend code and migration are prepared locally. Production is still the static d826327 release. Complete code/browser/CI acceptance before the next single batched deployment. Native Node smoke and local SQL/HTTP fixtures are not proof of Vercel routing or live database permissions.
+
+1. Keep the existing Hobby/Free plans. In the existing Supabase SQL editor, apply only `supabase/migrations/007_hosted_community.sql` inside one explicit `BEGIN; ... COMMIT;` transaction after confirming 007 has not already been applied. Never rerun 001–006. SQL-editor application does not create CLI migration-history entries.
+2. Use `supabase/verify.sql` to confirm four additional RLS tables deny direct access, and four additional RPCs (`gateway_backend_status`, `gateway_admit_request`, `community_write`, `community_snapshot`) deny browser execution and permit only the server role. Check the backend version RPC returns 7 from a server-authorized context. Keep proof separate from two-account acceptance.
+3. In Vercel **production server-only** environment settings set `APP_ORIGIN=https://repo-recode.vercel.app`, `SUPABASE_URL=https://oppotpgwkhyzgidjuonc.supabase.co`, and `SUPABASE_PUBLISHABLE_KEY` to the existing public key. Add `SUPABASE_SECRET_KEY` using the project's server secret, or the legacy `SUPABASE_SERVICE_ROLE_KEY` alternative. The owner enters the secret directly into Vercel; never paste it into chat, source, logs or a `VITE_` variable. Existing frontend `VITE_` settings stay public-only. Use one key variable per key type.
+4. Set `HOSTED_BACKEND_ENABLED=true` only after the migration and server settings are ready. Missing configuration leaves hosted services disabled; missing migration/database failure prevents capability confirmation and protected writes. Do not configure a local file path, local-admin token or alert timer for hosted use. The adapter does not activate those features even if such values are present.
+5. Publish one reviewed batch and inspect `/api/health` and `/api/community/status`. Confirm API routes return JSON and unknown routes return 404. Test approved disposable feedback/activity/revocation, administrator denial and service-unavailable behavior. Review the retention/limit policy in FREE_BACKEND_PLAN.md. Do not delete the owner's real account to test account deletion.
+6. Keep the private GitHub App disabled until its separate owner setup and acceptance. Its existing server route is wired to the shared database store; Vercel's repository access and Supabase sign-in OAuth do not configure it.
+
+Still pending: independent PostgreSQL connections for locking/admission/refresh verification, live routing and provider acceptance, and owner-deferred two-account tests. Disabling `HOSTED_BACKEND_ENABLED` and publishing the configuration stops hosted API operations without deleting stored records. Retention cleanup is opportunistic; it is not a scheduled job.
 
 ## Configure Supabase
 

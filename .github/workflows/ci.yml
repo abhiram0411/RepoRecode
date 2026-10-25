@@ -20,6 +20,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm test -- --maxWorkers=2
       - run: npm run build
+      - run: node scripts/check-hosted-entry.mjs
       - run: npm audit --audit-level=high
       - run: node scripts/scan-source.mjs
       - run: npx playwright install --with-deps chromium

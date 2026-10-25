@@ -1,5 +1,11 @@
 # Changelog
 
+## 26 October 2026 — prepared hosted backend
+
+- Added a shared Node request handler and one Vercel API entry with default-off server configuration. Hosted mode cannot use the local feedback file, loopback administration or background alert timers.
+- Prepared migration 007 for bounded server-only community storage, shared admission limits, feedback idempotency and durable activity revocation. Cleanup is opportunistic: feedback 90 days; inactive activity/revocation markers 30 days. This migration has not been applied to production.
+- Added strict feedback/activity confirmation and retry identifiers. Local SQL/HTTP tests and a native Node entry smoke test cover configuration failures, limits, permission denial, privacy bounds and routing. Real Vercel/Supabase and independent-connection acceptance remain pending.
+
 ## 25 October 2026 — deployment acceptance and provider availability
 
 - Patched Zod to exactly 4.6.6 after GitHub's audit detected GHSA-mrhx-c7xc-m3w5. Security gate remains unchanged; local audit is clear.
