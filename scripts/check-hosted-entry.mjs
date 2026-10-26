@@ -42,7 +42,7 @@ if (!process.argv.includes("--packaged")) {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   try {
     const origin = `http://127.0.0.1:${server.address().port}`;
-    const health = await fetch(`${origin}/api/index?route=health`);
+  const health = await fetch(`${origin}/api/index?route=health&path=health`);
     assert.equal(health.status, 200);
     assert.deepEqual(await health.json(), {
       status: "ok",
@@ -50,7 +50,7 @@ if (!process.argv.includes("--packaged")) {
       authConfigured: false,
       accountDeletionConfigured: false,
     });
-    const status = await fetch(`${origin}/api/index?route=community/status`);
+  const status = await fetch(`${origin}/api/index?route=community/status&path=community/status`);
     assert.deepEqual(await status.json(), {
       feedbackEnabled: false,
       telemetryEnabled: false,

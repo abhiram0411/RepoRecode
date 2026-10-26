@@ -90,7 +90,9 @@ export function createGatewayHandler({
       if (requests.length > 1000) requests.shift();
       if (env.NODE_ENV !== "test") console.log(JSON.stringify(record));
     });
-    if (req.method === "GET" && req.url === "/api/community/status") {
+    // Rewrite metadata and ordinary query parameters do not change the route.
+    const route = req.url?.split("?")[0];
+    if (req.method === "GET" && route === "/api/community/status") {
       const ready =
         community.enabled && (!community.ready || (await community.ready()));
       return send(200, {
@@ -99,7 +101,7 @@ export function createGatewayHandler({
         ...(hosted ? { feedbackRetentionDays: 90 } : {}),
       });
     }
-    if (req.method === "GET" && req.url === "/api/health")
+    if (req.method === "GET" && route === "/api/health")
       return send(200, {
         status: "ok",
         aiConfigured: false,
@@ -111,7 +113,6 @@ export function createGatewayHandler({
           (await backendReady())
         ),
       });
-    const route = req.url?.split("?")[0];
     if (hosted && route === "/api/local-admin")
       return send(404, { error: "Not found" });
     if (route === "/api/github/callback" && req.method === "GET") {

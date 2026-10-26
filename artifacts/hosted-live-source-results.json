@@ -1,0 +1,15 @@
+{
+  "observedDate": "2026-10-26",
+  "origin": "https://repo-recode.vercel.app",
+  "commit": "17e043140b0c69363a7c9834d9c40f390cf45838",
+  "httpStatus": 200,
+  "securityHeaders": true,
+  "sourceFiles": 247,
+  "sourceBytes": 3767558,
+  "sha256": "3ca10199d342cf93bf2167b2b3bd43f0317466cf52fd65c82f4fb096e5a82cdf",
+  "apiEntryIncluded": true,
+  "migration007Included": true,
+  "packagingFixIncluded": true,
+  "patchedZodIncluded": true,
+  "privateEnvironmentFilesIncluded": false
+}

@@ -1,0 +1,14 @@
+{
+  "observedDate": "2026-10-26",
+  "commit": "17e043140b0c69363a7c9834d9c40f390cf45838",
+  "deployment": "49FihMjN2muKoiDnLyr9iKu2ptM1",
+  "healthStatus": 404,
+  "response": {
+    "error": "Not found"
+  },
+  "serverPath": "/api/health",
+  "sourceDownloadVerified": true,
+  "cause": "Health/status matched the entire URL while hosted rewrites preserve query parameters.",
+  "fix": "Match the path consistently; cover rewrite query metadata in isolated package smoke.",
+  "localVerification": "Native isolated smoke and 24 gateway/database tests passed."
+}

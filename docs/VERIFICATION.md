@@ -1,5 +1,7 @@
 # Verification record
 
+26 October routing correction: 17e0431 passed CI and deployment 49FihMjN2muKoiDnLyr9iKu2ptM1 reached Ready. The missing-module problem is fixed and the public source ZIP/security headers pass, but health/status return JSON 404 because their checks matched the entire rewritten URL instead of its path. Corrected those checks and exercised query metadata in the isolated-package smoke; that smoke and all 24 focused gateway/database tests pass. Live backend acceptance remains incomplete pending this correction.
+
 26 October hosted deployment correction: 261eca4 passed GitHub run 40228562623, then Vercel deployment 8CtRBsTnifq8sEHnEBZqoh1Af79q reached Ready. All six targeted live guest journeys passed, but the API returned 500 due to missing src/core/import.ts in the function package. Added an explicit Vercel include and a smoke check from a separate package tree. Native Node 24 isolated smoke passed. Preserve the startup failure; do not treat Ready as backend acceptance. Migration 007 and Production-only settings are applied with owner approval; no migration rerun is needed. Replacement deployment and live API proof remain pending.
 
 ## 26 October 2026 — hosted backend local acceptance
