@@ -1,5 +1,7 @@
 # RepoRecode development status
 
+26 October deployment continuation: backend commit 261eca4f97f52d0905c385a2ecb32f3d40306d06 is on public GitHub. Run 40228562623 passed 353 tests / 42 files, build, native entry smoke, audit (zero), source scan (205 files, zero), 36 Chromium and 5 development journeys. Owner approved migration 007; it is now APPLIED and verified (four protected tables, four server-only functions, version 7). Do not rerun 001–007. Owner also explicitly approved copying the existing Supabase server secret to Vercel Production, enabling this backend and deploying 261eca4 once. Vercel server settings are saved and deployment 8CtRBsTnifq8sEHnEBZqoh1Af79q is Ready on 261eca4. Six live guest journeys passed, but /api/health returns 500: Vercel omitted src/core/import.ts imported by server/github.mjs. Backend setup is NOT complete. A local includeFiles correction and isolated-package smoke pass; replacement release remains pending. Receipts: github-ci-261eca4.json and supabase-backend-setup.json.
+
 Updated 26 October 2026. Continue the existing project; preserve uncommitted work. The full master specification remains unfinished. The user explicitly asked to keep working in this chat and not hand over to another AI; maintain this file only as a recovery record.
 
 ## Active work

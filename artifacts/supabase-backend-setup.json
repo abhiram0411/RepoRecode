@@ -1,0 +1,25 @@
+{
+  "observedDate": "2026-10-26",
+  "project": "oppotpgwkhyzgidjuonc",
+  "migration": "007_hosted_community.sql",
+  "ownerApproved": true,
+  "applied": true,
+  "tableCount": 4,
+  "allNewTablesRls": true,
+  "directTableAccessDenied": [
+    "anon",
+    "authenticated",
+    "service_role"
+  ],
+  "functionCount": 4,
+  "allNewFunctionsSecurityDefiner": true,
+  "browserExecuteDenied": true,
+  "serverExecuteGranted": true,
+  "backendVersion": 7,
+  "method": "Supabase SQL editor explicit transaction, followed by read-only catalog and version checks",
+  "screenshot": "artifacts/supabase-backend-verified.png",
+  "limitations": [
+    "No CLI migration history entry",
+    "Not two-account or independent PostgreSQL-connection acceptance"
+  ]
+}

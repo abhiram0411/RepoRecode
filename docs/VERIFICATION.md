@@ -1,5 +1,7 @@
 # Verification record
 
+26 October hosted deployment correction: 261eca4 passed GitHub run 40228562623, then Vercel deployment 8CtRBsTnifq8sEHnEBZqoh1Af79q reached Ready. All six targeted live guest journeys passed, but the API returned 500 due to missing src/core/import.ts in the function package. Added an explicit Vercel include and a smoke check from a separate package tree. Native Node 24 isolated smoke passed. Preserve the startup failure; do not treat Ready as backend acceptance. Migration 007 and Production-only settings are applied with owner approval; no migration rerun is needed. Replacement deployment and live API proof remain pending.
+
 ## 26 October 2026 — hosted backend local acceptance
 
 Shared Node/Vercel handler, default-off configuration, migration 007 and database feedback/activity/admission are prepared, not deployed. Full rerun: 353 tests / 42 files with one worker. Native Node 24 API-entry smoke and production build passed. All 36 Edge browser journeys passed in 256.71 seconds, with zero failures, skips or retries; local feedback was included. Hosted feedback fixtures verify stable retry identifiers, changed-payload identifiers and rejection of an unconfirmed success response. Fresh dependency audit: zero vulnerabilities. Source heuristic scan: 207 files, zero findings. Source archive: 247 files, 4,302,037 bytes, SHA-256 bedb392df70d87cca73b57259130aa38196dc3b1deee979429f4353aaeeb39f0. It includes the API entry and migration.

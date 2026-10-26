@@ -1,5 +1,5 @@
 -- Read-only verification of applied migrations. Run each SELECT separately.
--- Migration 007 is not applied to production yet; do not assume its tables exist.
+-- Migration 007 was applied and verified in production on 26 October 2026.
 -- Catalog checks do not replace two-account REST/Auth acceptance.
 select c.relname as table_name, c.relrowsecurity as rls,
   has_table_privilege('anon', c.oid, 'SELECT') as anon_read,

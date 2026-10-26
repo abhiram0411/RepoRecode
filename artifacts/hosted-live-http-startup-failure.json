@@ -1,0 +1,14 @@
+{
+  "observedDate": "2026-10-26",
+  "commit": "261eca4f97f52d0905c385a2ecb32f3d40306d06",
+  "deployment": "8CtRBsTnifq8sEHnEBZqoh1Af79q",
+  "build": "Ready",
+  "healthStatus": 500,
+  "errorCode": "ERR_MODULE_NOT_FOUND",
+  "missingModule": "/var/task/src/core/import.ts",
+  "importer": "/var/task/server/github.mjs",
+  "guestJourneysPassed": 6,
+  "fix": "Declare src/core/import.ts in api/index.mjs includeFiles and run native smoke from a separate package tree.",
+  "fixVerification": "Isolated package smoke passed locally; restricted first attempt was blocked by Windows loopback EACCES.",
+  "replacementDeployment": "not yet authorized/performed"
+}
