@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
@@ -39,7 +40,7 @@ test("imported constrained generic contracts support async practice, incorrect a
   });
   await expect(editor).toBeVisible();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "async function score(input:Payload<number>){return await Promise.resolve(input.value)}",
   );
@@ -48,7 +49,7 @@ test("imported constrained generic contracts support async practice, incorrect a
     timeout: 30000,
   });
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(code);
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
   await expect(

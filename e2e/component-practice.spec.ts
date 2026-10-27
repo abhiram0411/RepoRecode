@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 test("component reconstruction checks props-dependent renders and persists progress", async ({
@@ -22,10 +23,13 @@ test("component reconstruction checks props-dependent renders and persists progr
   await page
     .getByRole("button", { name: "Reconstruct component", exact: true })
     .click();
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function Card({count,label}:{count:number;label:string}) { return <p title={label}>{0}</p>; }",
   );
@@ -34,7 +38,7 @@ test("component reconstruction checks props-dependent renders and persists progr
     timeout: 30000,
   });
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function Card({count,label}:{count:number;label:string}) { const result=count+count; return <p title={label}>{result}</p>; }",
   );

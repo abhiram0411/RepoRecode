@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-27",
+  "productionCommit": "5d58fcf0af3cdcfcfc39beaa3f38f529895931d1",
+  "deploymentPerformed": false,
+  "unit": {
+    "passed": 371,
+    "files": 43
+  },
+  "build": "passed",
+  "isolatedApiPackage": "passed",
+  "sourceScan": {
+    "files": 215,
+    "findings": 0
+  },
+  "webkit": {
+    "passed": 37,
+    "failed": 0,
+    "receipt": "webkit-final-browser-results.json"
+  },
+  "edge": {
+    "passed": 37,
+    "failed": 0,
+    "receipt": "webkit-fix-edge-final-results.json"
+  },
+  "strictCspRealHttp": {
+    "webkit": "passed",
+    "edge": "passed"
+  },
+  "repeatedDevelopmentJourneys": 3,
+  "linuxCi": "pending publication",
+  "limitations": [
+    "Playwright WebKit is not real Safari device acceptance",
+    "A bounded single ResizeObserver delivery notification is recorded; graph geometry must settle and other errors fail",
+    "Earlier failing runs remain in local artifacts"
+  ]
+}

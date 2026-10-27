@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Project, SymbolInfo } from "../core/types";
 import { workerTask } from "../core/storage";
 import { PreviewSession } from "../core/previewSession";
+import { previewDocument, previewMessage } from "../core/previewFrame";
 import type {
   PreviewAction,
   PreviewObservation,
@@ -151,132 +152,65 @@ export default function LivePreview({
       .filter((s) => s.file === file && s.line <= line && s.endLine >= line)
       .sort((a, b) => a.end - a.start - (b.end - b.start))[0];
   }
-  function wire() {
-    const doc = frame.current?.contentDocument;
-    if (!doc) return;
-    function forward(
-      e: Event,
-      type: PreviewAction["type"],
-      override?: Element,
-    ) {
-      if (inspect || !active || !session.current) return;
-      const target = override ?? (e.target as Element);
-      const marker =
-        type === "input"
-          ? '[data-rr-events~="input"], [data-rr-events~="change"]'
-          : `[data-rr-events~="${type}"]`;
-      const submitter = target.closest(
-        "button, input",
-      ) as HTMLButtonElement | null;
-      const submits =
-        type === "click" &&
-        submitter?.type === "submit" &&
-        submitter.closest('form[data-rr-events~="submit"]');
-      if (!target.closest(marker) && !submits) return;
-      const el = target.closest("[data-rr-node]") as HTMLInputElement | null;
-      if (!el || el.disabled) return;
-      // Preserve caret and focus when a controlled field's snapshot is replaced.
-      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-        focus.current = {
-          id: el.dataset.rrNode!,
-          start: el.selectionStart,
-          end: el.selectionEnd,
-        };
-      } else focus.current = null;
-      void interact({
-        id: el.dataset.rrNode!,
-        type,
-        value: typeof el.value === "string" ? el.value.slice(0, 2000) : "",
-        checked: !!el.checked,
-      });
-    }
-    doc.onclick = (e) => {
-      const control = (e.target as Element).closest(
-        "button, input",
-      ) as HTMLButtonElement | null;
-      if (
-        inspect ||
-        !active ||
-        control?.type === "submit" ||
-        (e.target as Element).closest("a")
-      )
-        e.preventDefault();
-      if (!inspect) {
-        forward(e, "click");
-        return;
-      }
-      const el = (e.target as Element).closest("[data-rr-file]");
-      if (!el) return;
-      const path = el.getAttribute("data-rr-file"),
-        line = Number(el.getAttribute("data-rr-line"));
-      const symbol = sourceAt(path ?? "", line);
-      if (symbol) onSelect(symbol.id);
-    };
-    doc.oninput = (e) => {
-      const target = e.target as HTMLInputElement;
-      if (
-        (target.tagName === "INPUT" &&
-          !["checkbox", "radio"].includes(target.type)) ||
-        target.tagName === "TEXTAREA"
-      )
-        forward(e, "input");
-    };
-    doc.onchange = (e) => {
-      const target = e.target as HTMLInputElement;
-      if (
-        target.tagName === "SELECT" ||
-        ["checkbox", "radio"].includes(target.type)
-      )
-        forward(e, "change");
-    };
-    doc.onsubmit = (e) => {
-      e.preventDefault();
-      forward(e, "submit");
-    };
-    doc.onkeydown = (e) => {
-      const target = e.target as HTMLInputElement;
-      if (
-        e.key === "Enter" &&
-        target.tagName === "INPUT" &&
-        !["checkbox", "radio", "button", "submit"].includes(target.type)
-      ) {
-        const form = target.closest("form");
-        if (form) {
-          e.preventDefault();
-          forward(e, "submit", form);
-        }
-      }
-    };
-    const saved = focus.current;
-    if (saved) {
-      const el = doc.querySelector(
-        `[data-rr-node="${saved.id}"]`,
-      ) as HTMLInputElement | null;
-      el?.focus();
-      if (el && saved.start !== null) {
-        try {
-          el.setSelectionRange(saved.start, saved.end);
-        } catch {
-          /* Non-text controls have no caret. */
-        }
-      }
-    }
-    for (const el of doc.querySelectorAll("[data-rr-file]")) {
-      (el as HTMLElement).style.outline = "";
-      if (
-        el.getAttribute("data-rr-file") === selected.file &&
-        Number(el.getAttribute("data-rr-line")) >= selected.line &&
-        Number(el.getAttribute("data-rr-line")) <= selected.endLine
-      )
-        (el as HTMLElement).style.outline = "2px solid #718c46";
-    }
+  // A new nonce also rejects messages from a snapshot that has been replaced.
+  const token = useMemo(() => crypto.randomUUID(), [snapshot]);
+  const config = {
+    inspect,
+    active,
+    selected: {
+      file: selected.file,
+      line: selected.line,
+      endLine: selected.endLine,
+    },
+    focus: focus.current,
+  };
+  const html = useMemo(
+    () =>
+      snapshot
+        ? previewDocument(
+            snapshot.html,
+            snapshot.css ?? "",
+            token,
+            config,
+            location.origin,
+          )
+        : "",
+    [snapshot, token],
+  );
+  function configureFrame() {
+    frame.current?.contentWindow?.postMessage(
+      {
+        channel: "reporecode-preview-config",
+        token,
+        config,
+      },
+      "*",
+    ); // Opaque sandbox origins require '*'; receiver checks parent + token.
   }
   useEffect(() => {
-    wire();
-  }, [inspect, selected.id, active]);
-  const html = snapshot
-    ? `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'none'; img-src 'none'; form-action 'none'; base-uri 'none'"><style>body{font:14px system-ui;margin:20px;color:#172014;background:white}button,input{font:inherit}*{box-sizing:border-box}</style><style>${(snapshot.css ?? "").replace(/</g, "\\3c ")}</style></head><body>${snapshot.html}</body></html>`
-    : "";
+    function receive(event: MessageEvent) {
+      const message = previewMessage(
+        event,
+        frame.current?.contentWindow ?? null,
+        token,
+      );
+      if (!message) return;
+      if (message.kind === "ready") {
+        configureFrame();
+        return;
+      }
+      if (message.kind === "select" && inspect) {
+        const symbol = sourceAt(message.file, message.line);
+        if (symbol) onSelect(symbol.id);
+      } else if (message.kind === "action" && !inspect && active && !busy) {
+        focus.current = message.focus;
+        void interact(message.action);
+      }
+    }
+    window.addEventListener("message", receive);
+    configureFrame();
+    return () => window.removeEventListener("message", receive);
+  });
   return (
     <div className="live-preview">
       <div className="preview-controls">
@@ -340,11 +274,11 @@ export default function LivePreview({
         <iframe
           ref={frame}
           title="Isolated React render snapshot"
-          sandbox="allow-same-origin"
+          sandbox="allow-scripts"
           inert={busy || (mode === "interactive" && !active)}
           aria-busy={busy}
           srcDoc={html}
-          onLoad={wire}
+          onLoad={configureFrame}
         />
       ) : (
         <p>
@@ -362,7 +296,8 @@ export default function LivePreview({
         Composition, global module selectors, named/namespace CSS imports,
         animations, external styles/fonts, images, network and other packages
         are unsupported. Imported code runs in QuickJS; this frame contains
-        sanitized HTML and cannot run scripts. Turn on source inspection to
+        sanitized HTML and a trusted event bridge, isolated from app storage.
+        Imported scripts cannot run in the frame. Turn on source inspection to
         select an element and find its JSX source.
       </p>
       {!!snapshot?.styleWarnings?.length && (

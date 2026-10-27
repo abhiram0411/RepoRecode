@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 test("profile customization and companion preferences survive reload", async ({
@@ -38,7 +39,9 @@ test("profile customization and companion preferences survive reload", async ({
     page.getByRole("region", { name: "Coding Pet", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Minimize pet" }).click();
-  await expect(page.getByRole("region", {name:"Coding Pet",exact:true})).toBeHidden();
+  await expect(
+    page.getByRole("region", { name: "Coding Pet", exact: true }),
+  ).toBeHidden();
   const audit = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
     .analyze();
@@ -68,10 +71,13 @@ test("feature mission uses the changed output contract and saves interview refle
   await page
     .getByRole("button", { name: "Modify a feature", exact: true })
     .click();
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function completionRate(completed:number,total:number):number { if(total<=0)return 0;return Math.round(Math.min(100,Math.max(0,(completed/total)*100)))*2; }",
   );

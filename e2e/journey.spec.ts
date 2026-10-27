@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 test("real ZIP import, incorrect rewrite, correction, persisted XP and source graph", async ({
@@ -36,11 +37,51 @@ test("real ZIP import, incorrect rewrite, correction, persisted XP and source gr
   await expect(
     page.getByRole("heading", { name: "Get to know double" }),
   ).toBeVisible();
+  await expect(page.locator(".react-flow__node")).toHaveCount(2);
+  // WebKit may defer a React Flow resize notification to the next frame.
+  // Verify that layout settles instead of ignoring an actual resize loop.
+  // https://webkit.org/blog/9997/resizeobserver-in-webkit/
+  await expect
+    .poll(async () =>
+      page.locator(".graph-canvas").evaluate(async (canvas) => {
+        const snapshots: string[] = [];
+        for (let i = 0; i < 8; i++) {
+          await new Promise(requestAnimationFrame);
+          snapshots.push(
+            JSON.stringify(
+              [...canvas.querySelectorAll(".react-flow__node")].map((node) => {
+                const r = node.getBoundingClientRect();
+                return [r.x, r.y, r.width, r.height];
+              }),
+            ),
+          );
+        }
+        return (
+          new Set(snapshots.slice(-5)).size === 1 &&
+          [...canvas.querySelectorAll(".react-flow__node")].every((node) => {
+            const r = node.getBoundingClientRect(),
+              bounds = canvas.getBoundingClientRect();
+            return (
+              r.width > 0 &&
+              r.height > 0 &&
+              r.left >= bounds.left &&
+              r.right <= bounds.right &&
+              r.top >= bounds.top &&
+              r.bottom <= bounds.bottom
+            );
+          })
+        );
+      }),
+    )
+    .toBe(true);
   await page.getByRole("button", { name: "Hide & rewrite" }).click();
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function double(value: number): number { return 0; }",
   );
@@ -57,7 +98,7 @@ test("real ZIP import, incorrect rewrite, correction, persisted XP and source gr
     "frustrated",
   );
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function double(value: number): number { return value + value; }",
   );
@@ -102,13 +143,11 @@ test("real ZIP import, incorrect rewrite, correction, persisted XP and source gr
     await destination
       .getByRole("button", { name: "Import a project", exact: true })
       .click();
-    await destination
-      .locator('input[type=file][accept=".zip"]')
-      .setInputFiles({
-        name: "real-react.zip",
-        mimeType: "application/zip",
-        buffer: Buffer.from(fixture),
-      });
+    await destination.locator('input[type=file][accept=".zip"]').setInputFiles({
+      name: "real-react.zip",
+      mimeType: "application/zip",
+      buffer: Buffer.from(fixture),
+    });
     await expect(
       destination.getByRole("heading", { name: "real-react", exact: true }),
     ).toBeVisible();
@@ -116,13 +155,11 @@ test("real ZIP import, incorrect rewrite, correction, persisted XP and source gr
       .getByRole("button", { name: "Preferences", exact: true })
       .click();
     for (let i = 0; i < 2; i++) {
-      await destination
-        .getByLabel("Learning progress file")
-        .setInputFiles({
-          name: "progress.json",
-          mimeType: "application/json",
-          buffer: progressBytes,
-        });
+      await destination.getByLabel("Learning progress file").setInputFiles({
+        name: "progress.json",
+        mimeType: "application/json",
+        buffer: progressBytes,
+      });
       await expect(destination.getByText(/Progress merged/)).toBeVisible();
     }
     await destination
@@ -136,7 +173,17 @@ test("real ZIP import, incorrect rewrite, correction, persisted XP and source gr
   } finally {
     await context.close();
   }
-  expect(errors).toEqual([]);
+  const resizeNotice =
+    "ResizeObserver loop completed with undelivered notifications.";
+  const deferred = errors.filter((error) => error === resizeNotice);
+  // One startup deferral is documented browser behavior. Repeated deferrals
+  // or any other runtime error still fail, as does non-settling graph geometry.
+  expect(deferred.length).toBeLessThanOrEqual(1);
+  if (deferred.length)
+    console.log(
+      `WebKit layout notifications: ${deferred.length}; graph geometry settled.`,
+    );
+  expect(errors.filter((error) => error !== resizeNotice)).toEqual([]);
 });
 test("small-screen import and source study stay usable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

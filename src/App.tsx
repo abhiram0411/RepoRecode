@@ -1,4 +1,11 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
 import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
@@ -111,6 +118,10 @@ export default function App() {
     file: string;
     line: number;
   }>();
+  function showImport(event: MouseEvent<HTMLButtonElement>) {
+    event.currentTarget.focus();
+    setModal(true);
+  }
   function inspectSource(file: string, line: number) {
     if (Number.isInteger(line) && line > 0) setSourceLocation({ file, line });
   }
@@ -410,6 +421,7 @@ export default function App() {
     <div className="app-shell">
       <a
         className="skip-link"
+        tabIndex={0}
         href="#main"
         onClick={(event) => {
           event.preventDefault();
@@ -462,7 +474,7 @@ export default function App() {
         <div className="sidebar-projects">
           <div className="workspace-label">
             PROJECTS
-            <button aria-label="Import project" onClick={() => setModal(true)}>
+            <button aria-label="Import project" onClick={showImport}>
               <Plus size={15} />
             </button>
           </div>
@@ -633,7 +645,7 @@ export default function App() {
                   Explore the logic. Rebuild the important parts. Make it yours.
                 </p>
                 <div className="hero-actions">
-                  <button className="primary" onClick={() => setModal(true)}>
+                  <button className="primary" onClick={showImport}>
                     <Plus size={17} />
                     Import a project
                     <ArrowUpRight size={16} />
@@ -732,7 +744,7 @@ export default function App() {
                       : "A codebase is your curriculum"}
                   </h2>
                 </div>
-                <button className="text-button" onClick={() => setModal(true)}>
+                <button className="text-button" onClick={showImport}>
                   New project <Plus size={15} />
                 </button>
               </section>
@@ -783,7 +795,7 @@ export default function App() {
                     </button>
                   </article>
                 ))}
-                <button className="import-card" onClick={() => setModal(true)}>
+                <button className="import-card" onClick={showImport}>
                   <span className="import-plus">
                     <Plus size={28} />
                   </span>
@@ -841,7 +853,7 @@ export default function App() {
                     toward application context.
                   </p>
                 </div>
-                <button className="primary" onClick={() => setModal(true)}>
+                <button className="primary" onClick={showImport}>
                   <Plus size={16} />
                   Import project
                 </button>
@@ -970,7 +982,7 @@ export default function App() {
                   )}
                 </>
               ) : (
-                <Empty onImport={() => setModal(true)} />
+                <Empty onImport={showImport} />
               )}
             </>
           )}
@@ -1469,7 +1481,7 @@ export default function App() {
                   </div>
                 </>
               ) : (
-                <Empty onImport={() => setModal(true)} />
+                <Empty onImport={showImport} />
               )}
             </>
           )}
@@ -1910,7 +1922,13 @@ export default function App() {
               </a>
               {["Privacy", "Terms", "Security", "Support", "License"].map(
                 (x) => (
-                  <button key={x} onClick={() => setLegal(x)}>
+                  <button
+                    key={x}
+                    onClick={(event) => {
+                      event.currentTarget.focus();
+                      setLegal(x);
+                    }}
+                  >
                     {x}
                   </button>
                 ),
@@ -2140,7 +2158,11 @@ export default function App() {
     </div>
   );
 }
-function Empty({ onImport }: { onImport: () => void }) {
+function Empty({
+  onImport,
+}: {
+  onImport: (event: MouseEvent<HTMLButtonElement>) => void;
+}) {
   return (
     <section className="empty-panel">
       <BookOpen size={40} />

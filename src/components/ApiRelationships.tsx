@@ -25,7 +25,10 @@ export default function ApiRelationships({
     ) : (
       <button
         className="text-button"
-        onClick={() => onSource(site.file, site.line)}
+        onClick={(event) => {
+          event.currentTarget.focus();
+          onSource(site.file, site.line);
+        }}
       >
         {label}
       </button>

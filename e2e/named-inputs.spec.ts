@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
@@ -35,17 +36,20 @@ test("imported named input types are visible and usable during practice", async 
   await expect(page.locator(".practice-types pre")).toContainText(
     'readonly "count": number',
   );
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function score(input:Payload){return input.count;}",
   );
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Keep going/ })).toBeVisible();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(code);
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
   await expect(

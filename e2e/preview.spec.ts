@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 test("interactive form input, select, checkbox, submit and failure recovery", async ({
@@ -148,9 +149,12 @@ test("real React render supports element inspection and code-to-element highligh
     .getAttribute("value");
   await page.getByLabel("Select symbol").selectOption(target!);
   await page.getByRole("button", { name: "Hide & rewrite" }).click();
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function completionRate(completed:number,total:number):number { return 73; }",
   );
@@ -160,7 +164,7 @@ test("real React render supports element inspection and code-to-element highligh
     timeout: 30000,
   });
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function completionRate(completed:number,total:number):number { return missingValue; }",
   );

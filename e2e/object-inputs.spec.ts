@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
@@ -22,10 +23,13 @@ test("inline object practice catches missing-field mistakes and saves completion
   await expect(
     page.locator(".practice-brief").getByText(/input:\{flag\?:boolean\}/),
   ).toBeVisible();
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function present(input:{flag?:boolean}){return input.flag===undefined?2:input.flag?3:4;}",
   );
@@ -33,7 +37,7 @@ test("inline object practice catches missing-field mistakes and saves completion
   await expect(page.getByRole("heading", { name: /Keep going/ })).toBeVisible();
   await expect(page.getByText("Input [({})]", { exact: true })).toBeVisible();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(original);
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
   await expect(

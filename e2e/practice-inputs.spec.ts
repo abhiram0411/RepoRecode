@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
@@ -22,10 +23,13 @@ test("nullable/default input exercises preserve their contract and grade missing
   await expect(
     page.locator(".practice-brief").getByText(/value:number\|null=5/),
   ).toBeVisible();
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     'function choose(mode:"on"|"off", value:number|null=99){return mode==="off"?0:value===null?-1:value;}',
   );
@@ -38,7 +42,7 @@ test("nullable/default input exercises preserve their contract and grade missing
     page.getByText('Input ["on",undefined]', { exact: true }),
   ).toBeVisible();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(original);
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
   await expect(

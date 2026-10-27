@@ -1,6 +1,6 @@
 # RepoRecode: completed setup and remaining work
 
-Updated 26 October 2026. Vercel Hobby serves https://repo-recode.vercel.app/ from public GitHub commit 5d58fcf0af3cdcfcfc39beaa3f38f529895931d1, deployment BBRq3X7B8qBgV2XWMVSAiLTkvCJV (Ready). Supabase Free migrations 001–007 and Production-only server settings are applied. Do not recreate services or rerun migrations. All nine live HTTP checks and six synthetic feedback/activity requests passed; SQL verified duplicate prevention, revocation and final cleanup (zero test rows in both tables).
+Updated 27 October 2026. Vercel Hobby serves https://repo-recode.vercel.app/ from public GitHub commit 5d58fcf0af3cdcfcfc39beaa3f38f529895931d1, deployment BBRq3X7B8qBgV2XWMVSAiLTkvCJV (Ready). Supabase Free migrations 001–007 and Production-only server settings are applied. Do not recreate services or rerun migrations. All nine live HTTP checks and six synthetic feedback/activity requests passed; SQL verified duplicate prevention, revocation and final cleanup (zero test rows in both tables).
 
 ## Completed
 
@@ -14,9 +14,9 @@ GitHub run 40322121312 passed 353 tests / 42 files, build, isolated package smok
 
 ## Remaining
 
-Remaining: owner-deferred two-account isolation; recovery/TOTP/linking/global-session and disposable-account deletion acceptance; private GitHub App setup; live administrator role/MFA acceptance; independent PostgreSQL concurrency; broader learning/indexing/preview work; device-session inventory; manual accessibility/WebKit/low-end checks; Docker/security/operator review. Health advertising account deletion is not proof of real deletion. Never test deletion on the owner’s account. Google and linking remain disabled.
+Remaining: owner-deferred two-account isolation; recovery/TOTP/linking/global-session and disposable-account deletion acceptance; private GitHub App setup; live administrator role/MFA acceptance; independent PostgreSQL concurrency; broader learning/indexing/preview work; device-session inventory; manual accessibility/Safari/low-end checks and fresh Linux compatibility CI; Docker/security/operator review. Health advertising account deletion is not proof of real deletion. Never test deletion on the owner’s account. Google and linking remain disabled.
 
-The full master specification remains incomplete. See FEATURES.md and MASTER_SPEC.md for exact support boundaries. Optional local Ollama remains unfinished; the Coding Pet is silent and reactions-only, with no paid AI tutor. Reports rendered on 23 October predate the hosted setup and need a later refresh.
+The full master specification remains incomplete. See FEATURES.md and MASTER_SPEC.md for exact support boundaries. Optional local Ollama remains unfinished; the Coding Pet is silent and reactions-only, with no paid AI tutor. Reports were refreshed on 27 October for the hosted setup; the latest compatibility results are tracked in RESUME.md and will be reflected in the next report export.
 
 ## Continue safely
 

@@ -66,11 +66,12 @@ test("keyboard users can skip navigation, follow page changes and dismiss profil
   page,
 }) => {
   await page.goto("/");
-  await page.keyboard.press("Tab");
   const skip = page.getByRole("link", {
     name: "Skip to workspace content",
     exact: true,
   });
+  await expect(skip).toBeAttached();
+  await page.keyboard.press("Tab");
   await expect(skip).toBeFocused();
   await expect(skip).toBeInViewport();
   await page.screenshot({

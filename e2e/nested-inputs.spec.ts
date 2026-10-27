@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
@@ -19,13 +20,11 @@ test("nested named inputs grade missing inner fields and retain progress", async
   const fn =
     'export function present(input:Input){return !input.settings?1:!("flag" in input.settings)?2:input.settings.flag===undefined?3:input.settings.flag?4:5;}';
   const original = "interface Input {settings?:{flag?:boolean}} " + fn;
-  await page
-    .locator('input[type=file][accept=".zip"]')
-    .setInputFiles({
-      name: "nested.zip",
-      mimeType: "application/zip",
-      buffer: Buffer.from(zipSync({ "nested.ts": strToU8(original) })),
-    });
+  await page.locator('input[type=file][accept=".zip"]').setInputFiles({
+    name: "nested.zip",
+    mimeType: "application/zip",
+    buffer: Buffer.from(zipSync({ "nested.ts": strToU8(original) })),
+  });
   await page.getByRole("button", { name: /Understand present/ }).click();
   await page
     .getByRole("button", { name: "Hide & rewrite", exact: true })
@@ -33,10 +32,13 @@ test("nested named inputs grade missing inner fields and retain progress", async
   await expect(page.locator(".practice-brief")).toContainText(
     "Input type definitions",
   );
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     fn.replace('!("flag" in input.settings)?2:', ""),
   );
@@ -48,7 +50,7 @@ test("nested named inputs grade missing inner fields and retain progress", async
     page.getByText('Input [({["settings"]:({})})]', { exact: true }),
   ).toBeVisible();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(fn);
   await run.click();
   await expect(run).toBeEnabled({ timeout: 30000 });

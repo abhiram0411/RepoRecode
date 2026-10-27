@@ -305,7 +305,7 @@ export default function Graph({
               if (index >= 0) setRelationshipIndex(index);
             }
           }}
-          onNodeClick={(_, n) => {
+          onNodeClick={(event, n) => {
             const s =
               mode === "state" || mode === "api"
                 ? project.analysis.symbols
@@ -320,7 +320,11 @@ export default function Graph({
                     mode === "imports" ? s.file === n.id : s.id === n.id,
                   );
             if (s) onSelect(s.id);
-            else onSource(n.data.file, n.data.line);
+            else {
+              if (event.currentTarget instanceof HTMLElement)
+                event.currentTarget.focus();
+              onSource(n.data.file, n.data.line);
+            }
           }}
         >
           <FitAfterResize />

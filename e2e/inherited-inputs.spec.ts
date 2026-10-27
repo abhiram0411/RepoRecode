@@ -1,3 +1,4 @@
+import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
@@ -36,24 +37,29 @@ test("inherited input fields keep readonly checks and practice completion", asyn
   await expect(page.locator(".practice-types pre")).toContainText(
     'readonly "count": number',
   );
-  const editor = page.locator(".monaco-editor textarea").first();
+  const editor = page.getByRole("textbox", {
+    name: "Practice code",
+    exact: true,
+  });
   await editor.waitFor();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(
     "function score(input:Payload){return input.count;}",
   );
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Keep going/ })).toBeVisible();
   await editor.focus();
-  await page.keyboard.press("Control+A");
+  await selectAllCode(page);
   await page.keyboard.insertText(code);
   await page.getByRole("button", { name: "Run checks", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Behavior verified", exact: true }),
   ).toBeVisible();
-  await expect(page.locator('.react-flow__node')).toHaveCount(3);
-  await expect(page.locator('.react-flow__node').filter({hasText:'base.ts'})).toBeVisible();
+  await expect(page.locator(".react-flow__node")).toHaveCount(3);
+  await expect(
+    page.locator(".react-flow__node").filter({ hasText: "base.ts" }),
+  ).toBeVisible();
   await page.screenshot({
     path: "artifacts/inherited-practice.png",
     fullPage: true,

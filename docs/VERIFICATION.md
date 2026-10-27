@@ -1,10 +1,26 @@
 # Verification record
 
+## 27 October WebKit correction — local verification
+
+WebKit originally failed 16 of 36 Linux journeys on c02a3d3. Diagnosed two real browser differences: WebKit blocks parent-installed listeners in a script-disabled frame, and implicit links/clicked dialog openers behave differently for focus. The preview now uses an opaque-origin sandbox with only a nonced trusted event bridge; project code remains in QuickJS. Strict source/origin/token and payload checks protect messages. Tests prove denied app storage/parent access, injected scripts and networking while interactive controls work under a strict production script policy.
+
+Practice automation now targets the named editor and selects all using Monaco's user-agent platform. The skip link has an explicit tab stop; dialog openers receive focus before opening. A documented one-time resize notification remains visible and bounded by a regression requiring stable, visible graph geometry; other errors still fail. Experimental editor/graph sizing changes were removed.
+
+All 371 unit/integration tests in 43 files passed; production build, isolated API package smoke and source scan passed. All 37 WebKit production journeys passed locally (2.6 minutes); three repeated development journeys also passed with settled geometry. All 37 Edge production journeys also passed (1.7 minutes); the real-HTTP CSP fixture passed in both engines. Fresh Linux CI follows publication. Production remains 5d58fcf and no deployment was made. Detailed local failures and diagnosis are retained; no public page-snapshot logging was added.
+
+
+## 27 October continuation
+
+Published scalar-constrained practice and Linux WebKit CI as c02a3d30d580c73844a8ae20320c307a0928dc10. GitHub run 40437947915 passed 368 unit tests, build, isolated API smoke, audit, source scan and 36 Chromium journeys, then FAILED WebKit (20 passed / 16 failed); development checks were skipped. The compatibility correction is being verified locally; see .gsd/DEBUG_WEBKIT.md. The previous publish attempt was not executed because automatic approval review hit a usage limit; after the user resumed, the normal approved publication succeeded. No bypass and no new Vercel deployment. Production remains 5d58fcf.
+
+Refreshed docs/ENGINEERING_REPORT.md and the DOCX/PDF report on 27 October. Rendered and visually inspected all eight pages using the existing Word export script and bundled Poppler after the packaged renderer reported missing LibreOffice. Removed blank/overflow pages. Reports truthfully label the new CI run pending at preparation. These report changes are local, not included in c02a3d3. Docker Linux engine remains unavailable.
+
+
 ## 26 October continuation — scalar-constrained practice
 
 Added local support for concrete generic aliases/interfaces with independent scalar bounds, including literal unions, imported bounds, defaults and concretely instantiated bases. Argument/default validation compares type domains, not probe samples. Read-only context preserves extends clauses; analysis version 10 rebuilds stored analyses. Dependent/object bounds and unresolved constrained wrappers remain unsupported. Generic functions remain unfinished.
 
-All 368 tests / 42 files passed; the focused Edge import/practice/grading/reload journey passed. The initial restricted temporary-file failure and two superseded unsupported-type expectations are retained as separate receipts. The final production build passed, with existing bundle-size and upstream annotation warnings. WebKit 27.2 installed but cannot launch on this Windows host (jpeg62.dll missing); Linux CI now includes the complete WebKit suite. This code is prepared for the next GitHub batch, not deployed.
+All 368 tests / 42 files passed; the focused Edge import/practice/grading/reload journey passed. The initial restricted temporary-file failure and two superseded unsupported-type expectations are retained as separate receipts. The final production build passed, with existing bundle-size and upstream annotation warnings. The initial WebKit dependency validation reported jpeg62.dll missing; a 27 October run with normal installed-browser access launched successfully and reproduced the CI interaction bug; Linux CI now includes the complete WebKit suite. This code is prepared for the next GitHub batch, not deployed.
 
 
 ## 26 October 2026 — live backend acceptance complete
