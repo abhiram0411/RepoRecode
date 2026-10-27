@@ -23,10 +23,16 @@ jobs:
       - run: node scripts/check-hosted-entry.mjs
       - run: npm audit --audit-level=high
       - run: node scripts/scan-source.mjs
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: npx playwright test
         env:
           LOCAL_COMMUNITY_E2E: 'true'
+      - name: Verify WebKit compatibility
+        run: npx playwright test --reporter=list,json
+        env:
+          PLAYWRIGHT_BROWSER: 'webkit'
+          LOCAL_COMMUNITY_E2E: 'true'
+          PLAYWRIGHT_JSON_OUTPUT_FILE: artifacts/webkit-browser-results.json
       - name: Verify local development runtime
         run: npx playwright test e2e/inherited-inputs.spec.ts e2e/generic-async-practice.spec.ts e2e/preview.spec.ts --reporter=list,json
         env:

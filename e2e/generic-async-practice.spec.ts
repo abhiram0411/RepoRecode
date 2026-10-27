@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
-test("imported generic contracts support async practice, incorrect answers and saved progress", async ({
+test("imported constrained generic contracts support async practice, incorrect answers and saved progress", async ({
   page,
 }) => {
   await page.goto("/");
@@ -17,7 +17,7 @@ test("imported generic contracts support async practice, incorrect answers and s
       zipSync({
         "base.ts": strToU8("export interface Base<T>{readonly value:T}"),
         "types.ts": strToU8(
-          "import type {Base} from './base';export interface Shape<T=number> extends Base<T>{enabled:boolean}",
+          "import type {Base} from './base';export interface Shape<T extends number=number> extends Base<T>{enabled:boolean}",
         ),
         "main.ts": strToU8(
           "import type {Shape as Payload} from './types';" + code,
@@ -31,7 +31,7 @@ test("imported generic contracts support async practice, incorrect answers and s
     .click();
   await page.getByText("Input type definitions", { exact: true }).click();
   await expect(page.locator(".practice-types pre")).toContainText(
-    "type Payload<T = number>",
+    "type Payload<T extends number = number>",
   );
   const editor = page.getByRole("textbox", {
     name: "Practice code",

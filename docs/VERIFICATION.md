@@ -1,5 +1,24 @@
 # Verification record
 
+## 26 October continuation — scalar-constrained practice
+
+Added local support for concrete generic aliases/interfaces with independent scalar bounds, including literal unions, imported bounds, defaults and concretely instantiated bases. Argument/default validation compares type domains, not probe samples. Read-only context preserves extends clauses; analysis version 10 rebuilds stored analyses. Dependent/object bounds and unresolved constrained wrappers remain unsupported. Generic functions remain unfinished.
+
+All 368 tests / 42 files passed; the focused Edge import/practice/grading/reload journey passed. The initial restricted temporary-file failure and two superseded unsupported-type expectations are retained as separate receipts. The final production build passed, with existing bundle-size and upstream annotation warnings. WebKit 27.2 installed but cannot launch on this Windows host (jpeg62.dll missing); Linux CI now includes the complete WebKit suite. This code is prepared for the next GitHub batch, not deployed.
+
+
+## 26 October 2026 — live backend acceptance complete
+
+Updated 26 October 2026. Vercel Hobby serves https://repo-recode.vercel.app/ from public GitHub commit 5d58fcf0af3cdcfcfc39beaa3f38f529895931d1, deployment BBRq3X7B8qBgV2XWMVSAiLTkvCJV (Ready). Supabase Free migrations 001–007 and Production-only server settings are applied. Do not recreate services or rerun migrations. All nine live HTTP checks and six synthetic feedback/activity requests passed; SQL verified duplicate prevention, revocation and final cleanup (zero test rows in both tables).
+
+GitHub run 40322121312 passed 353 tests / 42 files, build, isolated package smoke with rewrite query metadata, audit (zero vulnerabilities), source scan (205 files, zero findings), 36 Chromium journeys and five development journeys. The public source archive passed: 247 files, 3,768,376 bytes, SHA-256 a144f0f3092ef3ded9ffbc60613118091ffd62f7fd7b422659448dacc156c9a4. Six live guest journeys passed on 261eca4; the later corrections changed backend packaging/routing, not frontend application code.
+
+Feedback POST/identical retry returned 201 with the same ID; changed content returned 409. Activity POST returned 202, revoke returned 200, delayed POST returned 409. SQL proved one feedback record and a revocation marker with cleared days. Owner-approved deletion removed only those records; final SQL counts were 0/0. Evidence: artifacts/hosted-live-write-results.json and hosted-test-cleanup-verified.png. Owner projects/account/preferences were not changed by this test.
+
+The 261eca4 missing-module failure and 17e0431 route-query failure remain recorded separately; 5d58fcf corrects both. No further deployment is required for this batch. Remaining: owner-deferred two-account isolation; recovery/TOTP/linking/global-session and disposable-account deletion acceptance; private GitHub App setup; live administrator role/MFA acceptance; independent PostgreSQL concurrency; broader learning/indexing/preview work; device-session inventory; manual accessibility/WebKit/low-end checks; Docker/security/operator review. Health advertising account deletion is not proof of real deletion. Never test deletion on the owner’s account. Google and linking remain disabled.
+
+Older entries below are historical snapshots and do not override this status.
+
 26 October routing correction: 17e0431 passed CI and deployment 49FihMjN2muKoiDnLyr9iKu2ptM1 reached Ready. The missing-module problem is fixed and the public source ZIP/security headers pass, but health/status return JSON 404 because their checks matched the entire rewritten URL instead of its path. Corrected those checks and exercised query metadata in the isolated-package smoke; that smoke and all 24 focused gateway/database tests pass. Live backend acceptance remains incomplete pending this correction.
 
 26 October hosted deployment correction: 261eca4 passed GitHub run 40228562623, then Vercel deployment 8CtRBsTnifq8sEHnEBZqoh1Af79q reached Ready. All six targeted live guest journeys passed, but the API returned 500 due to missing src/core/import.ts in the function package. Added an explicit Vercel include and a smoke check from a separate package tree. Native Node 24 isolated smoke passed. Preserve the startup failure; do not treat Ready as backend acceptance. Migration 007 and Production-only settings are applied with owner approval; no migration rerun is needed. Replacement deployment and live API proof remain pending.

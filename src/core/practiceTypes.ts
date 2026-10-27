@@ -1,5 +1,82 @@
 import ts from "typescript";
 
+// Compare scalar contracts, not sampled values: a few numeric probes cannot
+// establish that `number` satisfies a literal-only constraint such as 1 | 2.
+function scalarContract(
+  text: string,
+): { kind: string; literal?: string }[] | null {
+  const file = ts.createSourceFile(
+    "constraint.ts",
+    `type C = ${text};`,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const declaration = file.statements[0];
+  if (!declaration || !ts.isTypeAliasDeclaration(declaration)) return null;
+  function visit(
+    node: ts.TypeNode,
+  ): { kind: string; literal?: string }[] | null {
+    if (ts.isParenthesizedTypeNode(node)) return visit(node.type);
+    if (ts.isUnionTypeNode(node)) {
+      const parts = node.types.map(visit);
+      return parts.some((part) => part === null)
+        ? null
+        : parts.flatMap((part) => part!);
+    }
+    if (node.kind === ts.SyntaxKind.NumberKeyword) return [{ kind: "number" }];
+    if (node.kind === ts.SyntaxKind.StringKeyword) return [{ kind: "string" }];
+    if (node.kind === ts.SyntaxKind.BooleanKeyword)
+      return [
+        { kind: "boolean", literal: "true" },
+        { kind: "boolean", literal: "false" },
+      ];
+    if (node.kind === ts.SyntaxKind.UndefinedKeyword)
+      return [{ kind: "undefined" }];
+    if (!ts.isLiteralTypeNode(node)) return null;
+    const value = node.literal;
+    if (ts.isStringLiteral(value))
+      return [{ kind: "string", literal: value.text }];
+    if (ts.isNumericLiteral(value))
+      return [{ kind: "number", literal: String(Number(value.text)) }];
+    if (
+      ts.isPrefixUnaryExpression(value) &&
+      value.operator === ts.SyntaxKind.MinusToken &&
+      ts.isNumericLiteral(value.operand)
+    )
+      return [{ kind: "number", literal: String(-Number(value.operand.text)) }];
+    if (value.kind === ts.SyntaxKind.NullKeyword) return [{ kind: "null" }];
+    if (
+      value.kind === ts.SyntaxKind.TrueKeyword ||
+      value.kind === ts.SyntaxKind.FalseKeyword
+    )
+      return [
+        {
+          kind: "boolean",
+          literal: value.kind === ts.SyntaxKind.TrueKeyword ? "true" : "false",
+        },
+      ];
+    return null;
+  }
+  const result = visit(declaration.type);
+  return result && result.length <= 16 ? result : null;
+}
+
+function satisfiesScalarConstraint(value: string, constraint: string): boolean {
+  const actual = scalarContract(value),
+    allowed = scalarContract(constraint);
+  return (
+    !!actual &&
+    !!allowed &&
+    actual.every((atom) =>
+      allowed.some(
+        (bound) =>
+          atom.kind === bound.kind &&
+          (bound.literal === undefined || atom.literal === bound.literal),
+      ),
+    )
+  );
+}
+
 // Resolve only finite data syntax from the imported source, never runtime values.
 // Expansion is bounded independently of the exercise's input/sample limits.
 export function expandPracticeType(
@@ -29,7 +106,6 @@ export function expandPracticeType(
       args.length > params.length ||
       params.some(
         (p, i) =>
-          p.constraint ||
           p.modifiers?.length ||
           (!p.default &&
             (i >= args.length ||
@@ -52,6 +128,30 @@ export function expandPracticeType(
         bindings = previous;
       }
       if (!symbol || value === null) return null;
+      if (params[i].constraint) {
+        // Only independent scalar constraints are supported. Empty bindings
+        // prevent a dependent constraint from borrowing a caller's parameter.
+        const previous = bindings;
+        bindings = new Map();
+        const constraint = expand(params[i].constraint!, depth + 1);
+        bindings = previous;
+        if (
+          constraint === null ||
+          scalarContract(constraint) === null ||
+          (!placeholders && !satisfiesScalarConstraint(value, constraint))
+        )
+          return null;
+        if (params[i].default) {
+          bindings = next;
+          const fallback = expand(params[i].default!, depth + 1);
+          bindings = previous;
+          if (
+            fallback === null ||
+            !satisfiesScalarConstraint(fallback, constraint)
+          )
+            return null;
+        }
+      }
       next.set(symbol, value);
     }
     return next;
@@ -251,7 +351,12 @@ export function practiceTypeContext(
           return;
         }
         const parameterText = params?.map((parameter, index) => {
-          if (!parameter.default) return parameter.name.text;
+          const constraint = parameter.constraint
+            ? expandPracticeType(parameter.constraint, checker)
+            : undefined;
+          if (constraint === null) valid = false;
+          const head = `${parameter.name.text}${constraint ? ` extends ${constraint}` : ""}`;
+          if (!parameter.default) return head;
           const fallback = expandPracticeType(
             parameter.default,
             checker,
@@ -259,7 +364,7 @@ export function practiceTypeContext(
             params.slice(0, index),
           );
           if (fallback === null) valid = false;
-          return `${parameter.name.text} = ${fallback}`;
+          return `${head} = ${fallback}`;
         });
         const definition = `type ${name}${parameterText?.length ? `<${parameterText.join(", ")}>` : ""} = ${body};`;
         if (aliases.has(name) && aliases.get(name) !== definition)

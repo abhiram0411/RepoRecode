@@ -8,6 +8,16 @@ const sample = (content: string) =>
     (s) => s.kind === "function",
   )!;
 describe("concrete generic practice contracts", () => {
+  it("grades concretely instantiated constrained bases and scalar defaults", async () => {
+    const s = sample(
+      "interface Base<T extends number>{readonly value:T} interface Input extends Base<number>{} type Scale<T extends number=number>=T; export function f(x:Input,n:Scale){return x.value+n}",
+    );
+    expect(s.standalone).toBe(true);
+    expect((await evaluate(s, s.code)).passed).toBe(true);
+    expect(
+      (await evaluate(s, "function f(x:Input,n:Scale){return n}")).passed,
+    ).toBe(false);
+  });
   it("preserves a generic alias across different concrete arguments and grades independent fields", async () => {
     const s = sample(
       "type Box<T>={readonly value:T};export function read(a:Box<number>,b:Box<boolean>){return a.value+(b.value?10:0)}",
@@ -82,7 +92,6 @@ describe("concrete generic practice contracts", () => {
     expect((await evaluate(s, s.code)).passed).toBe(true);
   });
   it.each([
-    "type Box<T extends number>={value:T};export function f(x:Box<number>){return 1}",
     "type Box<T>={value:T};export function f(x:Box){return 1}",
     "type Box<T>={value:T};export function f(x:Box<number,boolean>){return 1}",
     "type Box<T>={value:Box<T>};export function f(x:Box<number>){return 1}",
@@ -189,14 +198,105 @@ describe("concrete generic practice contracts", () => {
     "type Box<T=number,U>={value:U};export function f(x:Box<number,boolean>){return 1}",
     "type Box<T=Box>={value:T};export function f(x:Box){return 1}",
     "type Box<T={a:{b:{c:boolean}}}>={value:T};export function f(x:Box){return 1}",
-    "type Box<T extends number=number>={value:T};export function f(x:Box){return 1}",
     "type Box<T=Missing>={value:T};export function f(x:Box<number>){return 1}",
-  ])(
-    "rejects invalid, cyclic, constrained or oversized defaults: %s",
-    (content) => {
-      expect(sample(content).standalone).toBe(false);
-    },
-  );
+  ])("rejects invalid, cyclic or oversized defaults: %s", (content) => {
+    expect(sample(content).standalone).toBe(false);
+  });
+  it("preserves scalar constraints and defaults while grading concrete inputs", async () => {
+    const s = sample(
+      "type Box<T extends number=number>={readonly value:T};export function f(a:Box,b:Box<1|2>){return a.value+b.value}",
+    );
+    expect(s.standalone).toBe(true);
+    expect(s.practiceTypes).toContain("T extends number = number");
+    expect(probes(s)).toContainEqual([{ value: 0 }, { value: 2 }]);
+    expect((await evaluate(s, s.code)).passed).toBe(true);
+    expect(
+      (await evaluate(s, "function f(a:Box,b:Box<1|2>){return a.value}"))
+        .passed,
+    ).toBe(false);
+    expect(
+      (
+        await evaluate(
+          s,
+          "function f(a:Box,b:Box<1|2>){a.value=2;return a.value+b.value}",
+        )
+      ).diagnostics.join(" "),
+    ).toContain("read-only");
+  });
+  it("resolves imported scalar bounds and retains them in the isolated type context", async () => {
+    const s = analyze([
+      {
+        path: "types.ts",
+        content:
+          'export type Choice="on"|"off"; export interface Box<T extends Choice="off">{value:T}',
+      },
+      {
+        path: "app.ts",
+        content:
+          'import type {Box as Input} from "./types";export function f(x:Input<"on">){return x.value}',
+      },
+    ]).symbols.find((s) => s.name === "f")!;
+    expect(s.standalone).toBe(true);
+    expect(s.practiceTypes).toContain('T extends "on" | "off" = "off"');
+    expect((await evaluate(s, s.code)).passed).toBe(true);
+    expect(
+      (await evaluate(s, 'function f(x:Input<"other">){return x.value}'))
+        .passed,
+    ).toBe(false);
+  });
+  it.each([
+    ["boolean", "true|false"],
+    ["number|null", "null"],
+    ["number|undefined", "undefined"],
+    ["-1|2", "-1"],
+    ['"a"|"b"', '"a"'],
+  ])("accepts concrete subsets of %s", (bound, arg) => {
+    expect(
+      sample(
+        `type Box<T extends ${bound}>={value:T};export function f(x:Box<${arg}>){return x.value}`,
+      ).standalone,
+    ).toBe(true);
+  });
+  it.each([
+    "type Box<T extends number>={value:T};export function f(x:Box<string>){return x.value}",
+    "type Box<T extends 0|1>={value:T};export function f(x:Box<number>){return x.value}",
+    'type Box<T extends "a">={value:T};export function f(x:Box<"a"|"b">){return x.value}',
+    "type Box<T extends number>={value:T};export function f(x:Box<null>){return x.value}",
+    "type Box<T extends number=string>={value:T};export function f(x:Box<number>){return x.value}",
+    "type Box<T extends {value:number}>={value:T};export function f(x:Box<{value:number}>){return x.value}",
+    "type Box<T,U extends T>={value:U};export function f(x:Box<number,1>){return x.value}",
+    "type Box<T extends any>={value:T};export function f(x:Box<number>){return x.value}",
+  ])("rejects incompatible or unsupported constraints: %s", (content) => {
+    expect(sample(content).standalone).toBe(false);
+  });
+  it("invalidates practice after an imported constraint changes", () => {
+    const index = createAnalyzer();
+    const main = {
+      path: "app.ts",
+      content:
+        'import type {Box} from "./types";export function f(x:Box<number>){return x.value}',
+    };
+    const a = index([
+      {
+        path: "types.ts",
+        content: "export type Box<T extends number>={value:T}",
+      },
+      main,
+    ]);
+    const b = index([
+      {
+        path: "types.ts",
+        content: "export type Box<T extends string>={value:T}",
+      },
+      main,
+    ]);
+    expect(a.analysis.symbols.find((s) => s.name === "f")!.standalone).toBe(
+      true,
+    );
+    expect(b.analysis.symbols.find((s) => s.name === "f")!.standalone).toBe(
+      false,
+    );
+  });
   it("refreshes probes when an imported default changes", () => {
     const index = createAnalyzer();
     const main = {
