@@ -1,6 +1,6 @@
 import ts from "typescript";
 import type { SymbolInfo } from "./types";
-import { expandPracticeType } from "./practiceTypes";
+import { expandPracticeType, functionPracticeBindings } from "./practiceTypes";
 
 const vectors: Record<string, unknown[]> = {
   number: [0, 1, -1, 2, 10, 0.5, -3, 100],
@@ -120,9 +120,10 @@ function scalar(node: ts.TypeNode, depth = 0): unknown[] | null {
 export function parameterValues(
   type: ts.TypeNode,
   checker?: ts.TypeChecker,
+  bindings: ReadonlyMap<ts.Symbol, string> = new Map(),
 ): unknown[] | null {
   if (checker) {
-    const expanded = expandPracticeType(type, checker);
+    const expanded = expandPracticeType(type, checker, false, [], bindings);
     if (expanded === null) return null;
     const parsed = ts.createSourceFile(
       "contract.ts",
@@ -277,7 +278,7 @@ function signature(code: string, context = "") {
     true,
   );
   let checker: ts.TypeChecker | undefined;
-  if (context) {
+  {
     const host: ts.CompilerHost = {
       getSourceFile: (name) => (name === "input.ts" ? sf : undefined),
       getDefaultLibFileName: () => "",
@@ -296,22 +297,24 @@ function signature(code: string, context = "") {
   }
   const first = sf.statements.find((s) => !ts.isTypeAliasDeclaration(s));
   if (first && ts.isFunctionDeclaration(first))
-    return { parameters: first.parameters, checker };
+    return { fn: first, parameters: first.parameters, checker };
   if (first && ts.isVariableStatement(first)) {
     const fn = first.declarationList.declarations[0]?.initializer;
     if (fn && (ts.isArrowFunction(fn) || ts.isFunctionExpression(fn)))
-      return { parameters: fn.parameters, checker };
+      return { fn, parameters: fn.parameters, checker };
   }
   return undefined;
 }
 
 export function probes(s: SymbolInfo): unknown[][] {
   // Read source so saved pre-upgrade indexes also get optional/default probes.
-  const { parameters, checker } = signature(s.code, s.practiceTypes) ?? {};
-  if (!parameters || parameters.length > 3) return [];
+  const { fn, parameters, checker } = signature(s.code, s.practiceTypes) ?? {};
+  if (!fn || !checker || !parameters || parameters.length > 3) return [];
+  const bindings = functionPracticeBindings(fn, checker);
+  if (bindings === null) return [];
   const domains = parameters.map((p) => {
     if (!p.type || p.dotDotDotToken || !ts.isIdentifier(p.name)) return null;
-    const values = parameterValues(p.type, checker);
+    const values = parameterValues(p.type, checker, bindings);
     return (
       values &&
       (p.questionToken || p.initializer

@@ -11,6 +11,7 @@ export type SymbolInfo = {
   endLine: number;
   code: string;
   practiceTypes?: string;
+  typeParameters?: string;
   parameters: { name: string; type: string; declaration?: string }[];
   calls: string[];
   concepts: string[];

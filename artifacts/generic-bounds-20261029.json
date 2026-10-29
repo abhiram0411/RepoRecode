@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-29",
+  "scope": "Small-object and earlier-parameter generic function bounds; local only",
+  "analysisVersion": 14,
+  "unitTestsPassed": 503,
+  "testFiles": 48,
+  "edge": {
+    "startTime": "2026-10-29T07:40:06.485Z",
+    "duration": 11755.141,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "webkit": {
+    "startTime": "2026-10-29T07:40:33.667Z",
+    "duration": 15794.89,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "build": "passed",
+  "hostedPackageSmoke": "passed after normal loopback access",
+  "sourceScan": {
+    "files": 224,
+    "findings": 0
+  },
+  "published": false,
+  "deployed": false,
+  "limitations": [
+    "Finite probes are not proof for every subtype",
+    "Unbounded/self/forward/recursive generics and complex defaults remain unsupported",
+    "Hosted GitHub App setup and remaining account acceptance are separate"
+  ]
+}

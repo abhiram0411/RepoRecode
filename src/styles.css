@@ -2499,3 +2499,7 @@ summary {
   text-align: left;
   overflow-wrap: anywhere;
 }
+:root .linked-folder { margin: 0 24px; padding: 10px 0; }
+.linked-folder summary { cursor: pointer; }
+.linked-folder p { max-width: 75ch; }
+.linked-folder .button-row { flex-wrap: wrap; }

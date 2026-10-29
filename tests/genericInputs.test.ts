@@ -263,8 +263,7 @@ describe("concrete generic practice contracts", () => {
     'type Box<T extends "a">={value:T};export function f(x:Box<"a"|"b">){return x.value}',
     "type Box<T extends number>={value:T};export function f(x:Box<null>){return x.value}",
     "type Box<T extends number=string>={value:T};export function f(x:Box<number>){return x.value}",
-    "type Box<T extends {value:number}>={value:T};export function f(x:Box<{value:number}>){return x.value}",
-    "type Box<T,U extends T>={value:U};export function f(x:Box<number,1>){return x.value}",
+    "type Box<T extends {value:number[]}>={value:T};export function f(x:Box<{value:number[]}>){return x.value}",
     "type Box<T extends any>={value:T};export function f(x:Box<number>){return x.value}",
   ])("rejects incompatible or unsupported constraints: %s", (content) => {
     expect(sample(content).standalone).toBe(false);

@@ -4,6 +4,7 @@ import ts from "typescript";
 // establish that `number` satisfies a literal-only constraint such as 1 | 2.
 function scalarContract(
   text: string,
+  placeholders: ReadonlySet<string> = new Set(),
 ): { kind: string; literal?: string }[] | null {
   const file = ts.createSourceFile(
     "constraint.ts",
@@ -16,6 +17,13 @@ function scalarContract(
   function visit(
     node: ts.TypeNode,
   ): { kind: string; literal?: string }[] | null {
+    if (
+      ts.isTypeReferenceNode(node) &&
+      ts.isIdentifier(node.typeName) &&
+      !node.typeArguments?.length &&
+      placeholders.has(node.typeName.text)
+    )
+      return [{ kind: `parameter:${node.typeName.text}` }];
     if (ts.isParenthesizedTypeNode(node)) return visit(node.type);
     if (ts.isUnionTypeNode(node)) {
       const parts = node.types.map(visit);
@@ -61,20 +69,102 @@ function scalarContract(
   return result && result.length <= 16 ? result : null;
 }
 
-function satisfiesScalarConstraint(value: string, constraint: string): boolean {
-  const actual = scalarContract(value),
-    allowed = scalarContract(constraint);
-  return (
-    !!actual &&
-    !!allowed &&
-    actual.every((atom) =>
-      allowed.some(
+type ConstraintContract =
+  | { kind: "scalar"; atoms: NonNullable<ReturnType<typeof scalarContract>> }
+  | {
+      kind: "object";
+      fields: Map<string, { optional: boolean; type: ConstraintContract }>;
+    };
+
+// Structural bounds use the same small-data boundary as generated inputs.
+// Extra actual fields are permitted, but never repair a missing required field.
+function constraintContract(
+  text: string,
+  placeholders: ReadonlySet<string> = new Set(),
+): ConstraintContract | null {
+  const file = ts.createSourceFile(
+    "constraint.ts",
+    `type C = ${text};`,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const declaration = file.statements[0];
+  if (!declaration || !ts.isTypeAliasDeclaration(declaration)) return null;
+  let leaves = 0;
+  function visit(node: ts.TypeNode, depth: number): ConstraintContract | null {
+    if (ts.isParenthesizedTypeNode(node)) return visit(node.type, depth);
+    const atoms = scalarContract(node.getText(), placeholders);
+    if (atoms) return ++leaves <= 3 ? { kind: "scalar", atoms } : null;
+    if (!ts.isTypeLiteralNode(node) || depth >= 2 || node.members.length > 3)
+      return null;
+    const fields = new Map<
+      string,
+      { optional: boolean; type: ConstraintContract }
+    >();
+    for (const member of node.members) {
+      if (
+        !ts.isPropertySignature(member) ||
+        !member.type ||
+        !(ts.isIdentifier(member.name) || ts.isStringLiteral(member.name)) ||
+        fields.has(member.name.text)
+      )
+        return null;
+      const type = visit(member.type, depth + 1);
+      if (!type) return null;
+      fields.set(member.name.text, { optional: !!member.questionToken, type });
+    }
+    return { kind: "object", fields };
+  }
+  return visit(declaration.type, 0);
+}
+
+function satisfiesConstraint(
+  value: string,
+  constraint: string,
+  placeholders: ReadonlySet<string> = new Set(),
+): boolean {
+  const actual = constraintContract(value, placeholders),
+    allowed = constraintContract(constraint, placeholders);
+  function accepts(
+    actual: ConstraintContract,
+    allowed: ConstraintContract,
+  ): boolean {
+    if (actual.kind === "object" && allowed.kind === "object") {
+      // TypeScript's weak-type check rejects nonempty objects that share no
+      // property with an entirely optional target (an empty object is valid).
+      if (
+        allowed.fields.size &&
+        actual.fields.size &&
+        [...allowed.fields.values()].every((field) => field.optional) &&
+        ![...allowed.fields.keys()].some((name) => actual.fields.has(name))
+      )
+        return false;
+      return [...allowed.fields].every(([name, bound]) => {
+        const field = actual.fields.get(name);
+        // The isolated compiler uses strict mode without exactOptionalPropertyTypes:
+        // optional scalar properties also admit an explicit undefined value.
+        const type: ConstraintContract =
+          bound.optional && bound.type.kind === "scalar"
+            ? {
+                kind: "scalar",
+                atoms: [...bound.type.atoms, { kind: "undefined" }],
+              }
+            : bound.type;
+        return field
+          ? (!field.optional || bound.optional) && accepts(field.type, type)
+          : bound.optional;
+      });
+    }
+    if (actual.kind !== "scalar" || allowed.kind !== "scalar") return false;
+    return actual.atoms.every((atom) =>
+      allowed.atoms.some(
         (bound) =>
           atom.kind === bound.kind &&
           (bound.literal === undefined || atom.literal === bound.literal),
       ),
-    )
-  );
+    );
+  }
+  return !!actual && !!allowed && accepts(actual, allowed);
 }
 
 // Resolve only finite data syntax from the imported source, never runtime values.
@@ -84,10 +174,11 @@ export function expandPracticeType(
   checker: ts.TypeChecker,
   template = false,
   parameters: readonly ts.TypeParameterDeclaration[] = [],
+  concreteBindings: ReadonlyMap<ts.Symbol, string> = new Map(),
 ): string | null {
   let remaining = 256;
   const active = new Set<ts.Symbol>();
-  let bindings = new Map<ts.Symbol, string>();
+  let bindings = new Map(concreteBindings);
   for (const parameter of parameters) {
     const symbol = checker.getSymbolAtLocation(parameter.name);
     if (!symbol) return null;
@@ -114,6 +205,11 @@ export function expandPracticeType(
     )
       return null;
     const next = new Map(bindings);
+    // Constraints see only earlier parameters in this declaration. In a
+    // read-only template, retain their symbolic identities rather than using
+    // a concrete call's arguments to justify an invalid generic default.
+    const earlier = new Map<ts.Symbol, string>();
+    const symbolic = new Set<string>();
     for (let i = 0; i < params.length; i++) {
       const symbol = checker.getSymbolAtLocation(params[i].name);
       let value: string | null;
@@ -129,16 +225,14 @@ export function expandPracticeType(
       }
       if (!symbol || value === null) return null;
       if (params[i].constraint) {
-        // Only independent scalar constraints are supported. Empty bindings
-        // prevent a dependent constraint from borrowing a caller's parameter.
         const previous = bindings;
-        bindings = new Map();
+        bindings = earlier;
         const constraint = expand(params[i].constraint!, depth + 1);
         bindings = previous;
         if (
           constraint === null ||
-          scalarContract(constraint) === null ||
-          (!placeholders && !satisfiesScalarConstraint(value, constraint))
+          constraintContract(constraint, symbolic) === null ||
+          (!placeholders && !satisfiesConstraint(value, constraint))
         )
           return null;
         if (params[i].default) {
@@ -147,12 +241,14 @@ export function expandPracticeType(
           bindings = previous;
           if (
             fallback === null ||
-            !satisfiesScalarConstraint(fallback, constraint)
+            !satisfiesConstraint(fallback, constraint, symbolic)
           )
             return null;
         }
       }
       next.set(symbol, value);
+      earlier.set(symbol, value);
+      if (placeholders) symbolic.add(params[i].name.text);
     }
     return next;
   }
@@ -314,24 +410,92 @@ export function expandPracticeType(
   return text !== null && text.length <= 4096 ? text : null;
 }
 
-// Retain the source's names in the exercise, with a read-only type context.
-// Body-local aliases, generic functions and namespace-qualified names are not
-// flattened: their scope/merge semantics need a more complete project harness.
+// Generic functions are exercised at explicit scalar/small-object upper bounds.
+// Earlier parameters may constrain later ones. Self/forward bounds are rejected.
+// The original generic declaration is still type-checked before evaluation.
+export function functionPracticeBindings(
+  fn: ts.FunctionLikeDeclaration,
+  checker: ts.TypeChecker,
+): Map<ts.Symbol, string> | null {
+  const params = fn.typeParameters ?? [];
+  if (params.length > 3) return null;
+  const bindings = new Map<ts.Symbol, string>();
+  for (const [index, param] of params.entries()) {
+    if (
+      !param.constraint ||
+      param.modifiers?.length ||
+      (!param.default && params.slice(0, index).some((p) => p.default))
+    )
+      return null;
+    const symbol = checker.getSymbolAtLocation(param.name);
+    const bound = expandPracticeType(
+      param.constraint,
+      checker,
+      false,
+      [],
+      bindings,
+    );
+    if (!symbol || bound === null || !constraintContract(bound)) return null;
+    if (param.default) {
+      const fallback = expandPracticeType(
+        param.default,
+        checker,
+        false,
+        [],
+        bindings,
+      );
+      // A concrete upper bound must not justify an invalid generic default:
+      // U extends T = number is invalid even when T extends number. Keep earlier
+      // parameter identities when checking the template, just as for aliases.
+      const earlier = params.slice(0, index);
+      const placeholders = new Set(earlier.map((p) => p.name.text));
+      const templateBound = expandPracticeType(
+        param.constraint,
+        checker,
+        false,
+        earlier,
+      );
+      const templateDefault = expandPracticeType(
+        param.default,
+        checker,
+        false,
+        earlier,
+      );
+      if (
+        fallback === null ||
+        !satisfiesConstraint(fallback, bound) ||
+        templateBound === null ||
+        templateDefault === null ||
+        !satisfiesConstraint(templateDefault, templateBound, placeholders)
+      )
+        return null;
+    }
+    bindings.set(symbol, bound);
+  }
+  return bindings;
+}
+
+// Retain source names in the exercise, with a read-only type context.
+// Body-local aliases and namespace-qualified names require a richer harness.
 export function practiceTypeContext(
   fn: ts.FunctionLikeDeclaration,
   checker: ts.TypeChecker,
 ): string | null {
-  if (fn.typeParameters?.length) return null;
+  const resolvedBindings = functionPracticeBindings(fn, checker);
+  if (resolvedBindings === null) return null;
+  const bindings = resolvedBindings;
   const aliases = new Map<string, string>();
   let valid = true;
   function visit(node: ts.Node) {
     if (ts.isTypeReferenceNode(node)) {
-      const expanded = expandPracticeType(node, checker);
+      const expanded = expandPracticeType(node, checker, false, [], bindings);
       if (expanded === null || !ts.isIdentifier(node.typeName)) {
         valid = false;
         return;
       }
       const name = node.typeName.text;
+      const referenced = checker.getSymbolAtLocation(node.typeName);
+      if (referenced && bindings.has(referenced)) return;
       if (!["Array", "ReadonlyArray", "Promise"].includes(name)) {
         let symbol = checker.getSymbolAtLocation(node.typeName);
         if (symbol && symbol.flags & ts.SymbolFlags.Alias)
@@ -344,7 +508,7 @@ export function practiceTypeContext(
             ? declaration.typeParameters
             : undefined;
         const body = params?.length
-          ? expandPracticeType(node, checker, true)
+          ? expandPracticeType(node, checker, true, [], bindings)
           : expanded;
         if (body === null) {
           valid = false;
@@ -352,7 +516,12 @@ export function practiceTypeContext(
         }
         const parameterText = params?.map((parameter, index) => {
           const constraint = parameter.constraint
-            ? expandPracticeType(parameter.constraint, checker)
+            ? expandPracticeType(
+                parameter.constraint,
+                checker,
+                false,
+                params.slice(0, index),
+              )
             : undefined;
           if (constraint === null) valid = false;
           const head = `${parameter.name.text}${constraint ? ` extends ${constraint}` : ""}`;
@@ -376,6 +545,10 @@ export function practiceTypeContext(
   }
   fn.parameters.forEach((p) => {
     if (p.type) visit(p.type);
+  });
+  fn.typeParameters?.forEach((p) => {
+    if (p.constraint) visit(p.constraint);
+    if (p.default) visit(p.default);
   });
   if (fn.type) visit(fn.type);
   const context = [...aliases.values()].join("\n");

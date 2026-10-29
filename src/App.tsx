@@ -60,6 +60,7 @@ import Companion from "./components/Companion";
 import AccountPanel from "./components/AccountPanel";
 import AdminPanel from "./components/AdminPanel";
 import GithubRepositories from "./components/GithubRepositories";
+import LinkedFolder from "./components/LinkedFolder";
 import ConceptQuiz from "./components/ConceptQuiz";
 import { exportProgress, mergeProgress } from "./core/progress";
 import { planProjectRestore } from "./core/restorePlan";
@@ -598,6 +599,16 @@ export default function App() {
             )}
           </div>
         </header>
+        <LinkedFolder
+          disabled={!!busy}
+          onImport={async (files, name, origin) => {
+            try {
+              await importFiles(files, name, origin);
+            } finally {
+              setBusy("");
+            }
+          }}
+        />
         <main id="main" key={page} className="page-enter" tabIndex={-1}>
           {error && (
             <div className="alert error" role="alert">

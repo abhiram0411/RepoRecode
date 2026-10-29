@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-29",
+  "nativeArtifactsRemoved": [
+    "tmp/postgres-concurrency-s7Rnzv",
+    "tmp/postgres-runtime-17",
+    "tmp/postgresql-17.11-5-windows-x64-binaries.zip"
+  ],
+  "postgresChecks": 10,
+  "independentBackendPids": 106,
+  "applicationCheckGroups": 7,
+  "browserPassed": 8,
+  "containersRemoved": true,
+  "published": false,
+  "deployed": false,
+  "costsAdded": false,
+  "limitations": [
+    "Does not verify live cloud services, production HTTPS proxy or persistent backend data volumes",
+    "Does not prove hosted Supabase configuration, real OAuth, live cross-account identity or provider token rotation"
+  ],
+  "sourceScan": {
+    "files": 222,
+    "findings": 0
+  },
+  "receipts": [
+    "docker-postgres-concurrency-results.json",
+    "docker-app-results.json",
+    "docker-browser-results.json"
+  ],
+  "preservedFailures": [
+    "docker-app-restart-initial.json",
+    "docker-app-browser-initial.json",
+    "docker-browser-launch-initial.json"
+  ]
+}

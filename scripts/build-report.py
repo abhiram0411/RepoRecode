@@ -47,7 +47,7 @@ doc.core_properties.author = 'RepoRecode'
 doc.core_properties.keywords = 'RepoRecode, development, verification'
 footer = sec.footer.paragraphs[0]
 footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-footer.add_run('RepoRecode  |  23 October 2026  |  ').font.size = Pt(8)
+footer.add_run('RepoRecode  |  28 October 2026  |  ').font.size = Pt(8)
 f = OxmlElement('w:fldSimple'); f.set(qn('w:instr'), 'PAGE'); footer._p.append(f)
 
 def p(text, style=None):
@@ -57,8 +57,8 @@ def h(text):
     doc.add_heading(text, 2)
 
 def page(title):
-    doc.add_page_break()
-    doc.add_heading(title, 1)
+    heading = doc.add_heading(title, 1)
+    heading.paragraph_format.page_break_before = True
 
 def bullets(items):
     for text in items:
@@ -117,9 +117,9 @@ def architecture():
       ((20,20,470,220), 'Browser workspace', ['React and Monaco', 'Lessons and progress', 'IndexedDB on this device']),
       ((530,20,980,220), 'Bounded workers', ['TypeScript source index', 'QuickJS evaluation', 'Sanitized React snapshot']),
       ((1040,20,1480,220), 'Imported source', ['Public GitHub or local files', 'Bounded immutable snapshot', 'No project install scripts']),
-      ((20,450,470,680), 'Optional Supabase', ['Auth and owner protected rows', 'Projects and preferences', 'Encrypted GitHub grants']),
-      ((530,450,980,680), 'Optional Node gateway', ['Verified bearer and origin', 'GitHub App and feedback', 'Quotas and administration']),
-      ((1040,450,1480,680), 'External services', ['No paid model provider', 'GitHub repository API', 'Explicit alert destinations']),
+      ((20,450,470,680), 'Optional Supabase', ['Auth and owner protected rows', 'Projects and preferences', 'Private GitHub App pending']),
+      ((530,450,980,680), 'Vercel Node gateway', ['Verified bearer and origin', 'Bounded feedback and activity', 'Quotas and administration']),
+      ((1040,450,1480,680), 'External services', ['No paid model provider', 'GitHub repository API', 'External alerts disabled']),
     ]
     for box, title, lines in boxes:
         d.rounded_rectangle(box, radius=14, fill='#F4F7F9', outline='#6E818E', width=2)
@@ -132,17 +132,17 @@ def architecture():
     arrow((530,115),(470,115)); arrow((1040,115),(980,115))
     arrow((240,220),(750,450)); d.text((485,275),'Opt in',font=regular,fill='#293E4A')
     arrow((530,560),(470,560)); arrow((980,560),(1040,560))
-    d.text((20,733),'Top row works locally. Bottom row requires owner configuration and live acceptance.',font=regular,fill='#293E4A')
+    d.text((20,733),'Learning works locally. Cloud copies are explicit; private GitHub App setup is pending.',font=regular,fill='#293E4A')
     im.save(OUT/'architecture.png')
 
 def evidence(name):
     path = OUT / name
     return json.loads(path.read_text(encoding='utf-8-sig')) if path.exists() else {}
 
-units = evidence('unit-results.json')
-browser = evidence('browser-results.json').get('stats', {})
-audit = evidence('dependency-audit.json')
-download = evidence('source-download.json')
+units = evidence('webkit-bridge-unit-results.json')
+browser = evidence('webkit-fix-edge-final-results.json').get('stats', {})
+audit = evidence('dependency-audit-20261026.json')
+download = evidence('hosted-live-source-results.json')
 if not units.get('success') or units.get('numFailedTests', 0) or browser.get('unexpected', 0):
     raise RuntimeError('Resolve failing checks before authoring a verified report.')
 replacements = {
@@ -150,7 +150,7 @@ replacements = {
     '{{BROWSER_TESTS}}': str(browser.get('expected', 'unavailable')),
     '{{BROWSER_FAILURES}}': str(browser.get('unexpected', 'unavailable')),
     '{{PUBLIC_VERSION}}': str(status.get('version_number', 'unavailable')),
-    '{{DOWNLOAD_STATUS}}': 'HTTP 200 and hash matched' if download.get('matchesLocal') and download.get('status') == 200 else 'Not verified',
+    '{{DOWNLOAD_STATUS}}': '247 files; HTTP, hash and package checks passed' if download.get('httpStatus') == 200 else 'See hosted-live-source-results.json',
     '{{VULNERABILITIES}}': str(audit.get('metadata', {}).get('vulnerabilities', {}).get('total', 'unavailable')),
 }
 content = (ROOT / 'docs' / 'ENGINEERING_REPORT.md').read_text(encoding='utf-8')

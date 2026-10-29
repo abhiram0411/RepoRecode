@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { zipSync, strToU8 } from "fflate";
 
-test("API candidates connect literal paths to source without executing imported requests", async ({
+test("API candidates connect constant paths to source without executing imported requests", async ({
   page,
 }) => {
   let importedRequests = 0;
@@ -18,11 +18,14 @@ test("API candidates connect literal paths to source without executing imported 
     mimeType: "application/zip",
     buffer: Buffer.from(
       zipSync({
+        "paths.ts": strToU8(
+          "export const prefix='/api';export const items=prefix+'/items';export const method='POST';",
+        ),
         "client.ts": strToU8(
-          "export async function loadItems(){\nreturn fetch('/api/items');\n}\nexport function saveItems(){return fetch('/api/items',{method:'POST'})}",
+          "import {items as endpoint,method} from './paths';export async function loadItems(){\nreturn fetch(endpoint);\n}\nexport function saveItems(){return fetch(endpoint,{method:method})}",
         ),
         "server.ts": strToU8(
-          "import express from 'express';\nconst app=express();\nexport function installRoutes(){\napp.get('/api/items',(_req,res)=>res.json([]));\n}\napp.get('/health',(_req,res)=>res.send('ok'));",
+          "import express from 'express';import {items} from './paths';\nconst app=express();\nexport function installRoutes(){\napp.get(items,(_req,res)=>res.json([]));\n}\napp.get('/health',(_req,res)=>res.send('ok'));",
         ),
       }),
     ),

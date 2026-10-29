@@ -19,6 +19,8 @@ jobs:
           node-version: 24
       - run: npm ci --ignore-scripts
       - run: npm test -- --maxWorkers=2
+      - name: Verify PostgreSQL concurrency in Docker
+        run: npm run test:postgres
       - run: npm run build
       - run: node scripts/check-hosted-entry.mjs
       - run: npm audit --audit-level=high

@@ -1,5 +1,6 @@
 import ts from "typescript";
 import type { ApiFlow } from "./types";
+import { staticString } from "./staticString";
 
 const methods = new Set([
   "GET",
@@ -26,7 +27,7 @@ export function apiRelations(
       ? node.text
       : undefined;
   const path = (node: ts.Node | undefined) => {
-    const value = literal(node);
+    const value = staticString(node, checker);
     return value &&
       value.startsWith("/") &&
       !value.startsWith("//") &&
@@ -137,7 +138,10 @@ export function apiRelations(
                     method = undefined;
                     break;
                   }
-                  method = literal(property.initializer)?.toUpperCase();
+                  method = staticString(
+                    property.initializer,
+                    checker,
+                  )?.toUpperCase();
                 }
               }
             }

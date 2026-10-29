@@ -153,7 +153,9 @@ export async function evaluate(
     supported: s.standalone,
     diagnostics: [],
     cases: [],
-    note: "Bounded reference-derived probes check observed behavior, not full equivalence or production correctness.",
+    note: s.typeParameters
+      ? "Finite probes instantiate generic parameters at their declared scalar or small-object bounds; the original generic signature is type-checked. Extra subtype properties are not exhaustively sampled. Passing is not proof for every generic instantiation or production correctness."
+      : "Bounded reference-derived probes check observed behavior, not full equivalence or production correctness.",
   };
   if (!s.standalone) {
     out.diagnostics = [s.reason ?? "Unsupported exercise."];

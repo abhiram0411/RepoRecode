@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
-test("state chains expose intermediate source links and static graph labels", async ({
+test("state property chains expose intermediate source links and static graph labels", async ({
   page,
 }) => {
   const code = `import {useState} from 'react';
-export function App(){const [count,setCount]=useState(0);
-const doubled=count*2;
+export function App(){const [count,setCount]=useState({value:0});
+const doubled=count.value*2;
 const label=\`Total: \${doubled}\`;
 return <output title={label}>{doubled}</output>;
 }`;
@@ -37,8 +37,12 @@ return <output title={label}>{doubled}</output>;
   await page
     .getByRole("button", { name: "State relationships", exact: true })
     .click();
-  const picker = page.getByRole("combobox", { name: "Inspect state relationship" });
-  const propOption = await picker.getByRole("option", {name: /count → title on output/}).getAttribute("value");
+  const picker = page.getByRole("combobox", {
+    name: "Inspect state relationship",
+  });
+  const propOption = await picker
+    .getByRole("option", { name: /count → title on output/ })
+    .getAttribute("value");
   await picker.selectOption(propOption!);
   await expect(page.locator(".graph")).toContainText(
     "prop reference via doubled → label · static",
@@ -56,7 +60,9 @@ return <output title={label}>{doubled}</output>;
     path: "artifacts/state-derivations.png",
     fullPage: true,
   });
-  await page.setViewportSize({width:390, height:844});
+  await page.setViewportSize({ width: 390, height: 844 });
   await expect(picker).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(390);
 });

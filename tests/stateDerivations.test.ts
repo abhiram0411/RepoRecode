@@ -8,6 +8,47 @@ const flow = (body: string) =>
     },
   ]).stateFlow!.relations;
 describe("bounded const state provenance", () => {
+  it("links static and optional property reads through the existing two-step boundary", () => {
+    const r = flow(
+      "const [model]=useState({stats:{score:1}});const score=model?.stats?.score;const text=`Score ${score}`;return <p title={text}/>",
+    );
+    const prop = r.find((r) => r.kind === "prop");
+    expect(prop?.state.name).toBe("model");
+    expect(prop?.via?.map((v) => v.name)).toEqual(["score", "text"]);
+    expect(prop?.evidence).toBe("static");
+  });
+  it.each(['model["score"]', 'model?.["score"]', "model[0]"])(
+    "follows a literal index without treating its key as a state reference: %s",
+    (expression) => {
+      const r = flow(
+        `const [model]=useState({score:1});const score=${expression};return <p title={score}/>`,
+      );
+      expect(
+        r.filter((r) => r.kind === "prop").map((r) => r.state.name),
+      ).toEqual(["model"]);
+    },
+  );
+  it("rejects dynamic indexes, calls, mutations and object construction", () => {
+    const r = flow(
+      'const [model]=useState({score:1});const [key]=useState("score");const dynamic=model[key];const called=model.read();const changed=model.score++;const made=({score:model.score}).score;return <p dynamic={dynamic} called={called} changed={changed} made={made}/>',
+    );
+    expect(r.filter((r) => r.kind === "prop")).toEqual([]);
+  });
+  it("does not confuse a property name with a same-named state binding", () => {
+    const r = flow(
+      "const [model]=useState({count:1});const score=model.count;return <p title={score}/>",
+    );
+    expect(r.filter((r) => r.kind === "prop").map((r) => r.state.name)).toEqual(
+      ["model"],
+    );
+  });
+  it("keeps object reads lexical and never invokes a getter to infer values", () => {
+    const r = flow(
+      'const [model]=useState({get score(){throw new Error("must not run")}});const score=model.score;return <p title={score}/>',
+    );
+    expect(r.find((r) => r.kind === "prop")?.state.name).toBe("model");
+    expect(r.find((r) => r.kind === "prop")?.evidence).toBe("static");
+  });
   it("rejects more than eight distinct provenance paths for a binding", () => {
     const declarations = Array.from(
       { length: 9 },

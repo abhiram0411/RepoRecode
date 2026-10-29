@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-29",
+  "analysisVersion": 15,
+  "unitTests": 520,
+  "testFiles": 48,
+  "edge": {
+    "startTime": "2026-10-29T07:46:28.834Z",
+    "duration": 7254.147,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "webkit": {
+    "startTime": "2026-10-29T07:46:47.081Z",
+    "duration": 8148.990999999999,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "build": "passed with existing warnings",
+  "sourceScan": {
+    "files": 225,
+    "findings": 0
+  },
+  "scope": "Static constant string API candidates; no runtime evaluation or delivery proof",
+  "published": false,
+  "deployed": false
+}

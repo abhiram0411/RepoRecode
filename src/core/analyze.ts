@@ -2,7 +2,7 @@ import ts from "typescript";
 import { describeExpression } from "./expressionExplanation";
 import { reactStateHook } from "./hookSites";
 import { parameterValues } from "./practiceInputs";
-import { practiceTypeContext } from "./practiceTypes";
+import { practiceTypeContext, functionPracticeBindings } from "./practiceTypes";
 import { stateRelations } from "./stateRelations";
 import { apiRelations } from "./apiRelations";
 import { reusableSemanticFiles, resolveSource } from "./analysisInvalidation";
@@ -383,16 +383,20 @@ function analyzeSources(
             declaration: p.getText(sf),
           })) ?? [];
         const practiceTypes = fn ? practiceTypeContext(fn, checker) : null;
+        const practiceBindings = fn
+          ? functionPracticeBindings(fn, checker)
+          : null;
         const simpleParams =
           !!fn &&
           practiceTypes !== null &&
+          practiceBindings !== null &&
           fn.parameters.length <= 3 &&
           fn.parameters.every(
             (p) =>
               ts.isIdentifier(p.name) &&
               !p.dotDotDotToken &&
               !!p.type &&
-              parameterValues(p.type, checker) !== null,
+              parameterValues(p.type, checker, practiceBindings) !== null,
           );
         const topLevel = ts.isFunctionDeclaration(node)
           ? ts.isSourceFile(node.parent)
@@ -415,7 +419,7 @@ function analyzeSources(
             : jsx
               ? "Exported components can use separate initial-render checks when their props and dependencies are supported."
               : !simpleParams
-                ? "Behavioral probes support up to three scalar, literal-union, scalar-array, fixed-tuple or small object parameters, including resolved types, concrete generic instantiations with defaults or independent scalar constraints and unambiguous interface inheritance. Objects allow two levels and three scalar leaves within 16 samples. Deeper shapes, generic functions, dependent or object constraints, ambiguous inheritance and rest parameters need a custom harness."
+                ? "Behavioral probes support up to three scalar, literal-union, scalar-array, fixed-tuple or small object parameters, including concrete aliases/interfaces with bounded scalar/object constraints and generic functions with scalar or small-object bounds, including earlier-parameter bounds. Objects allow two levels and three scalar leaves within 16 samples. Deeper shapes, unbounded or self/forward-constrained generic functions, unresolved constrained wrappers, ambiguous inheritance and rest parameters need a custom harness."
                 : external.size
                   ? `Requires external context: ${[...external].slice(0, 5).join(", ")}.`
                   : "This function requires a project runtime or unsupported syntax.";
@@ -430,6 +434,13 @@ function analyzeSources(
           endLine: sf.getLineAndCharacterOfPosition(end).line + 1,
           code: node.getText(sf),
           ...(practiceTypes ? { practiceTypes } : {}),
+          ...(fn?.typeParameters?.length
+            ? {
+                typeParameters: fn.typeParameters
+                  .map((p) => p.getText(sf))
+                  .join(", "),
+              }
+            : {}),
           parameters: params,
           calls: [...calls],
           concepts: [...concepts],

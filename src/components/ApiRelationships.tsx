@@ -38,10 +38,11 @@ export default function ApiRelationships({
     <section aria-label="API request and route candidates">
       <h3>API request paths</h3>
       <p className="muted">
-        Literal fetch calls and routes on imported Express apps or routers.
+        Fetch calls and Express routes with literal or constant string paths.
         Matching method and path suggests a candidate connection; server
         origins, router mounts, middleware and actual delivery are not verified.
-        Dynamic requests are outside this index.
+        Runtime-dependent requests are outside this index. Constants are read
+        from source without executing the project.
       </p>
       <ul className="state-relations-list">
         {flow.requests.map((request, i) => (

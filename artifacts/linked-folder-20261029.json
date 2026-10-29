@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-29",
+  "unitTests": 528,
+  "testFiles": 49,
+  "edgePassed": 41,
+  "webkitPassed": 41,
+  "build": "passed",
+  "folderAutomation": "Synthetic directory handle; native operating-system picker not tested",
+  "sourceScan": {
+    "files": 229,
+    "findings": 0
+  },
+  "deployed": false
+}

@@ -11,7 +11,8 @@ export function containingFunction(node: ts.Node): ts.Node | undefined {
 }
 
 // Trace only lexical references through two const initializers in the same
-// function. Calls, object/property access, closures and mutation are excluded.
+// function, including static property/index reads. Calls, object construction,
+// dynamic indexes, closures and mutation are excluded; getters are not invoked.
 // A chain is source evidence, never an evaluated value or runtime data flow.
 export function stateDerivations(
   sources: Map<string, ts.SourceFile>,
@@ -66,6 +67,14 @@ export function stateDerivations(
             ts.isTypeAssertionExpression(e) ||
             ts.isSatisfiesExpression(e) ||
             ts.isNonNullExpression(e)
+          )
+            return next(e.expression);
+          if (ts.isPropertyAccessExpression(e) && ts.isIdentifier(e.name))
+            return next(e.expression);
+          if (
+            ts.isElementAccessExpression(e) &&
+            (ts.isStringLiteral(e.argumentExpression) ||
+              ts.isNumericLiteral(e.argumentExpression))
           )
             return next(e.expression);
           if (

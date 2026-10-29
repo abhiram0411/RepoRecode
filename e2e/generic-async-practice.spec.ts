@@ -2,7 +2,7 @@ import { selectAllCode } from "./helpers/editor";
 import { test, expect } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 
-test("imported constrained generic contracts support async practice, incorrect answers and saved progress", async ({
+test("bounded generic functions and dependent contracts support async practice, incorrect answers and saved progress", async ({
   page,
 }) => {
   await page.goto("/");
@@ -10,7 +10,7 @@ test("imported constrained generic contracts support async practice, incorrect a
     .getByRole("button", { name: "Import a project", exact: true })
     .click();
   const code =
-    "export async function score(input:Payload):Promise<number>{const n=await Promise.resolve(input.value);return n+(input.enabled?10:0)}";
+    "export async function score<T extends number,U extends T=T>(input:Payload<U>):Promise<number>{const n=await Promise.resolve(input.value);return n+(input.enabled?10:0)}";
   await page.locator('input[type=file][accept=".zip"]').setInputFiles({
     name: "generic-async.zip",
     mimeType: "application/zip",
@@ -18,7 +18,7 @@ test("imported constrained generic contracts support async practice, incorrect a
       zipSync({
         "base.ts": strToU8("export interface Base<T>{readonly value:T}"),
         "types.ts": strToU8(
-          "import type {Base} from './base';export interface Shape<T extends number=number> extends Base<T>{enabled:boolean}",
+          "import type {Base} from './base';export interface Shape<T extends number=number,U extends T=T> extends Base<U>{enabled:boolean}",
         ),
         "main.ts": strToU8(
           "import type {Shape as Payload} from './types';" + code,
@@ -32,13 +32,18 @@ test("imported constrained generic contracts support async practice, incorrect a
     .click();
   await page.getByText("Input type definitions", { exact: true }).click();
   await expect(page.locator(".practice-types pre")).toContainText(
-    "type Payload<T extends number = number>",
+    "type Payload<T extends number = number, U extends T = T>",
   );
   const editor = page.getByRole("textbox", {
     name: "Practice code",
     exact: true,
   });
   await expect(editor).toBeVisible();
+  await expect(
+    page
+      .locator(".monaco-editor .view-lines")
+      .filter({ hasText: "async function score" }),
+  ).toContainText("U extends T=T");
   await editor.focus();
   await selectAllCode(page);
   await page.keyboard.insertText(

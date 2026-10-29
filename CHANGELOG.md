@@ -1,5 +1,13 @@
 # Changelog
 
+## 29 October 2026 — learning and local-source refresh
+
+- Added bounded scalar/object and earlier-parameter generic-function practice, preserving original type constraints and rejecting invalid defaults.
+- Added static property state links and constant-string API path candidates without executing imported code.
+- Added read-only session-local folder linking, visible-tab polling and explicit changed-snapshot imports that retain earlier projects.
+- Added disposable Docker database concurrency and app-container acceptance runners; removed the temporary native PostgreSQL runtime.
+- Source batch only; Vercel remains on the existing reviewed deployment. Native directory-picker permission acceptance and other documented live/manual checks remain outstanding.
+
 26 October routing correction: 17e0431 passed CI and deployment 49FihMjN2muKoiDnLyr9iKu2ptM1 reached Ready. The missing-module problem is fixed and the public source ZIP/security headers pass, but health/status return JSON 404 because their checks matched the entire rewritten URL instead of its path. Corrected those checks and exercised query metadata in the isolated-package smoke; that smoke and all 24 focused gateway/database tests pass. Live backend acceptance remains incomplete pending this correction.
 
 26 October hosted deployment correction: 261eca4 passed GitHub run 40228562623, then Vercel deployment 8CtRBsTnifq8sEHnEBZqoh1Af79q reached Ready. All six targeted live guest journeys passed, but the API returned 500 due to missing src/core/import.ts in the function package. Added an explicit Vercel include and a smoke check from a separate package tree. Native Node 24 isolated smoke passed. Preserve the startup failure; do not treat Ready as backend acceptance. Migration 007 and Production-only settings are applied with owner approval; no migration rerun is needed. Replacement deployment and live API proof remain pending.
