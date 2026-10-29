@@ -1,8 +1,10 @@
 import type { AnalysisUpdate } from "./analyze";
 import type { SourceFile } from "./types";
+import type { AnalysisSeed } from "./analysisSeed";
 
 // A single bounded snapshot cache survives consecutive imports. A failure or
-// parent-side deadline drops the worker and cache; the next request starts fresh.
+// parent-side deadline drops the worker and cache; a new worker may restore a
+// validated index from an existing saved project on its first request.
 export class AnalysisSession {
   private worker?: Worker;
   private cancel?: (error: Error) => void;
@@ -15,10 +17,15 @@ export class AnalysisSession {
     this.worker = undefined;
     cancel?.(Error("Source analysis ended. Import again."));
   }
-  request(files: SourceFile[], timeout = 20000): Promise<AnalysisUpdate> {
+  request(
+    files: SourceFile[],
+    timeout = 20000,
+    seed?: AnalysisSeed,
+  ): Promise<AnalysisUpdate> {
     if (this.cancel)
       return Promise.reject(Error("Source analysis is already running."));
     return new Promise((resolve, reject) => {
+      const fresh = !this.worker;
       const worker = (this.worker ??= this.createWorker());
       const id = ++this.serial;
       const finish = (error?: Error, result?: AnalysisUpdate) => {
@@ -43,7 +50,7 @@ export class AnalysisSession {
       worker.onerror = () =>
         finish(Error("Source analysis failed. Import again."));
       try {
-        worker.postMessage({ id, files });
+        worker.postMessage({ id, files, ...(fresh && seed ? { seed } : {}) });
       } catch {
         finish(Error("Could not send source for analysis."));
       }

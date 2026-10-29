@@ -11,7 +11,7 @@ Supabase OAuth/linking/recovery/MFA/deletion and RLS; cloud project/preferences 
 ## Remaining engineering
 
 1. Extend the bounded React runtime to reviewed dependencies, styles, asynchronous behavior and fuller browser semantics; improve mappings for transformed/generated source.
-2. Extend the observed function-entry timeline with state/data/API flow and appropriate isolated adapters; broader framework/language support, incremental indexes and hosted bounded job queues.
+2. Extend the observed function-entry timeline with state/data/API flow and appropriate isolated adapters; broader framework/language support, larger-project indexing and hosted bounded job queues.
 3. Rich project test harnesses, curated AI-generated test validation, more feature contracts and independent mission types.
 4. Automatic cloud conflict resolution, trusted server-side achievements and optional competitive systems.
 5. Per-device session inventory/revocation, GitHub token refresh and distributed OAuth state.

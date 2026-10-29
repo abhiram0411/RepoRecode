@@ -1,5 +1,11 @@
 # Changelog
 
+## 30 October 2026 — saved analysis reuse
+
+- New analysis workers can restore compatible declaration/fact/call indexes from existing saved projects after reload; dependency changes still invalidate affected files.
+- Invalid, outdated or oversized saved indexes fall back to fresh analysis. Compiler objects are recreated, and all state/API relationships are checked again.
+- Added reload/import and saved-index validation tests. No second source database, cloud field, paid service or production deployment.
+
 ## 29 October 2026 — learning and local-source refresh
 
 - Added bounded scalar/object and earlier-parameter generic-function practice, preserving original type constraints and rejecting invalid defaults.

@@ -1,5 +1,19 @@
 # RepoRecode development status
 
+## 30 October saved-index restoration — verified local batch
+
+New workers can restore declaration/fact/call indexes from the compatible saved project with the most unchanged source. The worker validates version, schema, size, source offsets, IDs and edge ownership, then applies existing old/new dependency invalidation. Malformed/old/oversized seeds fall back to fresh analysis. Compiler objects are not persisted: previous source is parsed again, and compiler binding plus state/API relationships are rebuilt. This reuses existing project records without another source store, cloud field or export field. Project deletion disposes the worker and removes that project's seed source. Analysis version stays 15 because analysis output is unchanged.
+
+Verification: full suite passed 543 tests in 50 files; an added generic-signature regression then passed with the other 14 persistent-index tests. Production build passed with existing annotation/bundle warnings. Three targeted Edge and three WebKit journeys passed, covering reload, changed source, unaffected declaration reuse, retained earlier snapshots and linked-folder behavior. The development reimport journey passed. Restricted test-module loading, an ambiguous test heading selector and two WebKit launch failures were preserved; normal-access runs, the corrected level-1 heading selector and the WebKit rerun passed. Aggregate receipt: artifacts/persistent-index-20261030.json.
+
+This source update is not deployed. The preceding public batch ebf3aac passed CI; GitHub CI must also verify this saved-index update. Vercel remains 5d58fcf. Native folder-picker acceptance is unverified: the owner reported selecting it, but the observed local tab never showed a linked handle or ready source count; the last chooser closed without that state. Synthetic handle tests are not proof of native permission acceptance. No live-service changes or paid services.
+
+Next: verify GitHub CI for this reviewed source batch, then continue the remaining GitHub App/account/admin checks and broader learning/preview/manual acceptance work. Do not repeat live migrations, real-account deletion, or Vercel deployments for documentation updates.
+
+## 29 October source publication
+
+Published the combined learning, API/state and linked-folder/Docker batch as ebf3aacbc18b8a5d2b89b2a1b95bc1d59e72a6f9 on 29 October. GitHub CI run 40875270627 succeeded: 528 tests / 49 files, 10 Docker PostgreSQL checks across 106 processes, production build, isolated backend package smoke, zero-vulnerability audit, source scan, 41 Chromium journeys, 41 WebKit journeys and five development journeys. Receipt: artifacts/github-ci-ebf3aac.json. Vercel remains 5d58fcf with automatic Git deployments disabled. No deployment was requested or performed.
+
 ## 29 October linked-folder refresh — verified source batch
 
 Implemented read-only session-local directory linking, manual rescans, opt-in 15-second polling while visible, explicit snapshot imports and disconnect. Existing source limits plus traversal/deadline bounds apply; hidden entries and generated/dependency directories are skipped. Read failures stop polling and invalidate the pending import. Changed source imports preserve earlier project/progress separately. Native directory handles are not persisted or uploaded. Unsupported browsers retain ordinary folder/ZIP import. This is bounded polling, not OS watching or a persistent incremental index.
@@ -103,7 +117,7 @@ The owner explicitly deferred the real two-account isolation test because a seco
 1. Hosted acceptance, test cleanup and local setup/feature/resume notes are complete. New receipts necessarily postdate the immutable deployed source archive and have not been published as another release. Keep existing production as-is while implementing the next batch.
 2. Real two-account isolation (deferred), email recovery/delivery, TOTP, identity linking, global-session behavior and disposable-account deletion acceptance. Individual-device session inventory is unfinished. Google and the private-repository GitHub App remain unconfigured. Vercel repository access and sign-in OAuth are separate from that App.
 3. Independent PostgreSQL concurrency acceptance passed in Docker: all ten checks and cleanup verified. Live administrator dashboard requires authorized admin role/MFA and is not yet verified.
-4. Learning backlog in MASTER_SPEC.md / FEATURES.md: unbounded/self-referential generic functions, more complex generic defaults and deeper input types, persistent incremental indexes and native filesystem watching beyond session-local polling, broader indirect state/API/data relationships, more isolated preview dependencies/frameworks. Preserve honest unsupported labels and finite practice bounds.
+4. Learning backlog in MASTER_SPEC.md / FEATURES.md: unbounded/self-referential generic functions, more complex generic defaults and deeper input types, larger-project indexing and native filesystem watching beyond session-local polling, broader indirect state/API/data relationships, more isolated preview dependencies/frameworks. Preserve honest unsupported labels and finite practice bounds.
 5. Manual accessibility, real Safari/low-end performance, production Docker proxy/volume acceptance, independent security assessment and operator contacts. Optional local Ollama is unimplemented; no paid provider is authorized. The 28 October report refresh records the successful compatibility CI run.
 
 ## Working directories and checks

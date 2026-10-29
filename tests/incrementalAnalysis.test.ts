@@ -173,6 +173,34 @@ class FakeWorker {
 }
 
 describe("analysis worker lifetime", () => {
+  it("sends a saved seed only to a newly created worker", async () => {
+    const worker = new FakeWorker();
+    const session = new AnalysisSession(() => worker as unknown as Worker);
+    const result = createAnalyzer()([]);
+    const seed = { analysisVersion: 15, files: [], analysis: result.analysis };
+    const first = session.request([], 20000, seed);
+    expect(worker.postMessage).toHaveBeenLastCalledWith({
+      id: 1,
+      files: [],
+      seed,
+    });
+    worker.reply({ id: 1, result });
+    await first;
+    const next = session.request([], 20000, seed);
+    expect(worker.postMessage).toHaveBeenLastCalledWith({ id: 2, files: [] });
+    worker.reply({ id: 2, result });
+    await next;
+    session.dispose();
+    const retry = session.request([], 20000, seed);
+    expect(worker.postMessage).toHaveBeenLastCalledWith({
+      id: 3,
+      files: [],
+      seed,
+    });
+    worker.reply({ id: 3, result });
+    await retry;
+    session.dispose();
+  });
   it("reuses the worker, ignores stale responses, and rejects overlapping requests", async () => {
     const worker = new FakeWorker();
     const factory = vi.fn(() => worker as unknown as Worker);

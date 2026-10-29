@@ -17,7 +17,9 @@ test("changed reimports reuse unchanged source and keep both snapshots; identica
       "revision/src/App.tsx": strToU8(
         'import {double} from "./math"; export function App(){return <p>{double(2)}</p>;}',
       ),
-      "revision/src/unrelated.ts": strToU8("export function unrelated(x:boolean){return !x}"),
+      "revision/src/unrelated.ts": strToU8(
+        "export function unrelated(x:boolean){return !x}",
+      ),
     });
     await page.locator('input[type=file][accept=".zip"]').setInputFiles({
       name: "revision.zip",
@@ -25,7 +27,7 @@ test("changed reimports reuse unchanged source and keep both snapshots; identica
       buffer: Buffer.from(files),
     });
     await expect(
-      page.getByRole("heading", { name: "revision", exact: true }),
+      page.getByRole("heading", { name: "revision", exact: true, level: 1 }),
     ).toBeVisible();
   }
   await upload(2);
@@ -36,7 +38,11 @@ test("changed reimports reuse unchanged source and keep both snapshots; identica
   await expect(
     page.getByText(/Read 1 new or changed files; reused 2 unchanged files/),
   ).toBeVisible();
-  await expect(page.getByText(/Reused declaration and call indexes for 1 unaffected files/)).toBeVisible();
+  await expect(
+    page.getByText(
+      /Reused declaration and call indexes for 1 unaffected files/,
+    ),
+  ).toBeVisible();
   await page.getByRole("button", { name: /Understand double/ }).click();
   await page
     .getByRole("button", { name: "Source context", exact: true })
@@ -58,4 +64,25 @@ test("changed reimports reuse unchanged source and keep both snapshots; identica
   await expect(
     page.locator(".project-card").filter({ hasText: "revision" }),
   ).toHaveCount(2);
+  await upload(4);
+  await expect(
+    page.getByText(/Loaded a previous index from saved project data/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Read 1 new or changed files; reused 2 unchanged files/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      /Reused declaration and call indexes for 1 unaffected files/,
+    ),
+  ).toBeVisible();
+  await page.getByRole("button", { name: /Understand double/ }).click();
+  await page
+    .getByRole("button", { name: "Source context", exact: true })
+    .click();
+  await expect(page.locator(".source-context pre")).toContainText("x*4");
+  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await expect(
+    page.locator(".project-card").filter({ hasText: "revision" }),
+  ).toHaveCount(3);
 });

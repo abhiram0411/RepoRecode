@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-30",
+  "scope": "Saved declaration, fact and call index restoration from existing project records",
+  "analysisVersion": 15,
+  "lastFullUnitSuite": {
+    "passed": 543,
+    "receipt": "persistent-index-unit-results.json",
+    "files": 50
+  },
+  "subsequentFocusedSuite": {
+    "receipt": "persistent-index-final-focused.json",
+    "passed": 15,
+    "newRegressionTests": 1
+  },
+  "productionBuild": "passed",
+  "edge": {
+    "receipt": "persistent-index-edge-results.json",
+    "passed": 3
+  },
+  "webkit": {
+    "receipt": "persistent-index-webkit-results.json",
+    "passed": 3
+  },
+  "development": {
+    "receipt": "persistent-index-dev-results.json",
+    "passed": 1
+  },
+  "sourceScan": {
+    "scope": "heuristic",
+    "findings": 0,
+    "files": 231
+  },
+  "nativeFolderPicker": "unverified: no linked handle or ready count observed after owner interaction",
+  "preservedFailures": [
+    "persistent-index-focused.json",
+    "persistent-index-edge-initial.json",
+    "persistent-index-webkit-launch-initial.json"
+  ],
+  "published": false,
+  "deployed": false,
+  "productionCommit": "5d58fcf0af3cdcfcfc39beaa3f38f529895931d1"
+}

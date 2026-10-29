@@ -6,6 +6,7 @@ import { practiceTypeContext, functionPracticeBindings } from "./practiceTypes";
 import { stateRelations } from "./stateRelations";
 import { apiRelations } from "./apiRelations";
 import { reusableSemanticFiles, resolveSource } from "./analysisInvalidation";
+import { readAnalysisSeed } from "./analysisSeed";
 import type {
   Analysis,
   SourceFile,
@@ -37,6 +38,7 @@ export type AnalysisUpdate = {
   reusedFiles: number;
   removedFiles: number;
   reusedSemanticFiles: number;
+  restoredFiles: number;
 };
 
 type FileAnalysis = {
@@ -50,10 +52,43 @@ type FileAnalysis = {
 // Keep only the most recent snapshot in this worker. Exact content comparisons
 // avoid hash collisions. Semantic reuse follows both old/new import graphs;
 // global scripts and augmentations conservatively invalidate the full snapshot.
-export function createAnalyzer() {
+export function createAnalyzer(saved?: unknown) {
   let previous = new Map<string, ts.SourceFile>();
   let previousSemantics = new Map<string, FileAnalysis>();
   let previousFactsTruncated = false;
+  let restoredFiles = 0;
+  const seed = readAnalysisSeed(saved);
+  if (seed) {
+    for (const file of seed.files) {
+      if (!/\.[cm]?[jt]sx?$/.test(file.path)) continue;
+      previous.set(
+        file.path,
+        ts.createSourceFile(
+          file.path,
+          file.content,
+          ts.ScriptTarget.Latest,
+          true,
+        ),
+      );
+      const symbols = seed.analysis.symbols.filter((s) => s.file === file.path);
+      const ids = new Set(symbols.map((s) => s.id));
+      previousSemantics.set(file.path, {
+        symbols,
+        imports: seed.analysis.edges.filter(
+          (e) => e.kind === "imports" && e.source === file.path,
+        ),
+        facts: (seed.analysis.facts ?? []).filter((f) => f.file === file.path),
+        diagnostics: seed.analysis.diagnostics.filter((d) =>
+          d.startsWith(`${file.path}:`),
+        ),
+        references: seed.analysis.edges.filter(
+          (e) => e.kind !== "imports" && ids.has(e.source),
+        ),
+      });
+    }
+    restoredFiles = previous.size;
+    previousFactsTruncated = (seed.analysis.facts?.length ?? 0) >= 1000;
+  }
   return (files: SourceFile[]): AnalysisUpdate => {
     const sources = new Map<string, ts.SourceFile>();
     let parsedFiles = 0,
@@ -94,12 +129,15 @@ export function createAnalyzer() {
     previousSemantics = structuredClone(next);
     previousFactsTruncated = (analysis.facts?.length ?? 0) >= 1000;
     previous = sources;
+    const restored = restoredFiles;
+    restoredFiles = 0;
     return {
       analysis,
       parsedFiles,
       reusedFiles,
       removedFiles,
       reusedSemanticFiles: reuse.size,
+      restoredFiles: restored,
     };
   };
 }

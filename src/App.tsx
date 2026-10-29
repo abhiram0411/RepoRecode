@@ -84,6 +84,7 @@ import { reactionForResult, type PetEvent } from "./core/pet";
 import { AnalysisSession } from "./core/analysisSession";
 import { functionStub, parameterText } from "./core/functionStub";
 import { ANALYSIS_VERSION } from "./core/analysisVersion";
+import { selectAnalysisSeed } from "./core/analysisSeed";
 const CodeEditor = lazy(() => import("./components/CodeEditor"));
 const Graph = lazy(() => import("./components/Graph"));
 const LivePreview = lazy(() => import("./components/LivePreview"));
@@ -241,8 +242,13 @@ export default function App() {
       return;
     }
     setBusy("Analyzing source in a separate worker…");
-    const { analysis, reusedFiles, parsedFiles, reusedSemanticFiles } =
-      await indexFiles(files);
+    const {
+      analysis,
+      reusedFiles,
+      parsedFiles,
+      reusedSemanticFiles,
+      restoredFiles,
+    } = await indexFiles(files);
     const p: Project = {
       analysisVersion: ANALYSIS_VERSION,
       sourceHash: hash,
@@ -263,7 +269,7 @@ export default function App() {
     setModal(false);
     setPage("campaign");
     setNotice(
-      `Indexed ${analysis.files} source files and ${analysis.symbols.length} declarations. Read ${parsedFiles} new or changed files; reused ${reusedFiles} unchanged files. Reused declaration and call indexes for ${reusedSemanticFiles} unaffected files. Checked all source relationships.`,
+      `Indexed ${analysis.files} source files and ${analysis.symbols.length} declarations. ${restoredFiles ? "Loaded a previous index from saved project data. " : ""}Read ${parsedFiles} new or changed files; reused ${reusedFiles} unchanged files. Reused declaration and call indexes for ${reusedSemanticFiles} unaffected files. Checked all source relationships.`,
     );
   }
   function indexFiles(files: Project["files"]) {
@@ -273,7 +279,11 @@ export default function App() {
           type: "module",
         }),
     );
-    return analysisSession.current.request(files);
+    return analysisSession.current.request(
+      files,
+      20000,
+      selectAnalysisSeed(projects, files),
+    );
   }
   async function refreshAnalysis(snapshot: Project) {
     setBusy("Refreshing source analysis…");

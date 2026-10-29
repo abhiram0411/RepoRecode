@@ -90,6 +90,12 @@ for (const file of [
   "deployment-browser-results.json",
   "dependency-audit.json",
   "public-verification.json",
+  "github-ci-ebf3aac.json",
+  "generic-bounds-20261029.json",
+  "api-constants-20261029.json",
+  "linked-folder-20261029.json",
+  "docker-verification-20261029.json",
+  "persistent-index-20261030.json",
 ]) {
   try {
     await add(join(root, "artifacts", file));

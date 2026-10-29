@@ -1,5 +1,15 @@
 # Verification record
 
+## 30 October saved-index restoration
+
+Full local suite: 543 tests / 50 files passed. An added generic-signature preservation regression then passed with the other 14 persistent-index tests. TypeScript and production build passed. Edge and WebKit each passed three targeted reimport/linked-folder journeys; the development reimport journey passed too. Cases cover reload, changed snapshots, dependency invalidation, invalid versions/shapes/source/edges, size limits, removals, globals, truncated facts, diagnostics, nested calls and generic context. Receipt: artifacts/persistent-index-20261030.json.
+
+Preserved failures: persistent-index-focused.json records restricted temporary-module loading; persistent-index-focused-normal.json passed all 30 then-current focused tests. persistent-index-edge-initial.json records a selector matching two old overview cards before import completed; the helper now waits for the learning page's level-1 heading. persistent-index-webkit-launch-initial.json records two browser exits before app loading; the full rerun passed. Native folder selection remains unverified: the observed tab did not reach a linked/ready state after owner interaction. No live data was uploaded.
+
+## 29 October source publication
+
+Published the combined learning, API/state and linked-folder/Docker batch as ebf3aacbc18b8a5d2b89b2a1b95bc1d59e72a6f9 on 29 October. GitHub CI run 40875270627 succeeded: 528 tests / 49 files, 10 Docker PostgreSQL checks across 106 processes, production build, isolated backend package smoke, zero-vulnerability audit, source scan, 41 Chromium journeys, 41 WebKit journeys and five development journeys. Receipt: artifacts/github-ci-ebf3aac.json. Vercel remains 5d58fcf with automatic Git deployments disabled. No deployment was requested or performed.
+
 ## 29 October linked-folder refresh — verified source batch
 
 Implemented read-only session-local directory linking, manual rescans, opt-in 15-second polling while visible, explicit snapshot imports and disconnect. Existing source limits plus traversal/deadline bounds apply; hidden entries and generated/dependency directories are skipped. Read failures stop polling and invalidate the pending import. Changed source imports preserve earlier project/progress separately. Native directory handles are not persisted or uploaded. Unsupported browsers retain ordinary folder/ZIP import. This is bounded polling, not OS watching or a persistent incremental index.

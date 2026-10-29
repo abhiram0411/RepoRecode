@@ -4,6 +4,8 @@ Updated 29 October 2026. Vercel Hobby serves https://repo-recode.vercel.app/ fro
 
 ## Completed
 
+- Public source ebf3aac passed GitHub CI 40875270627: 528 unit/integration tests, Docker concurrency, build/package/audit/source checks, 41 Chromium, 41 WebKit and five development journeys. The saved-index restoration update is locally verified; see RESUME.md for publication/CI status. No extra deployment.
+
 - Existing Vercel Hobby and Supabase Free projects are connected. Automatic Git deployments remain disabled. No paid service was added.
 - GitHub sign-in, callback, logout/relogin and the approved Trail journal cloud save/restore/delete/preferences checks passed. The cloud sample was removed; local sample/progress and default account preferences remain.
 - Hosted feedback retries reuse one record; changed content with the same identifier is rejected. Activity revocation clears recorded days and rejects a delayed retry. Both synthetic records were permanently removed with owner approval; final SQL counts are zero.
