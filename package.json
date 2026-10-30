@@ -9,6 +9,7 @@
     "test": "vitest run",
     "test:postgres": "node scripts/check-postgres-concurrency.mjs",
     "test:docker": "node scripts/check-docker.mjs",
+    "test:docker-storage": "node scripts/check-docker-storage.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "server": "node server/index.mjs",
     "prebuild": "node scripts/build-preview.mjs",

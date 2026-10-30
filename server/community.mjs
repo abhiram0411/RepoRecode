@@ -22,7 +22,13 @@ export function createCommunity(env) {
       try {
         const text = await readFile(path, "utf8");
         if (text.length > 8 * 1024 * 1024) throw Error("Store size limit");
-        data = JSON.parse(text);
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // A damaged store is a server failure, not malformed request JSON.
+          // Keep its bytes intact so the operator can recover them.
+          throw Error("Stored community data could not be read");
+        }
       } catch (e) {
         if (e.code !== "ENOENT") throw e;
       }

@@ -27,7 +27,7 @@ npm run build
 npm run preview
 ~~~
 
-With Docker running, `npm run test:postgres` checks database concurrency using disposable synthetic data. `npm run test:docker -- --browser` builds and verifies the local app containers and browser journeys, then removes the test containers. See [container setup](docs/INSTALLATION.md#containers).
+With Docker running, `npm run test:postgres` checks database concurrency using disposable synthetic data. `npm run test:docker -- --browser` builds and verifies the local app containers and browser journeys, then removes the test containers. `npm run test:docker-storage` checks persistence, revocation, storage failures and synthetic snapshot recovery in a temporary volume, then removes its test resources. See [container setup](docs/INSTALLATION.md#containers).
 
 ## Learning features
 

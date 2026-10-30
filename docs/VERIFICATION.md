@@ -1,5 +1,15 @@
 # Verification record
 
+## 30 October Docker recovery and storage acceptance
+
+Docker Engine 29.8.1 is running again after preserving the stale zero-byte socket directory and reopening Desktop. No factory reset or removal of existing container/image/volume data. The machine-specific repair receipt is local only. An earlier verification was blocked by approval-review capacity; the owner's continuation resumed normal approved verification.
+
+The new test:docker-storage runner passed seven checks: isolated non-root execution, private file permissions, feedback/activity persistence through container replacement, durable revocation, rejected read-only writes, preserved damaged JSON and recovery from a synthetic saved snapshot with revocations intact. Test container and named volume removal verified. Receipt: artifacts/docker-storage-results.json. The initial engine failure and five-check result remain separate receipts. This is local volume/snapshot verification, not deployed HTTPS, external backup or multiple-writer acceptance.
+
+Corrected damaged JSON storage from a misleading HTTP 400 form error to HTTP 503 storage failure; malformed request JSON still returns 400. All 545 unit/integration tests in 50 files passed, including the HTTP recovery regression. Production build and source packaging passed. GitHub CI now includes the seven Docker storage checks. This batch is prepared locally; publication and its CI must be verified next. Previous public e8aed58 passed CI 40937113683. Vercel remains 5d58fcf with automatic Git deployments disabled. No production changes or paid services.
+
+Next: verify publication/CI for this source batch, then GitHub App owner setup/private-import acceptance and the remaining account/admin, broader learning/preview, native folder/manual accessibility/Safari/low-end and operator checks. Two-account isolation remains owner-deferred. Never test deletion on the owner's actual account.
+
 ## 30 October saved-index restoration
 
 Full local suite: 543 tests / 50 files passed. An added generic-signature preservation regression then passed with the other 14 persistent-index tests. TypeScript and production build passed. Edge and WebKit each passed three targeted reimport/linked-folder journeys; the development reimport journey passed too. Cases cover reload, changed snapshots, dependency invalidation, invalid versions/shapes/source/edges, size limits, removals, globals, truncated facts, diagnostics, nested calls and generic context. Receipt: artifacts/persistent-index-20261030.json.
@@ -116,3 +126,5 @@ Real provider/two-account RLS/MFA/recovery/deletion/cloud/private-repository and
 Development-mode practice and preview also passed all 5 regression journeys. Vite excludes QuickJS binary variants from dependency prebundling so WASM URLs remain valid, and prepares parse5/css-tree before first preview to prevent optimizer reloads. CI includes a separate development-server acceptance step; that changed workflow has not run on GitHub because this batch remains unpublished.
 
 Final follow-up CI: 23c3dd4ee2cdf905be644f713bcf397bc66e4ebf passed run 40203852450: 339 tests / 41 files, production build, zero audit findings, source heuristic scan, 35 Chromium journeys (2.2 minutes) and 5 development journeys (31.6 seconds). Saved artifacts/github-ci-23c3dd4.json. No additional deployment; the live dependency/provider UI is still from d826327.
+
+30 October final public CI: e8aed58938ba5d01137c310c1f7bc6e487474bdd passed run 40937113683 with 544 tests / 50 files, ten Docker PostgreSQL checks across 106 processes, build/package/audit/source checks, 41 Chromium journeys, 41 WebKit journeys and five development journeys. Receipt: artifacts/github-ci-e8aed58.json. No Vercel deployment. A new local-only Docker storage runner is syntax-valid but not runtime-verified: Docker Desktop's internal socket startup error prevented engine access; no test resources were created.

@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-30T07:47:12.703Z",
+  "scope": "Synthetic local gateway volume; no host mounts, published ports, external network or cloud services",
+  "checks": [
+    {
+      "name": "isolated non-root container with one owned persistent volume",
+      "passed": true
+    },
+    {
+      "name": "synthetic feedback and activity are written with private file permissions",
+      "passed": true
+    },
+    {
+      "name": "feedback and activity survive complete container replacement",
+      "passed": true
+    },
+    {
+      "name": "activity revocation survives replacement and rejects delayed activity",
+      "passed": true
+    },
+    {
+      "name": "a read-only data volume fails closed without changing existing data",
+      "passed": true
+    },
+    {
+      "name": "damaged storage returns 503 without overwriting its bytes",
+      "passed": true
+    },
+    {
+      "name": "restoring the saved snapshot recovers writes and retains revocations",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Does not verify a deployed HTTPS proxy, provider accounts, backup recovery or multiple writers"
+  ],
+  "dockerVersion": "29.8.1",
+  "imageId": "sha256:ae22945664beeb1459ba2dfd1d8ef23b3951d53ff46da5c80f216475fb033e3b",
+  "status": "passed",
+  "resourcesRemoved": true
+}

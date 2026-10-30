@@ -91,6 +91,8 @@ for (const file of [
   "dependency-audit.json",
   "public-verification.json",
   "github-ci-ebf3aac.json",
+  "github-ci-e8aed58.json",
+  "docker-storage-results.json",
   "generic-bounds-20261029.json",
   "api-constants-20261029.json",
   "linked-folder-20261029.json",

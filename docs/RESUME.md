@@ -1,5 +1,21 @@
 # RepoRecode development status
 
+## 30 October Docker recovery and storage acceptance
+
+Docker Engine 29.8.1 is running again after preserving the stale zero-byte socket directory and reopening Desktop. No factory reset or removal of existing container/image/volume data. The machine-specific repair receipt is local only. An earlier verification was blocked by approval-review capacity; the owner's continuation resumed normal approved verification.
+
+The new test:docker-storage runner passed seven checks: isolated non-root execution, private file permissions, feedback/activity persistence through container replacement, durable revocation, rejected read-only writes, preserved damaged JSON and recovery from a synthetic saved snapshot with revocations intact. Test container and named volume removal verified. Receipt: artifacts/docker-storage-results.json. The initial engine failure and five-check result remain separate receipts. This is local volume/snapshot verification, not deployed HTTPS, external backup or multiple-writer acceptance.
+
+Corrected damaged JSON storage from a misleading HTTP 400 form error to HTTP 503 storage failure; malformed request JSON still returns 400. All 545 unit/integration tests in 50 files passed, including the HTTP recovery regression. Production build and source packaging passed. GitHub CI now includes the seven Docker storage checks. This batch is prepared locally; publication and its CI must be verified next. Previous public e8aed58 passed CI 40937113683. Vercel remains 5d58fcf with automatic Git deployments disabled. No production changes or paid services.
+
+Next: verify publication/CI for this source batch, then GitHub App owner setup/private-import acceptance and the remaining account/admin, broader learning/preview, native folder/manual accessibility/Safari/low-end and operator checks. Two-account isolation remains owner-deferred. Never test deletion on the owner's actual account.
+
+## 30 October publication and local Docker follow-up
+
+Published saved-index restoration as e8aed58938ba5d01137c310c1f7bc6e487474bdd. GitHub CI run 40937113683 succeeded: 544 tests / 50 files, ten Docker database checks across 106 processes, build, backend packaging, zero-vulnerability audit, source scan (227 files, zero findings), 41 Chromium, 41 WebKit and five development journeys. Receipt: artifacts/github-ci-e8aed58.json. Production remains 5d58fcf. A synthetic 100-file Node comparison restored 99 unaffected semantic indexes with identical results (median 9.38 ms versus 21.44 ms fresh); this is not real-browser or low-end performance proof.
+
+A new local-only scripts/check-docker-storage.mjs and test:docker-storage command are prepared for disposable-volume persistence/revocation/read-only checks. Syntax validation passed; runtime verification has NOT passed because the local Docker engine is unavailable. Docker Desktop reports an internal Secrets Engine socket startup error. A normal restart did not recover the engine; its waiting CLI command was cancelled. The owner was asked to fully quit/reopen Docker and report Engine running. No reset or data deletion. The failed check created no test containers or volumes. This runner is not included in e8aed58.
+
 ## 30 October saved-index restoration — verified local batch
 
 New workers can restore declaration/fact/call indexes from the compatible saved project with the most unchanged source. The worker validates version, schema, size, source offsets, IDs and edge ownership, then applies existing old/new dependency invalidation. Malformed/old/oversized seeds fall back to fresh analysis. Compiler objects are not persisted: previous source is parsed again, and compiler binding plus state/API relationships are rebuilt. This reuses existing project records without another source store, cloud field or export field. Project deletion disposes the worker and removes that project's seed source. Analysis version stays 15 because analysis output is unchanged.

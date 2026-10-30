@@ -21,6 +21,8 @@ jobs:
       - run: npm test -- --maxWorkers=2
       - name: Verify PostgreSQL concurrency in Docker
         run: npm run test:postgres
+      - name: Verify gateway storage in Docker
+        run: npm run test:docker-storage
       - run: npm run build
       - run: node scripts/check-hosted-entry.mjs
       - run: npm audit --audit-level=high

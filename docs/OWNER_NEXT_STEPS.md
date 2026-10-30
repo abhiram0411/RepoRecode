@@ -1,10 +1,10 @@
 # RepoRecode: completed setup and remaining work
 
-Updated 29 October 2026. Vercel Hobby serves https://repo-recode.vercel.app/ from public GitHub commit 5d58fcf0af3cdcfcfc39beaa3f38f529895931d1, deployment BBRq3X7B8qBgV2XWMVSAiLTkvCJV (Ready). Supabase Free migrations 001–007 and Production-only server settings are applied. Do not recreate services or rerun migrations. All nine live HTTP checks and six synthetic feedback/activity requests passed; SQL verified duplicate prevention, revocation and final cleanup (zero test rows in both tables).
+Updated 30 October 2026. Vercel Hobby serves https://repo-recode.vercel.app/ from public GitHub commit 5d58fcf0af3cdcfcfc39beaa3f38f529895931d1, deployment BBRq3X7B8qBgV2XWMVSAiLTkvCJV (Ready). Supabase Free migrations 001–007 and Production-only server settings are applied. Do not recreate services or rerun migrations. All nine live HTTP checks and six synthetic feedback/activity requests passed; SQL verified duplicate prevention, revocation and final cleanup (zero test rows in both tables).
 
 ## Completed
 
-- Public source ebf3aac passed GitHub CI 40875270627: 528 unit/integration tests, Docker concurrency, build/package/audit/source checks, 41 Chromium, 41 WebKit and five development journeys. The saved-index restoration update is locally verified; see RESUME.md for publication/CI status. No extra deployment.
+- Public source e8aed58 passed GitHub CI 40937113683: 544 unit/integration tests, Docker concurrency, build/package/audit/source checks, 41 Chromium, 41 WebKit and five development journeys. The subsequent Docker storage/error-handling batch passed seven local volume checks, 545 unit/integration tests and the build; see RESUME.md for its publication/CI status. No extra deployment.
 
 - Existing Vercel Hobby and Supabase Free projects are connected. Automatic Git deployments remain disabled. No paid service was added.
 - GitHub sign-in, callback, logout/relogin and the approved Trail journal cloud save/restore/delete/preferences checks passed. The cloud sample was removed; local sample/progress and default account preferences remain.
@@ -15,6 +15,8 @@ Updated 29 October 2026. Vercel Hobby serves https://repo-recode.vercel.app/ fro
 GitHub run 40322121312 passed 353 tests / 42 files, build, isolated package smoke with rewrite query metadata, audit (zero vulnerabilities), source scan (205 files, zero findings), 36 Chromium journeys and five development journeys. The public source archive passed: 247 files, 3,768,376 bytes, SHA-256 a144f0f3092ef3ded9ffbc60613118091ffd62f7fd7b422659448dacc156c9a4. Six live guest journeys passed on 261eca4; the later corrections changed backend packaging/routing, not frontend application code.
 
 - Local Docker verification passed on 29 October: ten independent PostgreSQL concurrency checks, six container/HTTP checks and eight Edge browser journeys. The native PostgreSQL download and test cluster were removed, and all temporary Docker containers were cleaned up. Docker images remain cached. These local changes are not deployed. See RESUME.md for receipts.
+
+- Docker Engine 29.8.1 recovered on 30 October without a factory reset. Seven synthetic persistent-volume checks passed and their test resources were removed, including replacement, revocation, read-only/damaged storage and snapshot recovery. Deployed HTTPS, actual operator volumes and external backup procedures remain unverified.
 
 ## Remaining
 

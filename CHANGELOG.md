@@ -1,5 +1,11 @@
 # Changelog
 
+## 30 October 2026 — local Docker storage acceptance
+
+- Added an isolated gateway volume check covering container replacement, private file permissions, durable activity revocation, read-only storage, damaged JSON and synthetic snapshot recovery.
+- Damaged stored JSON now returns a storage-unavailable response while preserving its bytes; malformed request JSON remains a client error.
+- Local verification only; no paid service or production deployment.
+
 ## 30 October 2026 — saved analysis reuse
 
 - New analysis workers can restore compatible declaration/fact/call indexes from existing saved projects after reload; dependency changes still invalidate affected files.
