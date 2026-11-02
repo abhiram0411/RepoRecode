@@ -126,6 +126,7 @@
   // HTML may paint before this external script arrives. Enable controls only
   // after every event handler is installed, including on replacement snapshots.
   document.body.inert = false;
+  document.body.hidden = false;
   if (initial.focus) {
     // Compare attributes rather than interpolating a source-provided selector.
     const el = [...document.querySelectorAll("[data-rr-node]")].find(
