@@ -4,6 +4,12 @@ import { zipSync, strToU8 } from "fflate";
 test("interactive form input, select, checkbox, submit and failure recovery", async ({
   page,
 }) => {
+  // Each snapshot loads the trusted bridge separately. Exercise the interval
+  // where its HTML is painted but interaction handlers are not installed yet.
+  await page.route(/previewBridge[^/]*\.js(?:\?.*)?$/, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await route.continue();
+  });
   await page.goto("/");
   await page
     .getByRole("button", { name: "Import a project", exact: true })

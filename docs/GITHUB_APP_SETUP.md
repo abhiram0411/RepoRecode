@@ -1,8 +1,16 @@
-# Private repository connection — prepared setup
+# Private repository connection — live import verified
 
-Prepared 28 October 2026 for the existing free RepoRecode deployment. This is separate from the working Supabase GitHub sign-in and Vercel repository installation. No GitHub App has been registered yet: the owner's GitHub settings showed “No GitHub Apps,” and registration currently requires GitHub's owner identity confirmation.
+## 2 November — private import passed; local preview/import fixes
 
-## Registration fields to review
+Production is Ready at https://repo-recode.vercel.app on commit 10051d7b0e1bac80a1dbc2ac3458ae966cdb980f, deployment BXgf4jwU2zKidcN4cuhyaqvRNUVh. Nine HTTP/source checks passed (artifacts/github-app-release-http.json). GitHub OAuth callback and repository listing passed. On 2 November, with explicit owner approval, created private abhiram0411/reporecode-private-acceptance with README and synthetic App.tsx, commit 6952df4253b552c488d22bdea741ee4a927db9c0. Added only this fixture to installation 176817799 alongside RepoRecode, preserving Contents/Metadata read-only. The live app imported one source file and indexed double/App (two declarations). No personal source uploaded; no cloud save performed. Fixture and local imported snapshot remain for follow-up; deletion was not approved. Screenshot: artifacts/github-private-import-passed.png.
+
+Fixed a reproducible preview readiness race locally: newly painted snapshots were clickable before their deferred trusted bridge loaded. Body starts inert and the bridge enables it after installing handlers, before restoring focus. Delaying bridge delivery 350 ms reproduced the failure on production; three local development repeats and all four Edge production-preview/isolation journeys passed. This preserves the opaque iframe and strict script policy. GitHub oversized/truncated imports now return a safe HTTP 413 with source-folder guidance instead of generic 502. Added three gateway regressions, including private provider-error redaction. No import limits increased.
+
+Validation: build/source packaging passed; 18 focused unit tests passed. Full suite initially had one timing-sensitive generic evaluation failure during concurrent build; all 548 tests in 50 files passed with two workers after build. Receipts: artifacts/preview-readiness-before.json, preview-readiness-after.json, preview-readiness-production.json, preview-import-fixes-full-unit.json, preview-import-fixes-full-recheck.json. WebKit form/state/inspection passed; isolation initially failed at browser launch, and its separate retry passed (artifacts/preview-readiness-webkit-isolation.json). These code fixes remain LOCAL, not published/deployed. Production full RepoRecode import returned generic error and contains a 250799-byte generated source file exceeding 128 KiB; the exact server exception was not inspected, so this is a likely cause, not confirmed telemetry.
+
+Next: publish this reviewed fix batch and verify CI, then one batched deployment when appropriate (automatic deployment stays disabled). Complete outside-installation denial/disconnect/expired-token live acceptance, owner-deferred two-account isolation, disposable-account recovery/MFA/session/deletion checks, native folder permission/manual accessibility/real Safari/low-end checks, and remaining broader learning/preview/operator scope below. Keep all services free, never delete real owner account, never push/reset the dirty root checkout; use tmp/github-v10 and preserve its .gsd/.
+
+## Registered settings
 
 - Suggested name: RepoRecode Learning Lab (subject to GitHub name availability).
 - Homepage: https://repo-recode.vercel.app/
@@ -13,7 +21,7 @@ Prepared 28 October 2026 for the existing free RepoRecode deployment. This is se
 - Webhooks: disabled; this integration fetches on explicit user request.
 - Installation availability: any GitHub account, so other RepoRecode users can choose their own repositories. Each installation should select only the intended repositories.
 
-Review the actual registration form before saving. Creating the App does not install it, authorize a user grant or finish the backend configuration. GitHub's owner identity challenge must be completed by the owner; never paste authentication codes into chat.
+The owner completed GitHub identity confirmation. Registration and installation do not complete the per-user authorization callback or prove import access; those live checks remain pending. Never paste authentication codes or secrets into chat.
 
 ## Existing backend configuration
 

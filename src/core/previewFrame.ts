@@ -89,5 +89,5 @@ export function previewDocument(
   const data = attribute(
     JSON.stringify({ ...config, token, parentOrigin: origin }),
   );
-  return `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${token}'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px system-ui;margin:20px;color:#172014;background:white}button,input{font:inherit}*{box-sizing:border-box}</style><style>${css.replace(/</g, "\\3c ")}</style><script nonce="${token}" src="${attribute(url)}" data-config="${data}" defer></script></head><body>${html}</body></html>`;
+  return `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${token}'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px system-ui;margin:20px;color:#172014;background:white}button,input{font:inherit}*{box-sizing:border-box}</style><style>${css.replace(/</g, "\\3c ")}</style><script nonce="${token}" src="${attribute(url)}" data-config="${data}" defer></script></head><body inert>${html}</body></html>`;
 }

@@ -6,6 +6,13 @@ import {
   createDecipheriv,
 } from "node:crypto";
 import { allowed, LIMITS, validateFiles } from "../src/core/import.ts";
+export class GithubImportLimitError extends Error {
+  constructor() {
+    super(
+      "Repository exceeds import limits (200 files, 128 KiB per file, 2 MiB total). Download and import a smaller source folder or ZIP.",
+    );
+  }
+}
 export function seal(value, key) {
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", Buffer.from(key, "base64"), iv);
@@ -259,8 +266,7 @@ export function createGithubIntegration({
         token,
         deadline,
       );
-      if (tree.truncated)
-        throw Error("Repository is too large. Import a source subfolder.");
+      if (tree.truncated) throw new GithubImportLimitError();
       const selected = tree.tree.filter(
         (f) => f.type === "blob" && f.mode !== "120000" && allowed(f.path),
       );
@@ -269,7 +275,7 @@ export function createGithubIntegration({
         selected.some((f) => f.size > LIMITS.fileBytes) ||
         selected.reduce((s, f) => s + f.size, 0) > LIMITS.totalBytes
       )
-        throw Error("Repository exceeds import limits.");
+        throw new GithubImportLimitError();
       const files = [];
       for (const f of selected) {
         const blob = await api(base + "/git/blobs/" + f.sha, token, deadline);

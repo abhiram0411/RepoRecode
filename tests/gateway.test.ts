@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 // @ts-expect-error JavaScript gateway has injected test boundaries.
 import { createGateway } from "../server/index.mjs";
+// @ts-expect-error JavaScript credential boundary.
+import { seal } from "../server/github.mjs";
 async function request(
   path: string,
   init?: RequestInit,
@@ -21,6 +23,82 @@ async function request(
   }
 }
 describe("gateway boundaries", () => {
+  it.each(["oversized", "truncated", "provider failure"])(
+    "reports bounded GitHub import failures without exposing provider data: %s",
+    async (scenario) => {
+      const key = Buffer.alloc(32, 7).toString("base64");
+      let blobs = 0;
+      const response = await request(
+        "/api/github/import",
+        {
+          method: "POST",
+          headers: {
+            origin: "https://app.example",
+            authorization: "Bearer test",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ repository: "owner/repo" }),
+        },
+        {
+          env: {
+            NODE_ENV: "test",
+            APP_ORIGIN: "https://app.example",
+            GITHUB_APP_CLIENT_ID: "test",
+            GITHUB_APP_CLIENT_SECRET: "test",
+            GITHUB_CALLBACK_URL: "https://app.example/api/github/callback",
+            GITHUB_TOKEN_ENCRYPTION_KEY: key,
+          },
+          authenticate: async () => ({ id: "owner" }),
+          adminClient: {
+            from: () => ({
+              select: () => ({
+                eq: () => ({
+                  maybeSingle: async () => ({
+                    data: {
+                      encrypted_token: seal({ token: "synthetic" }, key),
+                    },
+                  }),
+                }),
+              }),
+            }),
+          },
+          fetcher: async (url: string) => {
+            if (scenario === "provider failure")
+              throw Error("secret provider detail");
+            if (url.includes("/git/blobs/")) {
+              blobs++;
+              throw Error("Must reject before downloading");
+            }
+            if (url.includes("/git/trees/"))
+              return Response.json({
+                truncated: scenario === "truncated",
+                tree: [
+                  {
+                    type: "blob",
+                    mode: "100644",
+                    path: "large.ts",
+                    size: 128 * 1024 + 1,
+                    sha: "blob",
+                  },
+                ],
+              });
+            if (url.includes("/commits/"))
+              return Response.json({ sha: "commit" });
+            return Response.json({ default_branch: "main" });
+          },
+        },
+      );
+      expect(response.status).toBe(scenario === "provider failure" ? 502 : 413);
+      const body = await response.json();
+      expect(body.error).toContain(
+        scenario === "provider failure"
+          ? "Service request failed"
+          : "smaller source folder or ZIP",
+      );
+      expect(JSON.stringify(body)).not.toContain("secret provider detail");
+      expect(blobs).toBe(0);
+    },
+  );
   it("rejects administrator access from ordinary users even with spoofed user metadata", async () => {
     const token =
       "x." +
