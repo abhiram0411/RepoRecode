@@ -6,6 +6,7 @@
   "outputDirectory": "dist",
   "git": { "deploymentEnabled": false },
   "rewrites": [
+    { "source": "/admin", "destination": "/index.html" },
     { "source": "/api/:path*", "destination": "/api/index?route=:path*" }
   ],
   "functions": {
