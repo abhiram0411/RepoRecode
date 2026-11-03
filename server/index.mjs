@@ -4,7 +4,11 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { persistentAlerts } from "./alerts.mjs";
-import { createGithubIntegration, GithubImportLimitError } from "./github.mjs";
+import {
+  createGithubIntegration,
+  GithubImportLimitError,
+  GithubConnectionRequiredError,
+} from "./github.mjs";
 import { createGithubStore } from "./githubStore.mjs";
 import { createCommunity } from "./community.mjs";
 import { readJsonBody } from "./requestBody.mjs";
@@ -307,6 +311,8 @@ export function createGatewayHandler({
       }
       return send(404, { error: "Not found" });
     } catch (e) {
+      if (e instanceof GithubConnectionRequiredError)
+        return send(409, { error: e.message });
       if (e instanceof GithubImportLimitError)
         return send(413, { error: e.message });
       send(502, {

@@ -6,6 +6,13 @@ import {
   createDecipheriv,
 } from "node:crypto";
 import { allowed, LIMITS, validateFiles } from "../src/core/import.ts";
+export class GithubConnectionRequiredError extends Error {
+  constructor() {
+    super(
+      "Connect your GitHub App account first, then load repositories again.",
+    );
+  }
+}
 export class GithubImportLimitError extends Error {
   constructor() {
     super(
@@ -148,7 +155,7 @@ export function createGithubIntegration({
   async function tokenFor(userId) {
     for (let attempt = 0; attempt < 20; attempt++) {
       const encrypted = await db.get(userId);
-      if (!encrypted) throw Error("Connect your GitHub App account first.");
+      if (!encrypted) throw new GithubConnectionRequiredError();
       const data = unseal(encrypted, key);
       if (!data.expiresAt || data.expiresAt > now() + 60000) return data.token;
       if (

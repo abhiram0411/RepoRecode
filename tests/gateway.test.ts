@@ -23,6 +23,56 @@ async function request(
   }
 }
 describe("gateway boundaries", () => {
+  it.each(["repositories", "import"])(
+    "asks disconnected users to connect before GitHub %s without calling GitHub",
+    async (operation) => {
+      let providerCalls = 0;
+      const response = await request(
+        `/api/github/${operation}`,
+        {
+          method: operation === "import" ? "POST" : "GET",
+          headers: {
+            origin: "https://app.example",
+            authorization: "Bearer test",
+            "Content-Type": "application/json",
+          },
+          ...(operation === "import"
+            ? { body: JSON.stringify({ repository: "owner/repo" }) }
+            : {}),
+        },
+        {
+          env: {
+            NODE_ENV: "test",
+            APP_ORIGIN: "https://app.example",
+            GITHUB_APP_CLIENT_ID: "test",
+            GITHUB_APP_CLIENT_SECRET: "test",
+            GITHUB_CALLBACK_URL: "https://app.example/api/github/callback",
+            GITHUB_TOKEN_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64"),
+          },
+          authenticate: async () => ({ id: "owner" }),
+          adminClient: {
+            from: () => ({
+              select: () => ({
+                eq: () => ({
+                  maybeSingle: async () => ({ data: null, error: null }),
+                }),
+              }),
+            }),
+          },
+          fetcher: async () => {
+            providerCalls++;
+            throw Error("Must not call GitHub without a connection");
+          },
+        },
+      );
+      expect(response.status).toBe(409);
+      expect(await response.json()).toEqual({
+        error:
+          "Connect your GitHub App account first, then load repositories again.",
+      });
+      expect(providerCalls).toBe(0);
+    },
+  );
   it.each(["oversized", "truncated", "provider failure"])(
     "reports bounded GitHub import failures without exposing provider data: %s",
     async (scenario) => {
