@@ -61,6 +61,7 @@ import AccountPanel from "./components/AccountPanel";
 import AdminPanel from "./components/AdminPanel";
 import GithubRepositories from "./components/GithubRepositories";
 import LinkedFolder from "./components/LinkedFolder";
+import SpotlightCard from "./components/SpotlightCard";
 import ConceptQuiz from "./components/ConceptQuiz";
 import { exportProgress, mergeProgress } from "./core/progress";
 import { planProjectRestore } from "./core/restorePlan";
@@ -85,6 +86,12 @@ import { AnalysisSession } from "./core/analysisSession";
 import { functionStub, parameterText } from "./core/functionStub";
 import { ANALYSIS_VERSION } from "./core/analysisVersion";
 import { selectAnalysisSeed } from "./core/analysisSeed";
+import {
+  featureMissions,
+  featureMissionIds,
+  isFeatureMission,
+  type FeatureMission,
+} from "./core/featureMissions";
 const CodeEditor = lazy(() => import("./components/CodeEditor"));
 const Graph = lazy(() => import("./components/Graph"));
 const LivePreview = lazy(() => import("./components/LivePreview"));
@@ -108,6 +115,8 @@ export default function App() {
     [exerciseMode, setExerciseMode] = useState<
       "rewrite" | "debug" | "refactor" | "completion" | "feature" | "build"
     >("rewrite"),
+    [featureMission, setFeatureMission] =
+      useState<FeatureMission>("double-output"),
     [code, setCode] = useState(""),
     [result, setResult] = useState<Evaluation>(),
     [left, setLeft] = useState<"flow" | "source" | "preview">("flow"),
@@ -150,7 +159,13 @@ export default function App() {
   const evaluationKey = useRef("");
   const analysisSession = useRef<AnalysisSession | null>(null);
   useEffect(() => () => analysisSession.current?.dispose(), []);
-  evaluationKey.current = `${active}:${selected}:${exerciseMode}:${code}`;
+  evaluationKey.current = JSON.stringify([
+    active,
+    selected,
+    exerciseMode,
+    featureMission,
+    code,
+  ]);
   const xp = projects.reduce((n, p) => n + p.completed.length * 100, 0),
     level = Math.floor(xp / 500) + 1;
   const folder = useRef<HTMLInputElement>(null),
@@ -340,7 +355,7 @@ export default function App() {
           code,
           feature:
             exerciseMode === "feature" || exerciseMode === "build"
-              ? "double-output"
+              ? featureMission
               : undefined,
         },
         25000,
@@ -374,7 +389,7 @@ export default function App() {
         drafts: { ...project.drafts, [symbol.id]: code },
         missions:
           mission && r.passed
-            ? { ...project.missions, [symbol.id + ":double-output"]: true }
+            ? { ...project.missions, [symbol.id + ":" + featureMission]: true }
             : project.missions,
         attempts: mission
           ? project.attempts
@@ -771,7 +786,10 @@ export default function App() {
               </section>
               <div className="project-grid">
                 {projects.map((p) => (
-                  <article className="project-card" key={p.id}>
+                  <SpotlightCard
+                    key={p.id}
+                    enabled={prefs.motion && !reducedMotion}
+                  >
                     <div className="card-top">
                       <span className="folder-icon">
                         <FolderOpen size={24} />
@@ -814,7 +832,7 @@ export default function App() {
                       Continue learning
                       <ArrowRight size={17} />
                     </button>
-                  </article>
+                  </SpotlightCard>
                 ))}
                 <button className="import-card" onClick={showImport}>
                   <span className="import-plus">
@@ -1298,6 +1316,27 @@ export default function App() {
                                     Refactor
                                   </button>
                                 </div>
+                                <label>
+                                  Feature mission
+                                  <select
+                                    value={featureMission}
+                                    onChange={(event) => {
+                                      if (isFeatureMission(event.target.value))
+                                        setFeatureMission(event.target.value);
+                                    }}
+                                  >
+                                    {featureMissionIds.map((id) => (
+                                      <option key={id} value={id}>
+                                        {featureMissions[id].label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <p className="muted">
+                                  Choose a mission that matches this function’s
+                                  output. Checks will report unsupported output
+                                  types.
+                                </p>
                                 <div className="button-row">
                                   <button
                                     className="secondary"
@@ -1375,7 +1414,7 @@ export default function App() {
                             <p>
                               {exerciseMode === "feature" ||
                               exerciseMode === "build"
-                                ? "New requirement: return exactly twice the original function’s numeric output for the same inputs. Keep its name and parameters. This mission supports finite numeric returns; checks use the original reference output multiplied by two."
+                                ? `New requirement: ${featureMissions[featureMission].requirement} Checks use finite reference-derived probes; exception behavior is not graded.`
                                 : symbol.kind === "component"
                                   ? "Preserve the component name and initial rendered DOM. Supported checks use up to six primitive-prop samples; they do not grade event behavior or later state."
                                   : "Preserve the function’s behavior and name."}{" "}
@@ -2017,7 +2056,15 @@ export default function App() {
                 </button>
               </form>
             </label>
-            <GithubRepositories onImport={importFiles} />
+            <GithubRepositories
+              onImport={async (...args) => {
+                try {
+                  await importFiles(...args);
+                } finally {
+                  setBusy("");
+                }
+              }}
+            />
             <div className="import-divider">OR IMPORT FROM YOUR DEVICE</div>
             <div className="import-options">
               <button

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Project } from "./types";
 import { sourceHash } from "./curriculum";
+import { isMissionKey } from "./featureMissions";
 
 const id = z.string().min(1).max(1000);
 const flags = z
@@ -102,7 +103,7 @@ export async function mergeProgress(
       [...ids].some((id) => key.startsWith(id + ":")),
     ),
     missions: mergeFlags(project.missions, data.missions, (key) =>
-      [...ids].some((id) => key === id + ":double-output"),
+      isMissionKey(key, ids),
     ),
   };
 }

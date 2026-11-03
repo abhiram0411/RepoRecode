@@ -2,6 +2,14 @@
 
 Direct and transitive package licenses reported by the checked-in npm lockfile. Package distributions contain authoritative notices. RepoRecode original artwork is MIT; Google Fonts retain their respective font licenses.
 
+## Adapted source components
+
+`src/components/SpotlightCard.tsx` adapts the pointer-relative spotlight pattern from [React Bits SpotlightCard](https://github.com/DavidHDev/react-bits/blob/main/src/ts-default/Components/SpotlightCard/SpotlightCard.tsx), copyright (c) 2026 David Haz. Its upstream MIT + Commons Clause notice is preserved in [docs/licenses/react-bits.md](docs/licenses/react-bits.md), fetched 2 November 2026 (SHA-256 `4bdd1fa59a6b7d5954bc3b213dbc34e455c635a94bbcecf9293553797d0fad02`). This dependency is not represented as unrestricted MIT. The source is included as part of the RepoRecode application, not a standalone component collection.
+
+The adaptation removes animation loops, ambient motion, global listeners, proximity tracking, textures and external dependencies. It uses the app palette and disables decorative tracking for reduced motion, disabled app motion and non-mouse pointers. Keyboard focus keeps the regular visible focus indication. RepoRecode original code remains under its existing MIT license.
+
+## Package licenses
+
 | Package | Version | Reported license |
 | --- | --- | --- |
 | @axe-core/playwright | 4.13.0 | MPL-2.0 |

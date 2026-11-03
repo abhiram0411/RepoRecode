@@ -2,6 +2,11 @@ import ts from "typescript";
 import { getQuickJS } from "quickjs-emscripten";
 import type { Evaluation, SymbolInfo } from "./types";
 import { outputCodec } from "./outputCodec";
+import {
+  isFeatureMission,
+  missionOutput,
+  type FeatureMission,
+} from "./featureMissions";
 import { probes, inputExpression, normalizeFunction } from "./practiceInputs";
 export { probes } from "./practiceInputs";
 function compile(code: string, name: string, context = "") {
@@ -146,7 +151,7 @@ declare const Promise:{resolve():Promise<void>;resolve<T>(value:T|PromiseLike<T>
 export async function evaluate(
   s: SymbolInfo,
   code: string,
-  feature?: "double-output",
+  feature?: FeatureMission,
 ): Promise<Evaluation> {
   const out: Evaluation = {
     passed: false,
@@ -157,6 +162,11 @@ export async function evaluate(
       ? "Finite probes instantiate generic parameters at their declared scalar or small-object bounds; the original generic signature is type-checked. Extra subtype properties are not exhaustively sampled. Passing is not proof for every generic instantiation or production correctness."
       : "Bounded reference-derived probes check observed behavior, not full equivalence or production correctness.",
   };
+  if (feature !== undefined && !isFeatureMission(feature)) {
+    out.supported = false;
+    out.diagnostics = ["Unknown feature mission."];
+    return out;
+  }
   if (!s.standalone) {
     out.diagnostics = [s.reason ?? "Unsupported exercise."];
     return out;
@@ -285,29 +295,22 @@ export async function evaluate(
       rejectedReferenceInputs++;
       continue;
     }
-    if (feature === "double-output") {
-      const value = JSON.parse(expected.display);
-      if (
-        value.type !== "number" ||
-        typeof value.value !== "number" ||
-        !Number.isFinite(value.value * 2)
-      ) {
+    if (feature) {
+      try {
+        const transformed = missionOutput(
+          feature,
+          JSON.parse(expected.display),
+        );
+        changed ||= transformed.key !== expected.key;
+        expected = transformed;
+      } catch (error) {
         out.supported = false;
         out.diagnostics = [
-          "This mission requires finite numeric outputs on every reference probe.",
+          error instanceof Error ? error.message : String(error),
         ];
         out.cases = [];
         return out;
       }
-      const transformed = JSON.stringify({
-        value: value.value * 2,
-        type: "number",
-      });
-      changed ||= transformed !== expected.display;
-      expected = {
-        display: transformed,
-        key: JSON.stringify(["number", String(value.value * 2)]),
-      };
     }
     let actual: string;
     let matches = false;

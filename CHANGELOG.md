@@ -1,5 +1,13 @@
 # Changelog
 
+## 2 November 2026 — local learning and overview improvements
+
+- Recover workspace import controls after GitHub App imports, including duplicate snapshots and processing failures.
+- Add uppercase-string and reversed-boolean feature missions alongside numeric doubling, with strict reference output checks and separate saved mission progress.
+- Preserve all three known mission IDs through backup and progress merging while rejecting unknown exercise IDs.
+- Add a small overview-only React Bits spotlight adaptation with motion/accessibility safeguards and its original license notice.
+- This batch is not published or deployed. See docs/RELEASE_STATUS.md for the review-capacity blocker and verification receipts.
+
 ## 30 October 2026 — local Docker storage acceptance
 
 - Added an isolated gateway volume check covering container replacement, private file permissions, durable activity revocation, read-only storage, damaged JSON and synthetic snapshot recovery.

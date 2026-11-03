@@ -4,6 +4,7 @@ import { validateFiles } from "./import";
 import { analyze } from "./analyze";
 import { roadmap } from "./lessons";
 import { ANALYSIS_VERSION } from "./analysisVersion";
+import { isMissionKey } from "./featureMissions";
 const backupSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(200),
@@ -72,7 +73,7 @@ export function restoreBackup(raw: unknown, prefs: Preferences): Project {
     ),
     missions: Object.fromEntries(
       Object.entries(data.missions ?? {}).filter(([id]) =>
-        analysis.symbols.some((s) => id === s.id + ":double-output"),
+        isMissionKey(id, ids),
       ),
     ),
     predictions: Object.fromEntries(

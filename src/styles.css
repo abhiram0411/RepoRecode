@@ -908,6 +908,31 @@ main {
   margin-bottom: 9px;
   overflow-wrap: anywhere;
 }
+.spotlight-card {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(240px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), color-mix(in srgb, var(--accent) 12%, transparent), transparent 75%);
+  transition: opacity 180ms ease;
+}
+.spotlight-card[data-spotlight-enabled="true"][data-spotlight-active="true"]::before {
+  opacity: 1;
+}
+.spotlight-card:focus-within {
+  border-color: var(--accent);
+}
+@media (prefers-reduced-motion: reduce), (hover: none) {
+  .spotlight-card::before { display: none; transition: none; }
+}
+:root[data-motion="false"] .spotlight-card::before { display: none; transition: none; }
 .project-card > p {
   font-size: 10px;
   color: var(--muted);
